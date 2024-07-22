@@ -1,8 +1,8 @@
 {
-  "name": "@adobe/aem-boilerplate",
+  "name": "@normal-icecream/site",
   "private": true,
-  "version": "1.3.0",
-  "description": "Starter project for Adobe Helix",
+  "version": "0.0.0",
+  "description": "Test environment for Normal Ice Cream",
   "scripts": {
     "lint:js": "eslint .",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
@@ -10,22 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adobe/aem-boilerplate.git"
+    "url": "git+https://github.com/normal-icecream/site.git"
   },
-  "author": "Adobe",
-  "license": "Apache License 2.0",
+  "author": "@normal-icecream",
   "bugs": {
-    "url": "https://github.com/adobe/aem-boilerplate/issues"
+    "url": "https://github.com/normal-icecream/site/issues"
   },
-  "homepage": "https://github.com/adobe/aem-boilerplate#readme",
+  "homepage": "https://main--site--normal-icecream.hlx.live/",
   "devDependencies": {
-    "@babel/core": "7.23.7",
-    "@babel/eslint-parser": "7.23.3",
-    "chai": "5.0.0",
-    "eslint": "8.56.0",
+    "@babel/eslint-parser": "7.24.7",
+    "eslint": "8.57.0",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-plugin-import": "2.29.1",
-    "stylelint": "16.1.0",
+    "stylelint": "16.6.1",
     "stylelint-config-standard": "36.0.0"
   }
 }

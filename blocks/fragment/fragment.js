@@ -4,13 +4,8 @@
  * https://www.aem.live/developer/block-collection/fragment
  */
 
-import {
-  decorateMain,
-} from '../../scripts/scripts.js';
-
-import {
-  loadBlocks,
-} from '../../scripts/aem.js';
+import { decorateMain } from '../../scripts/scripts.js';
+import { loadBlocks } from '../../scripts/aem.js';
 
 /**
  * Loads a fragment.
