@@ -41,7 +41,7 @@ footer section .default-content-wrapper {
     grid-template:
       'brand contact' auto
       'legal legal' 1fr / 1fr 1fr;
-    gap: 0 33vw;
+    gap: 0 min(33vw, 450px);
   }
 
   footer section .default-content-wrapper {
