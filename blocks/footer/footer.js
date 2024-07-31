@@ -18,7 +18,7 @@ export default async function decorate(block) {
   footer.id = 'footer';
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
 
-  const classes = ['copyright', 'legal'];
+  const classes = ['brand', 'contact', 'legal'];
   classes.forEach((c, i) => {
     const section = footer.children[i];
     if (section) {
@@ -26,6 +26,29 @@ export default async function decorate(block) {
       section.classList.add(`footer-${c}`);
     }
   });
+
+  // decorate contact
+  const contact = footer.querySelector('.footer-contact');
+  if (contact) {
+    const buttons = contact.querySelectorAll('a.button');
+    buttons.forEach((btn) => {
+      btn.removeAttribute('class');
+      btn.closest('p').removeAttribute('class');
+    });
+    const ul = contact.querySelector('ul');
+    ul.className = 'button-wrapper';
+    ul.querySelectorAll('a[href]').forEach((a) => {
+      a.className = 'button outline';
+    });
+  }
+
+  // decorate legal
+  const legal = footer.querySelector('.footer-legal');
+  if (legal) {
+    const endYear = legal.querySelector('u');
+    const now = new Date().getFullYear() % 100;
+    endYear.textContent = now;
+  }
 
   block.append(footer);
   swapIcons(block);

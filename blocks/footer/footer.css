@@ -1,11 +1,12 @@
 footer {
-  padding: var(--spacing-m) var(--horizontal-spacing);
-  font-size: var(--body-size-m);
-  color: var(--gray-700);
+  padding: var(--spacing-m) var(--horizontal-spacing) 38.25px;
+  font-size: var(--body-size-xs);
+  background-color: var(--blue-lightest);
+  text-align: center;
 }
 
-footer a:any-link {
-  color: currentcolor;
+footer .button-wrapper {
+  justify-content: center;
 }
 
 footer ul {
@@ -15,27 +16,105 @@ footer ul {
 }
 
 footer section {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1ch;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+footer section .default-content-wrapper {
+  width: 75%;
+  margin: auto;
+}
+
+@media (width >= 900px) {
+  footer {
+    text-align: unset;
+  }
+
+  footer .footer {
+    width: 75%;
+    max-width: 750px;
+    margin: auto;
+  }
+
+  footer section {
+    display: grid;
+    grid-template:
+      'brand contact' auto
+      'legal legal' 1fr / 1fr 1fr;
+    gap: 0 33vw;
+  }
+
+  footer section .default-content-wrapper {
+    width: 100%;
+    margin: unset;
+  }
+}
+
+/* brand */
+footer .footer-brand p {
+  grid-area: brand;
+  font-size: larger;
+}
+
+@media (width >= 900px) {
+  footer .footer-brand > div > :first-child {
+    margin-top: 0;
+  }
+}
+
+/* contact */
+footer .footer-contact {
+  grid-area: contact;
+}
+
+footer .footer-contact ul {
+  margin-top: 38.25px;
+}
+
+footer .footer-contact ul a.button {
+  border-radius: 50%;
+  padding: 1em;
+  background-color: transparent;
+  line-height: 0;
+}
+
+@media (width >= 900px) {
+  footer .footer-contact {
+    text-align: right;
+  }
+
+  footer .footer-contact .button-wrapper {
+    justify-content: flex-end;
+  }
+
+  footer .footer-contact > div > :first-child {
+    margin-top: 16px;
+  }
+}
+
 /* legal */
+footer .footer-legal {
+  grid-area: legal;
+  margin-top: 38.25px;
+  border-top: 1px solid;
+  padding-top: 38.25px;
+}
+
+footer .footer-legal u {
+  text-decoration: none;
+}
+
+footer .footer-legal a:any-link {
+  text-decoration: underline;
+}
+
 footer .footer-legal ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1ch;
+  justify-content: center;
 }
 
 footer .footer-legal ul li:not(:last-of-type)::after {
-  content: '/';
-  margin-left: 1ch;
-}
-
-footer .footer-legal ul li a {
-  font-weight: var(--weight-medium);
+  content: '|';
+  margin: 0 1ch;
 }
