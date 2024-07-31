@@ -15,22 +15,29 @@
 @import url('typography.css');
 
 :root {
+  /* brand */
+  --white: #FFFCF3;
+  --blue: #0B21E3;
+  --blue-light: #828EFA;
+  --blue-lightest: #EFF1FB;
+  --primary: var(--blue);
+
   /* layers */
-  --layer-elevated: var(--gray-25);
+  --layer-elevated: var(--white);
   --layer-base: var(--layer-elevated);
   --layer-depth: var(--gray-50);
   --layer-pasteboard: var(--gray-100);
 
   /* colors */
   --color-background: var(--layer-base);
-  --color-text: var(--gray-800);
-  --color-link: var(--blue-900);
-  --color-link-hover: var(--blue-1000);
+  --color-text: var(--primary);
+  --color-link: var(--blue);
+  --color-link-hover: var(--blue-light);
 
   /* fonts */
-  --body-font-family: robotoflex, robotoflex-fallback, sans-serif;
+  --body-font-family: poppinsregular, poppinsregular-fallback, sans-serif;
   --heading-font-family: var(--body-font-family);
-  --code-font-family: robotomono, 'Courier New', monospace;
+  --code-font-family: monospace;
 
   /* spacing */
   --spacing-xxl: var(--spacing-600);
@@ -58,10 +65,10 @@
   }
 }
 
-/* fallback fonts */
+/* fallback font */
 @font-face {
-  font-family: robotoflex-fallback;
-  size-adjust: 97.389%;
+  font-family: poppinsregular;
+  size-adjust: 110.471%;
   src: local('Arial');
 }
 
@@ -77,7 +84,7 @@ body {
   font-family: var(--body-font-family);
   font-size: var(--body-size-l);
   line-height: var(--line-height-m);
-  background-color: var(--layer-depth);
+  background-color: var(--layer-base);
   color: var(--color-text);
 }
 
@@ -96,10 +103,6 @@ header {
 
 main {
   max-width: 1200px;
-  /* margin: 0 var(--horizontal-spacing); */
-  /* padding: var(--horizontal-spacing) 0; */
-  /* border-radius: var(--rounding-xl); */
-  /* background-color: var(--color-background); */
 }
 
 @media (width >= 900px) {
@@ -116,14 +119,15 @@ main {
 }
 
 /* sections */
-main > .section {
-  max-width: 1200px;
-  margin: var(--spacing-500) 0;
-}
-
 main > .section > div {
   margin: var(--horizontal-spacing) auto;
   padding: 0 var(--horizontal-spacing);
+}
+
+@media (width >= 900px) {
+  main > .section > div {
+    padding: 0;
+  }
 }
 
 main > .section:first-of-type {
@@ -324,7 +328,7 @@ a:focus {
 a.button,
 button.button {
   display: inline-block;
-  border: var(--border-m) solid var(--color-link);
+  border: var(--border-s) solid var(--color-link);
   border-radius: 1.15em;
   padding: 0.4em 1.15em;
   background-color: var(--color-link);

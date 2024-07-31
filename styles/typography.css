@@ -49,13 +49,13 @@
     --title-size-xs: var(--font-size-75);
 
   /* body sizes */
-  --body-size-xxxl: var(--font-size-600);
-   --body-size-xxl: var(--font-size-500);
-    --body-size-xl: var(--font-size-400);
-     --body-size-l: var(--font-size-300);
-     --body-size-m: var(--font-size-200);
-     --body-size-s: var(--font-size-100);
-    --body-size-xs: var(--font-size-75);
+  --body-size-xxxl: var(--font-size-500);
+   --body-size-xxl: var(--font-size-400);
+    --body-size-xl: var(--font-size-300);
+     --body-size-l: var(--font-size-200);
+     --body-size-m: var(--font-size-100);
+     --body-size-s: var(--font-size-75);
+    --body-size-xs: var(--font-size-50);
 
   /* detail sizes */
   --detail-size-xl: var(--font-size-300);
