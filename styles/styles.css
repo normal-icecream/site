@@ -21,6 +21,20 @@
   --blue-light: #828EFA;
   --blue-lightest: #EFF1FB;
   --primary: var(--blue);
+  --pale-pink: #E0CCD5;
+  --pale-orange: #E0D9CC;
+  --pale-yellow: #E0DFCC;
+  --pale-green: #D6E0CC;
+  --pale-blue: #CCD7E0;
+  --pale-purple: #D5CCE0;
+  --gradient: conic-gradient(
+    var(--pale-yellow), 
+    var(--pale-green),
+    var(--pale-blue), 
+    var(--pale-purple), 
+    var(--pale-pink),
+    var(--pale-orange), 
+    var(--pale-yellow));
 
   /* layers */
   --layer-elevated: var(--white);
@@ -96,6 +110,11 @@ body.appear {
 
 body[data-scroll='disabled'] {
   overflow-y: hidden;
+}
+
+body ::selection {
+  background-color: yellow;
+  color: var(--color-text);
 }
 
 header {
@@ -406,16 +425,16 @@ button.button.outline:disabled:focus {
 
 a.button.accent,
 button.button.accent {
-  border-color: var(--gray-100);
+  border-color: transparent;
   color: var(--color-text);
   background-color: var(--gray-100);
+  background: var(--gradient);
 }
 
 a.button.accent:hover,
 button.button.accent:hover,
 button.button.accent:focus {
-  border-color: var(--gray-200);
-  background-color: var(--gray-200);
+  color: var(--color-background);
 }
 
 a.button.ghost,
