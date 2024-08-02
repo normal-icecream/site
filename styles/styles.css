@@ -53,8 +53,10 @@
   --shadow-dragged: 0 3px 12px 0 var(--transparent-black-300);
 
   /* widths and heights */
-  --header-height: 72px;
+  --header-height: 78px;
+  --header-width: 140px;
   --horizontal-spacing: var(--spacing-l);
+  --site-width: 1200px;
 }
 
 @media (width >= 900px) {
@@ -102,19 +104,31 @@ header {
 }
 
 main {
-  max-width: 1200px;
+  margin-top: var(--header-height);
+  max-width: var(--site-width);
+}
+
+@media (width >= 900px) {
+  body {
+    max-width: var(--site-width);
+    margin: auto;
+    border-right: var(--border-m) solid;
+    padding-top: 0.1ch;
+    padding-left: var(--header-width);
+    min-height: 100dvh;
+  }
 }
 
 @media (width >= 900px) {
   main {
     max-width: calc(100% - (2 * var(--horizontal-spacing)));
-    margin: 0 auto;
+    margin: var(--header-height) auto 0;
   }
 }
 
 @media (width >= 1264px) {
   main {
-    max-width: 1200px;
+    max-width: var(--site-width);
   }
 }
 
@@ -130,24 +144,19 @@ main > .section > div {
   }
 }
 
-main > .section:first-of-type {
-  margin-top: 0;
-  border-top-left-radius: var(--rounding-xl);
-  border-top-right-radius: var(--rounding-xl);
-}
-
-main > .section:last-of-type {
-  border-bottom-left-radius: var(--rounding-xl);
-  border-bottom-right-radius: var(--rounding-xl);
+@media (width >= 1264px) {
+  main > .section > div {
+    padding: 0 var(--horizontal-spacing);
+  }
 }
 
 /* section metadata */
 main .section.light {
-  background-color: var(--light-color);
+  background-color: var(--gray-100);
 }
 
 main .section.dark {
-  background-color: var(--gray-400);
+  background-color: var(--gray-600);
 }
 
 /* images and icons */
@@ -168,6 +177,7 @@ img {
   height: 1em;
   fill: currentcolor;
   color: currentcolor;
+  transition: fill 0.2s;
 }
 
 i.symbol {
@@ -406,6 +416,21 @@ button.button.accent:hover,
 button.button.accent:focus {
   border-color: var(--gray-200);
   background-color: var(--gray-200);
+}
+
+a.button.ghost,
+button.ghost {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-text);
+}
+
+a.button.ghost:hover,
+button.button.ghost:hover,
+button.button.ghost:focus {
+  border-color: var(--color-link-hover);
+  background-color: var(--color-link-hover);
+  color: var(--color-background);
 }
 
 /* form elements */

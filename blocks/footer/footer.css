@@ -40,8 +40,8 @@ footer section .default-content-wrapper {
     display: grid;
     grid-template:
       'brand contact' auto
-      'legal legal' 1fr / 1fr 1fr;
-    gap: 0 min(33vw, 450px);
+      'legal legal' 1fr / min-content auto;
+    gap: 0 max(calc((750px - var(--header-width)) / 3), 200px);
   }
 
   footer section .default-content-wrapper {

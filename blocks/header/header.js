@@ -57,7 +57,7 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['title', 'sections', 'tools'];
+  const classes = ['title', 'sections', 'cart'];
   classes.forEach((c, i) => {
     const section = nav.children[i];
     if (section) {
@@ -73,7 +73,7 @@ export default async function decorate(block) {
     if (!a) {
       const content = title.querySelector('h1, h2, h3, h4, h5, h6, p');
       content.className = 'title-content';
-      if (content && content.textContent) {
+      if (content) {
         const link = document.createElement('a');
         link.href = '/';
         link.innerHTML = content.innerHTML;
@@ -117,6 +117,24 @@ export default async function decorate(block) {
       }
     });
     ul.replaceWith(wrapper);
+  }
+
+  // decorate cart
+  const cart = nav.querySelector('.nav-cart');
+  if (cart) {
+    // build button
+    const icon = cart.querySelector('.icon');
+    const wrapper = icon.closest('p');
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.className = 'button ghost';
+    button.innerHTML = icon.outerHTML;
+    wrapper.replaceWith(button);
+    // build total placeholder
+    const total = document.createElement('p');
+    total.id = 'nav-cart-total';
+    total.textContent = 0;
+    button.append(total);
   }
 
   // build mobile hamburger
