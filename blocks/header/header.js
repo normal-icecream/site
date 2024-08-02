@@ -76,6 +76,7 @@ export default async function decorate(block) {
       if (content) {
         const link = document.createElement('a');
         link.href = '/';
+        link.setAttribute('aria-label', 'home');
         link.innerHTML = content.innerHTML;
         content.innerHTML = link.outerHTML;
       }
