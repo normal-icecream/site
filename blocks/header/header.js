@@ -127,7 +127,6 @@ export default async function decorate(block) {
     const wrapper = icon.closest('p');
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
-    button.className = 'button ghost';
     button.innerHTML = icon.outerHTML;
     wrapper.replaceWith(button);
     // build total placeholder

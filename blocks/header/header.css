@@ -86,11 +86,12 @@ header .nav-title .title-content a {
   padding: var(--spacing-xs);
   background-color: transparent;
   line-height: 0;
-  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+  transition: background 0.1s, color 0.1s, transform 0.4s;
 }
 
 header .nav-title .title-content a:hover {
   background-color: var(--color-link-hover);
+  background: var(--gradient);
   color: var(--color-background);
   transform: rotate(13.5deg);
 }
@@ -132,6 +133,7 @@ header .nav-sections ul {
 header .nav-sections ul li {
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 header .nav-sections nav > ul > li > a,
@@ -142,7 +144,7 @@ header .nav-sections button + ul > li a {
   padding: 0.3em 0.75em;
   background-color: transparent;
   text-align: center;
-  transition: background-color 0.2s, color 0.2s;
+  transition: transform 0.1s;
   cursor: pointer;
 }
 
@@ -150,8 +152,18 @@ header .nav-sections nav ul li a:hover,
 header .nav-sections nav ul li a:focus,
 header .nav-sections button:hover,
 header .nav-sections button:focus {
-  background-color: var(--color-link-hover);
+  background-color: transparent;
   text-decoration: none;
+}
+
+header .nav-sections nav ul li:nth-child(odd) a:hover,
+header .nav-sections nav ul li:nth-child(odd) a:focus {
+  transform: scale(1.5) rotate(6.75deg);
+}
+
+header .nav-sections nav ul li:nth-child(even) a:hover,
+header .nav-sections nav ul li:nth-child(even) a:focus {
+  transform: scale(1.5) rotate(-6.75deg);
 }
 
 header .nav-sections button[aria-expanded='true'] {
@@ -183,7 +195,7 @@ header .nav-sections i.symbol-chevron {
   height: 1em;
   padding: 0.15em;
   background-color: transparent;
-  transition: transform 0.2s;
+  transition: transform 0.4s;
 }
 
 header .nav-sections [aria-expanded='true'] i.symbol-chevron {
@@ -222,6 +234,16 @@ header .nav-sections i.symbol-chevron::after {
   header .nav-sections button,
   header .nav-sections button + ul > li a {
     padding: 0.75em;
+  }
+
+  header .nav-sections nav ul li:nth-child(odd) a:hover,
+  header .nav-sections nav ul li:nth-child(odd) a:focus {
+    transform: scale(1.2) rotate(6.75deg);
+  }
+
+  header .nav-sections nav ul li:nth-child(even) a:hover,
+  header .nav-sections nav ul li:nth-child(even) a:focus {
+    transform: scale(1.2) rotate(-6.75deg);
   }
 
   header .nav-sections .subsection {
@@ -267,12 +289,20 @@ header .nav-cart {
   line-height: 0;
 }
 
-header .nav-cart .button {
+header .nav-cart button {
   box-sizing: content-box;
   position: relative;
   border-radius: 50%;
   padding: var(--spacing-xs);
+  color: var(--color-text);
   cursor: pointer;
+  transition: background 0.1s;
+}
+
+header .nav-cart button:hover,
+header .nav-cart button:focus {
+  background-color: var(--color-link-hover);
+  background: var(--gradient);
 }
 
 header .nav-cart .icon svg,
@@ -298,13 +328,13 @@ header .nav-cart #nav-cart-total {
   font-size: var(--detail-size-s);
   font-weight: bold;
   text-align: center;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background 0.1s;
   z-index: 1;
 }
 
-header .nav-cart .button:hover #nav-cart-total {
+header .nav-cart button:hover #nav-cart-total {
   background-color: var(--color-link-hover);
-  color: var(--color-background);
+  background: var(--gradient);
 }
 
 @media (width >= 900px) {
@@ -337,14 +367,14 @@ header .nav-hamburger button {
   padding: 0.4em;
   background-color: transparent;
   color: var(--color-link);
-  transition: background-color 0.2s;
+  transition: background 0.1s;
   cursor: pointer;
 }
 
 header .nav-hamburger button:hover,
 header .nav-hamburger button:focus {
   background-color: var(--color-link-hover);
-  color: var(--color-background);
+  background: var(--gradient);
 }
   
 header .nav-hamburger i.symbol-hamburger,
@@ -357,7 +387,7 @@ header .nav-hamburger i.symbol-hamburger::after {
 }
 
 header .nav-hamburger i.symbol-hamburger {
-  transition: background-color 0.2s;
+  transition: background-color 0.1s;
 }
 
 header .nav-hamburger i.symbol-hamburger::before,
