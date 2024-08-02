@@ -22,19 +22,22 @@
   --blue-lightest: #EFF1FB;
   --primary: var(--blue);
   --pale-pink: #E0CCD5;
-  --pale-orange: #E0D9CC;
+  --pale-orange: #E0D1CC;
   --pale-yellow: #E0DFCC;
   --pale-green: #D6E0CC;
+  --pale-teal: #CCE0DF;
   --pale-blue: #CCD7E0;
   --pale-purple: #D5CCE0;
   --gradient: conic-gradient(
-    var(--pale-yellow), 
-    var(--pale-green),
-    var(--pale-blue), 
-    var(--pale-purple), 
-    var(--pale-pink),
-    var(--pale-orange), 
-    var(--pale-yellow));
+    var(--pale-orange),
+    var(--pale-pink) 15%,
+    var(--pale-teal),
+    var(--pale-purple) 35%, 
+    var(--pale-blue) 56.25%,
+    var(--pale-teal),
+    var(--pale-green) 75%,
+    var(--pale-yellow) 81.25%, 
+    var(--pale-orange));
 
   /* layers */
   --layer-elevated: var(--white);
