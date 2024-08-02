@@ -331,10 +331,6 @@ header .nav-cart #nav-cart-total {
   z-index: 1;
 }
 
-header .nav-cart button:hover #nav-cart-total {
-  background-color: var(--blue-lightest);
-}
-
 @media (width >= 900px) {
   header .nav-cart {
     position: fixed;
