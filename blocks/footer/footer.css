@@ -83,6 +83,11 @@ footer .footer-contact ul a.button {
     text-align: right;
   }
 
+  footer .footer-contact a:not(.button) {
+    display: inline-block;
+    padding: 5px 0; /* to increase touch-target size to minimum 24px */
+  }
+
   footer .footer-contact .button-wrapper {
     justify-content: flex-end;
   }
