@@ -122,6 +122,16 @@ header {
   transition: height 0.2s, min-height 0.2s;
 }
 
+header .header,
+footer .footer {
+  visibility: hidden;
+}
+
+header .header[data-block-status='loaded'],
+footer .footer[data-block-status='loaded'] {
+  visibility: visible;
+}
+
 main {
   margin-top: var(--header-height);
   max-width: var(--site-width);
