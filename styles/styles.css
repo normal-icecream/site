@@ -17,9 +17,9 @@
 :root {
   /* brand */
   --white: #FFFCF3;
-  --blue: #0B21E3;
-  --blue-light: #828EFA;
-  --blue-lightest: #EFF1FB;
+  --blue: #0B21E0;
+  --blue-light: #9AA2ED;
+  --blue-lightest: #EDEFFA;
   --primary: var(--blue);
   --pale-pink: #E0CCD5;
   --pale-orange: #E0D1CC;
