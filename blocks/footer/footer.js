@@ -38,6 +38,9 @@ export default async function decorate(block) {
     const ul = contact.querySelector('ul');
     ul.className = 'button-wrapper';
     ul.querySelectorAll('a[href]').forEach((a) => {
+      const { host } = new URL(a.href);
+      const site = host.split('.')[1];
+      a.setAttribute('aria-label', site || 'social');
       a.className = 'button outline';
     });
   }
