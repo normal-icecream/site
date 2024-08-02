@@ -122,12 +122,16 @@ header {
   transition: height 0.2s, min-height 0.2s;
 }
 
+header,
 header .header,
+footer,
 footer .footer {
   visibility: hidden;
 }
 
+header.appear,
 header .header[data-block-status='loaded'],
+footer.appear,
 footer .footer[data-block-status='loaded'] {
   visibility: visible;
 }

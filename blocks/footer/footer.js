@@ -54,5 +54,7 @@ export default async function decorate(block) {
   }
 
   block.append(footer);
+  block.parentElement.className = 'appear';
+
   swapIcons(block);
 }
