@@ -149,17 +149,20 @@ main {
   body {
     max-width: var(--site-width);
     margin: auto;
-    border-right: var(--border-m) solid;
     padding-top: 0.1ch;
     padding-left: var(--header-width);
     min-height: 100dvh;
   }
-}
 
-@media (width >= 900px) {
   main {
     max-width: calc(100% - (2 * var(--horizontal-spacing)));
     margin: var(--header-height) auto 0;
+  }
+}
+
+@media (width >= 1200px) {
+  body {
+    border-right: var(--border-m) solid;
   }
 }
 
@@ -445,7 +448,6 @@ a.button.accent,
 button.button.accent {
   border-color: transparent;
   color: var(--color-text);
-  background-color: var(--gray-100);
   background: var(--gradient);
 }
 

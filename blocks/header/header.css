@@ -23,8 +23,7 @@ header section {
   grid-template:
     'title hamburger cart' auto
     'sections sections sections' 1fr / 1fr 1fr 1fr;
-  align-items: center;
-  justify-items: center;
+  place-items: center;
   gap: 0 var(--horizontal-spacing);
   max-width: var(--site-width);
   height: 0;
@@ -90,7 +89,6 @@ header .nav-title .title-content a {
 }
 
 header .nav-title .title-content a:hover {
-  background-color: var(--color-link-hover);
   background: var(--gradient);
   color: var(--color-background);
   transform: rotate(13.5deg);
@@ -221,8 +219,7 @@ header .nav-sections i.symbol-chevron::after {
   header .nav-sections {
     align-self: center;
     max-height: calc(100dvh - (64px + (4 * var(--spacing-xs)) + var(--horizontal-spacing)));
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
   }
 
   header .nav-sections nav ul {
