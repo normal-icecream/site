@@ -53,7 +53,7 @@
 
   /* fonts */
   --body-font-family: poppinsregular, poppinsregular-fallback, sans-serif;
-  --heading-font-family: var(--body-font-family);
+  --heading-font-family: acuminextracondensedbold, acumin-fallback, sans-serif;
   --code-font-family: monospace;
 
   /* spacing */
@@ -84,10 +84,16 @@
   }
 }
 
-/* fallback font */
+/* fallback fonts */
 @font-face {
-  font-family: poppinsregular;
+  font-family: poppinsregular-fallback;
   size-adjust: 110.471%;
+  src: local('Arial');
+}
+
+@font-face {
+  font-family: acuminextracondensedbold-fallback;
+  size-adjust: 65.478%;
   src: local('Arial');
 }
 
