@@ -155,7 +155,6 @@ main {
 
 @media (width >= 900px) {
   body {
-    /* KATIE - I'm not 100 that this is the best way to add some spacing for the main page content. Feedback please :) */
     padding-top: 3ch;
     min-height: 100dvh;
   }
