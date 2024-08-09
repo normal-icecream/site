@@ -151,33 +151,17 @@ footer .footer[data-block-status='loaded'] {
 
 main {
   margin-top: var(--header-height);
-  max-width: var(--site-width);
 }
 
 @media (width >= 900px) {
   body {
-    max-width: var(--site-width);
-    margin: auto;
-    padding-top: 0.1ch;
-    padding-left: var(--header-width);
+    /* KATIE - I'm not 100 that this is the best way to add some spacing for the main page content. Feedback please :) */
+    padding-top: 3ch;
     min-height: 100dvh;
   }
 
   main {
-    max-width: calc(100% - (2 * var(--horizontal-spacing)));
     margin: var(--header-height) auto 0;
-  }
-}
-
-@media (width >= 1200px) {
-  body {
-    border-right: var(--border-m) solid;
-  }
-}
-
-@media (width >= 1264px) {
-  main {
-    max-width: var(--site-width);
   }
 }
 
@@ -185,18 +169,6 @@ main {
 main > .section > div {
   margin: var(--horizontal-spacing) auto;
   padding: 0 var(--horizontal-spacing);
-}
-
-@media (width >= 900px) {
-  main > .section > div {
-    padding: 0;
-  }
-}
-
-@media (width >= 1264px) {
-  main > .section > div {
-    padding: 0 var(--horizontal-spacing);
-  }
 }
 
 /* section metadata */
