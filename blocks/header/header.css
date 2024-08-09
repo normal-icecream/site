@@ -6,6 +6,7 @@ header {
   padding: var(--spacing-xs);
   background-color: var(--color-background);
   overflow-y: hidden;
+  z-index: 1;
 }
 
 header a:any-link {
@@ -48,15 +49,13 @@ header section > [aria-hidden='true'] {
   header {
     border-bottom: var(--border-m) solid;
   }
-
+  
   header section[data-expanded='true'] {
     grid-template: 
       'title sections cart' auto 1fr auto;
     display: flex;
-  }
-
-  header section[data-expanded='true'] {
     height: var(--header-height);
+    transition: none;
   }
 }
 
