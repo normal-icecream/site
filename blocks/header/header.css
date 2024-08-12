@@ -6,6 +6,12 @@ header {
   padding: var(--spacing-xs);
   background-color: var(--color-background);
   overflow-y: hidden;
+  z-index: 1;
+}
+
+header .header {
+  max-width: var(--site-width);
+  margin: auto;
 }
 
 header a:any-link {
@@ -25,7 +31,6 @@ header section {
     'sections sections sections' 1fr / 1fr 1fr 1fr;
   place-items: center;
   gap: 0 var(--horizontal-spacing);
-  max-width: var(--site-width);
   height: 0;
   margin: 0 auto;
   transition: height 0.6s;
@@ -47,23 +52,12 @@ header section > [aria-hidden='true'] {
 
 @media (width >= 900px) {
   header {
-    bottom: 0;
-    width: var(--header-width);
-    border-right: var(--border-m) solid;
-    padding: 0;
+    border-bottom: var(--border-m) solid;
   }
-
+  
   header section[data-expanded='true'] {
-    grid-template:
-      'title' auto
-      'sections' 1fr / 100%;
-  }
-}
-
-@media (width >= 1200px) {
-  header {
-    border-left: var(--border-m) solid;
-    left: calc(50vw - (var(--site-width) / 2));
+    grid-template: 'title sections cart' auto / min-content 1fr min-content;
+    height: auto;
   }
 }
 
@@ -94,17 +88,6 @@ header .nav-title .title-content a:hover {
   transform: rotate(13.5deg);
 }
 
-@media (width >= 900px) {
-  header .nav-title {
-    justify-self: unset;
-    padding: var(--spacing-xs) 0.75em;
-  }
-
-  header .nav-title .title-content {
-    font-size: 64px;
-  }
-}
-
 /* sections */
 header .nav-sections {
   grid-area: sections;
@@ -126,6 +109,7 @@ header .nav-sections ul {
   flex-grow: 1;
   height: 100%;
   font-size: var(--heading-size-xl);
+  font-family: var(--heading-font-family);
 }
 
 header .nav-sections ul li {
@@ -216,15 +200,11 @@ header .nav-sections i.symbol-chevron::after {
 }
 
 @media (width >= 900px) {
-  header .nav-sections {
-    align-self: center;
-    max-height: calc(100dvh - (64px + (4 * var(--spacing-xs)) + var(--horizontal-spacing)));
-    overflow: hidden auto;
-  }
-
   header .nav-sections nav ul {
-    gap: 0.3em;
-    font-size: var(--heading-size-s);
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    font-size: var(--heading-size-l);
   }
 
   header .nav-sections nav > ul > li > a,
@@ -326,20 +306,6 @@ header .nav-cart #nav-cart-total {
   text-align: center;
   transition: background-color 0.2s;
   z-index: 1;
-}
-
-@media (width >= 900px) {
-  header .nav-cart {
-    position: fixed;
-    top: var(--spacing-xs);
-    right: var(--spacing-xs);
-  }
-}
-
-@media (width >= 1200px) {
-  header .nav-cart {
-    right: calc((50vw + var(--spacing-xs)) - (var(--site-width) / 2));
-  }
 }
 
 /* hamburger */
