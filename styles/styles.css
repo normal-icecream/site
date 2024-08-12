@@ -73,13 +73,13 @@
   --header-height: 78px;
   --header-width: 140px;
   --horizontal-spacing: var(--spacing-l);
-  --site-width: 1200px;
+  --site-width: 1600px;
 }
 
 @media (width >= 900px) {
   :root {
     /* widths and heights */
-    --header-height: 68px;
+    --header-height: 80px;
     --horizontal-spacing: var(--spacing-xl);
   }
 }
@@ -150,17 +150,17 @@ footer .footer[data-block-status='loaded'] {
 }
 
 main {
-  margin-top: var(--header-height);
+  margin-top: calc(var(--header-height) + var(--horizontal-spacing));
+  max-width: var(--site-width);
 }
 
 @media (width >= 900px) {
   body {
-    padding-top: 3ch;
     min-height: 100dvh;
   }
 
   main {
-    margin: var(--header-height) auto 0;
+    margin: calc(var(--header-height) + var(--horizontal-spacing)) auto 0;
   }
 }
 

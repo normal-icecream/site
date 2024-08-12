@@ -9,6 +9,11 @@ header {
   z-index: 1;
 }
 
+header .header {
+  max-width: var(--site-width);
+  margin: auto;
+}
+
 header a:any-link {
   color: currentcolor;
 }
@@ -51,11 +56,8 @@ header section > [aria-hidden='true'] {
   }
   
   header section[data-expanded='true'] {
-    display: grid;
-    grid-template:
-    'title sections cart' auto;
-    height: var(--header-height);
-    transition: none;
+    grid-template: 'title sections cart' auto / min-content 1fr min-content;
+    height: auto;
   }
 }
 
@@ -197,18 +199,10 @@ header .nav-sections i.symbol-chevron::after {
 }
 
 @media (width >= 900px) {
-  header .nav-sections {
-    background-color: green;
-    /* display: flex;
-    width: 100%;
-    justify-content: space-between;
-    font-size: var(--heading-size-m); */
-  }
-
   header .nav-sections nav ul {
     display: flex;
     width: 100%;
-    justify-content: space-between;
+    justify-content: space-around;
     font-size: var(--heading-size-m);
   }
 
