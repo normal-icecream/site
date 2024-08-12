@@ -109,6 +109,7 @@ header .nav-sections ul {
   flex-grow: 1;
   height: 100%;
   font-size: var(--heading-size-xl);
+  font-family: var(--heading-font-family);
 }
 
 header .nav-sections ul li {
@@ -203,7 +204,8 @@ header .nav-sections i.symbol-chevron::after {
     display: flex;
     width: 100%;
     justify-content: space-around;
-    font-size: var(--heading-size-m);
+    font-size: var(--heading-size-l);
+    line-height: 0;
   }
 
   header .nav-sections nav > ul > li > a,
