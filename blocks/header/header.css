@@ -205,7 +205,6 @@ header .nav-sections i.symbol-chevron::after {
     width: 100%;
     justify-content: space-around;
     font-size: var(--heading-size-l);
-    line-height: 0;
   }
 
   header .nav-sections nav > ul > li > a,
