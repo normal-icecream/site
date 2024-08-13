@@ -5,6 +5,34 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(278px, 1fr));
   grid-gap: 16px;
+
+}
+
+.cards > ul > li {
+  display: flex;
+  border: 1px solid var(--blue-light);
+  border-radius: 6px;
+}
+
+.cards .cards-card-body {
+  margin: 0;
+}
+
+.cards .cards-card-image {
+  line-height: 0;
+}
+
+.cards .cards-card-body > *:first-child {
+  margin-top: 0;
+}
+
+/* .cards > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(278px, 1fr));
+  grid-gap: 16px;
 }
 
 .cards > ul > li {
@@ -28,4 +56,10 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-}
+} */
+
+.cards > ul > li img {
+  width: 100%;
+  /* aspect-ratio: 4 / 3; */
+  object-fit: cover;
+} 

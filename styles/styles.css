@@ -18,7 +18,7 @@
   /* brand */
   --white: #FFFCF3;
   --blue: #0B21E0;
-  --blue-light: #9AA2ED;
+  --blue-light: #C1C8FF;
   --blue-lightest: #EDEFFA;
   --primary: var(--blue);
   --pale-pink: #E0CCD5;
@@ -111,7 +111,7 @@ body {
   display: none;
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: var(--body-size-l);
+  font-size: var(--body-size-s);
   line-height: var(--line-height-m);
   background-color: var(--layer-base);
   color: var(--color-text);

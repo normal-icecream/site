@@ -16,3 +16,10 @@ export default function decorate(block) {
   block.textContent = '';
   block.append(ul);
 }
+
+// build add to cart button
+
+// build inc/dec items button
+
+// build see inside button
+
