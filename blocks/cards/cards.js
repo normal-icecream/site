@@ -53,6 +53,9 @@ export default function decorate(block) {
   block.append(ul);
 }
 
+// TODO - Need to fix issue with the long title and long text. 
+// TODO - Need to fix the on click button border thing
+
 {/* <ul>
   <li>
     <div class='cards-card-content'>
