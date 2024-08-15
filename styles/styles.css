@@ -111,7 +111,7 @@ body {
   display: none;
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: var(--body-size-s);
+  font-size: var(--body-size-m);
   line-height: var(--line-height-m);
   background-color: var(--layer-base);
   color: var(--color-text);
