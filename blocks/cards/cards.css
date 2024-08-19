@@ -14,22 +14,33 @@
 .cards .cards-card-content {
   border: 1px solid var(--blue-light);
   border-radius: 6px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  overflow: hidden;
   padding: 18px;
+  height: 180px;
+}
+
+.cards .cards-card-image {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .cards .cards-card-image img {
-  height: 140px; 
-  width: 110px;
-  object-fit: contain;
+  /* NOTE - I'm having issues with getting the images to size properly so for not it's just cutting off any images that are a little too tall. Need to fix. */
 }
 
 .cards .cards-card-body {
   margin: 0;
   padding-left: 18px;
+  overflow: hidden;
 }
 
 .cards .cards-card-body h4 {
+  margin: 0;
+  white-space: normal;
   margin-bottom: 0;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -47,9 +58,9 @@
   margin: 4px 0 0 0;
 }
 
-.cards .cards-card-body > *:first-child {
+/* .cards .cards-card-body > *:first-child {
   margin-top: 0;
-}
+} */
 
 .cards .cards-card-cart-update {
   display: flex;
@@ -58,7 +69,7 @@
   align-items: center;
 }
 
-.cards .cards-card-circle-button {
+.cards .cards-card-update-button button {
   height: 38px;
   width: 38px;
   background-color: var(--blue);
@@ -67,10 +78,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  color: var(--white);
 }
 
-.cards .cards-card-circle-button button {
-  color: var(--white);
+.cards .cards-card-update-button button:hover {
+  background-color: var(--blue-light);
+}
+
+.cards .cards-card-update-button button:focus {
+  outline: none;
 }
 
 .cards .cards-card-cart-item-count {

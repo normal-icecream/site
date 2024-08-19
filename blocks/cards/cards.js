@@ -22,7 +22,7 @@ export default function decorate(block) {
     cartUpdateWrapper.className = 'cards-card-cart-update';
 
     const decrementWrapper = document.createElement('div');
-    decrementWrapper.className = 'cards-card-circle-button';
+    decrementWrapper.className = 'cards-card-update-button';
     const decrementButton = document.createElement('button');
     decrementButton.setAttribute('type', 'button');
     decrementButton.innerHTML = '-'
@@ -37,7 +37,7 @@ export default function decorate(block) {
     cartUpdateWrapper.append(cartItemCount);
 
     const incrementWrapper = document.createElement('div');
-    incrementWrapper.className = 'cards-card-circle-button';
+    incrementWrapper.className = 'cards-card-update-button';
     const incrementButton = document.createElement('button');
     incrementButton.setAttribute('type', 'button');
     incrementButton.innerHTML = '+'
@@ -52,9 +52,6 @@ export default function decorate(block) {
   block.textContent = '';
   block.append(ul);
 }
-
-// TODO - Need to fix issue with the long title and long text. 
-// TODO - Need to fix the on click button border thing
 
 {/* <ul>
   <li>
