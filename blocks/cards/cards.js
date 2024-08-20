@@ -17,7 +17,7 @@ export default function decorate(block) {
 
     li.append(contentWrapper);
 
-    // Card Update
+    // decorate card cart actions
     const cartUpdateWrapper = document.createElement('div');
     cartUpdateWrapper.className = 'cards-card-cart-update';
 
@@ -48,7 +48,11 @@ export default function decorate(block) {
     li.append(cartUpdateWrapper);
     ul.append(li);
   });
-  ul.querySelectorAll('img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
+  const list = document.querySelector('.cards ul');
+  if(list) {
+    ul.querySelectorAll('img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
+  } 
+
   block.textContent = '';
   block.append(ul);
 }
