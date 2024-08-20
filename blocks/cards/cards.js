@@ -53,16 +53,3 @@ export default function decorate(block) {
   block.append(ul);
 }
 
-{/* <ul>
-  <li>
-    <div class='cards-card-content'>
-      <div class='cards-card-image'></div>
-      <div class='cards-card-body'></div>
-    </div>
-    <div class='cards-card-cart-update'>
-      <div class='cards-card-decrement-button'></div>
-      <div class='cards-card-itemcount'></div>
-      <div class='cards-card-increment-button'></div>
-    </div>
-  </li>
-</ul> */}

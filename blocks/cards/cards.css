@@ -40,13 +40,6 @@
 
 .cards .cards-card-body h4 {
   margin: 0;
-  white-space: normal;
-  margin-bottom: 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  text-overflow: ellipsis; 
 }
 
 .cards .cards-card-body p {
@@ -57,10 +50,6 @@
   text-overflow: ellipsis;
   margin: 4px 0 0 0;
 }
-
-/* .cards .cards-card-body > *:first-child {
-  margin-top: 0;
-} */
 
 .cards .cards-card-cart-update {
   display: flex;
