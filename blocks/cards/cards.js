@@ -5,7 +5,7 @@ export default function decorate(block) {
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
     const contentWrapper = document.createElement('div');
-    contentWrapper.className = 'cards-card-content'
+    contentWrapper.className = 'cards-card-content';
     const li = document.createElement('li');
 
     while (row.firstElementChild) contentWrapper.append(row.firstElementChild);
@@ -25,14 +25,14 @@ export default function decorate(block) {
     decrementWrapper.className = 'cards-card-update-button';
     const decrementButton = document.createElement('button');
     decrementButton.setAttribute('type', 'button');
-    decrementButton.innerHTML = '-'
+    decrementButton.innerHTML = '-';
     decrementButton.addEventListener('click', () => console.log('decrement clicked'));
-    decrementWrapper.append(decrementButton)
+    decrementWrapper.append(decrementButton);
     cartUpdateWrapper.append(decrementWrapper);
 
     const cartItemCount = document.createElement('div');
     cartItemCount.setAttribute('type', 'text');
-    cartItemCount.className = 'cards-card-cart-item-count'
+    cartItemCount.className = 'cards-card-cart-item-count';
     cartItemCount.innerHTML = '0'; // TODO - dynamically add item count
     cartUpdateWrapper.append(cartItemCount);
 
@@ -40,20 +40,19 @@ export default function decorate(block) {
     incrementWrapper.className = 'cards-card-update-button';
     const incrementButton = document.createElement('button');
     incrementButton.setAttribute('type', 'button');
-    incrementButton.innerHTML = '+'
+    incrementButton.innerHTML = '+';
     incrementButton.addEventListener('click', () => console.log('increment clicked'));
-    incrementWrapper.append(incrementButton)
+    incrementWrapper.append(incrementButton);
     cartUpdateWrapper.append(incrementWrapper);
 
     li.append(cartUpdateWrapper);
     ul.append(li);
   });
   const list = document.querySelector('.cards ul');
-  if(list) {
+  if (list) {
     ul.querySelectorAll('img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
-  } 
+  }
 
   block.textContent = '';
   block.append(ul);
 }
-
