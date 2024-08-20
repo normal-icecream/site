@@ -8,6 +8,8 @@ export default function decorate(block) {
     contentWrapper.className = 'cards-card-content';
     const li = document.createElement('li');
 
+    // running a test
+
     while (row.firstElementChild) contentWrapper.append(row.firstElementChild);
 
     [...contentWrapper.children].forEach((div) => {
