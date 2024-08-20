@@ -61,7 +61,7 @@
   -webkit-line-clamp: 4;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 4px 0 0 0;
+  margin: 4px 0 0;
 }
 
 .cards .cards-card-cart-update {
