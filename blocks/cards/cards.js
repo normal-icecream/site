@@ -28,7 +28,7 @@ export default function decorate(block) {
     const decrementButton = document.createElement('button');
     decrementButton.setAttribute('type', 'button');
     decrementButton.innerHTML = '-';
-    decrementButton.addEventListener('click', () => console.log('decrement clicked'));
+    // decrementButton.addEventListener('click', () => {console.log('decrement clicked')});
     decrementWrapper.append(decrementButton);
     cartUpdateWrapper.append(decrementWrapper);
 
@@ -43,7 +43,7 @@ export default function decorate(block) {
     const incrementButton = document.createElement('button');
     incrementButton.setAttribute('type', 'button');
     incrementButton.innerHTML = '+';
-    incrementButton.addEventListener('click', () => console.log('increment clicked'));
+    // incrementButton.addEventListener('click', () => console.log('increment clicked'));
     incrementWrapper.append(incrementButton);
     cartUpdateWrapper.append(incrementWrapper);
 
