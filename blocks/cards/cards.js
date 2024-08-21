@@ -52,16 +52,15 @@ export default function decorate(block) {
   });
   const lists = document.querySelectorAll('.cards ul');
   if (lists.length > 0) {
-    lists.forEach(ul => {
-      ul.querySelectorAll('img').forEach((img) => {
+    lists.forEach((list) => {
+      list.querySelectorAll('img').forEach((img) => {
         const picture = img.closest('picture');
 
         if (picture) {
-          img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]))
-        } 
-
+          img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+        }
       });
-    })
+    });
   }
 
   block.textContent = '';
