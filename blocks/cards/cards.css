@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   grid-gap: 16px;
 }
 
@@ -14,11 +14,9 @@
 .cards .cards-card-content {
   border: 1px solid var(--blue-light);
   border-radius: 6px;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
   overflow: hidden;
   padding: 18px;
-  height: 180px;
+  position: relative;
 }
 
 .cards .cards-card-image {
@@ -26,33 +24,41 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  height: 125px;
+  margin-bottom: 12px;
 }
 
 .cards .cards-card-image img {
-  /* NOTE - I'm having issues with getting the images to size properly so for not it's just cutting off any images that are a little too tall. Need to fix. */
+  height: 125px;
+  width: auto;
+  object-fit: contain;
 }
 
 .cards .cards-card-body {
   margin: 0;
-  padding-left: 18px;
+  height: 110px;
   overflow: hidden;
+}
+
+.cards .cards-card-body .img-wrapper {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.cards .cards-card-body .img-wrapper span svg {
+  height: 24px;
+  width: 24px;
 }
 
 .cards .cards-card-body h4 {
   margin: 0;
+  display: flex;
+  justify-content: space-between;
 }
 
-.cards .cards-card-body h4 span {
-  padding: 0 2px;
-}
-
-.cards .cards-card-body h4 span:first-child{
+.cards .cards-card-body .img-wrapper span:last-child{
   padding-left: 6px
-}
-
-.cards .cards-card-body h4 span svg {
-  height: 20px;
-  width: 20px;
 }
 
 .cards .cards-card-body p {
@@ -61,7 +67,12 @@
   -webkit-line-clamp: 4;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 4px 0 0;
+}
+
+/* PICK YOUR PACK STYLING */
+.cards .pick-your-pack {
+  display: flex;
+  background-color: blueviolet;
 }
 
 .cards .cards-card-cart-update {
