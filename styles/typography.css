@@ -27,6 +27,7 @@
   /* line heights */
   --line-height-l: 1.5;
   --line-height-m: 1.3;
+  --line-height-s: 1.1;
 
   /* heading sizes */
   --heading-size-xxxxl: var(--font-size-1600);

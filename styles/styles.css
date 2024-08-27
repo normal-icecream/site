@@ -18,7 +18,7 @@
   /* brand */
   --white: #FFFCF3;
   --blue: #0B21E0;
-  --blue-light: #9AA2ED;
+  --blue-light: #C1C8FF;
   --blue-lightest: #EDEFFA;
   --primary: var(--blue);
   --pale-pink: #E0CCD5;
@@ -52,7 +52,7 @@
   --color-link-hover: var(--blue-light);
 
   /* fonts */
-  --body-font-family: poppinsregular, poppinsregular-fallback, sans-serif;
+  --body-font-family: poppins, poppins-fallback, sans-serif;
   --heading-font-family: acuminextracondensedbold, acumin-fallback, sans-serif;
   --code-font-family: monospace;
 
@@ -86,7 +86,7 @@
 
 /* fallback fonts */
 @font-face {
-  font-family: poppinsregular-fallback;
+  font-family: poppins-fallback;
   size-adjust: 110.471%;
   src: local('Arial');
 }
@@ -111,7 +111,7 @@ body {
   display: none;
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: var(--body-size-l);
+  font-size: var(--body-size-m);
   line-height: var(--line-height-m);
   background-color: var(--layer-base);
   color: var(--color-text);
@@ -191,6 +191,10 @@ img {
   height: auto;
 }
 
+.icon {
+  line-height: 0;
+}
+
 .icon svg,
 .icon img {
   width: 1em;
@@ -212,6 +216,34 @@ i.symbol::before,
 i.symbol::after {
   content: '';
   position: absolute;
+}
+
+i.symbol.symbol-add,
+i.symbol.symbol-subtract {
+  width: 1rem;
+}
+
+i.symbol.symbol-add::before,
+i.symbol.symbol-subtract::before,
+i.symbol.symbol-add::after {
+  background-color: currentcolor;
+}
+
+i.symbol.symbol-add::before,
+i.symbol.symbol-subtract::before {
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  height: var(--border-m);
+}
+
+i.symbol.symbol-add::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--border-m);
 }
 
 i.symbol.symbol-loading {
@@ -249,7 +281,8 @@ h6 {
   scroll-margin: 1em;
   font-family: var(--heading-font-family);
   font-weight: var(--weight-extrabold);
-  line-height: var(--line-height-l);
+  line-height: var(--line-height-s);
+  text-transform: lowercase;
 }
 
 h1 {
@@ -359,7 +392,7 @@ a.button,
 button.button {
   display: inline-block;
   border: var(--border-s) solid var(--color-link);
-  border-radius: 1.15em;
+  border-radius: var(--rounding-m);
   padding: 0.4em 1.15em;
   background-color: var(--color-link);
   color: var(--color-background);
