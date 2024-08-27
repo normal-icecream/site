@@ -124,8 +124,9 @@
 }
 
 .cards form input {
-  appearance: none;
+  /* stylelint-disable-next-line property-no-vendor-prefix */
   -moz-appearance: textfield;
+  appearance: none;
   flex: 0 0 33%;
   border: 0;
   padding: 0.5ch 0 0 1.4ch;
