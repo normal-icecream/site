@@ -154,15 +154,14 @@
   font-weight: normal;
 }
 
-.cards.price .cards-card-body {
-  height: 80px;
-  max-height: 80px;
-}
-
-
 @media (width >= 600px) {
   .cards.price .cards-card {
     grid-template-columns: 1fr;
+  }
+
+  .cards.price .cards-card-body {
+    height: 80px;
+    max-height: 80px;
   }
 }
 
