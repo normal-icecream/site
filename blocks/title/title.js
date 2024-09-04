@@ -1,7 +1,6 @@
 export default function decorate(block) {
-    const variants = [...block.classList];
-    [...block.children].forEach((row) => {
-
+  const variants = [...block.classList];
+  [...block.children].forEach((row) => {
     // TODO - need to add counter to title, should be set up when doing Square integration
 
     // decorate price tag
@@ -13,8 +12,6 @@ export default function decorate(block) {
           p.className = 'title-price';
   
           const textContentLength = price.textContent.length;
-          console.log("textContentLength:", textContentLength);
-  
           const dollarAmount = price.textContent.match(/\$\d+/)[0];
           const remainingContent = price.textContent.replace(dollarAmount, '').trim();
           
