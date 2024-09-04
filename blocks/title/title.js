@@ -10,19 +10,19 @@ export default function decorate(block) {
         const p = price.closest('p');
         if (p.textContent === price.textContent) {
           p.className = 'title-price';
-  
+
           const textContentLength = price.textContent.length;
           const dollarAmount = price.textContent.match(/\$\d+/)[0];
           const remainingContent = price.textContent.replace(dollarAmount, '').trim();
-          
+
           const amountDiv = document.createElement('div');
           amountDiv.textContent = dollarAmount;
           amountDiv.className = 'title-price-amount';
-  
+
           const remainingContentDiv = document.createElement('div');
           remainingContentDiv.textContent = remainingContent;
           remainingContentDiv.className = textContentLength > 10 ? 'title-price-long-content' : 'title-price-content';
-  
+
           const strongElement = p.querySelector('strong');
           strongElement.replaceWith(amountDiv, remainingContentDiv);
         }
