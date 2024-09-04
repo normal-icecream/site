@@ -1,0 +1,86 @@
+.title {
+    /* The gradient here doesn't look great on desktop, better on mobile. Maybe we can create a slightly different one later */
+    background: var(--gradient);
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 26px;
+    border-top: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
+    position: relative;
+    margin-top: 100px;
+    margin-bottom: 40px;
+}
+
+.title h2 {
+    line-height: 1;
+    margin: 1px 0 0 0;
+    overflow-wrap: break-word;
+}
+
+.title .title-price {
+    background-image: url('../../icons/pricetag.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 125px;
+    width: 125px;
+    position: absolute;
+    top: -40%;
+    right: 10%;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.title .title-price-amount {
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-xl);
+    text-align: center;
+    line-height: 34px;
+    padding-top: 10px;
+}
+
+.title .title-price-content {
+    text-align: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-xs);
+    line-height: 24px;
+}
+
+.title .title-price-long-content {
+    text-align: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-xxs);
+    line-height: 24px;
+}
+
+@media (width >= 900px) {
+    .title {
+        width: 100%;
+        margin-left: 0;
+        border-left: 2px solid var(--blue);
+        border-right: 2px solid var(--blue);
+        border-radius: 4px;
+    }
+
+    .title .title-price {
+        right: 3%;
+        top: -50%;
+    }
+
+    .title .title-price-amount {
+        font-size: var(--heading-size-xxl);
+    }
+
+    .title .title-price-content {
+        font-size: var(--heading-size-s);
+    }
+
+    .title .title-price-long-content {
+        font-size: var(--heading-size-xs);
+        padding: 0 10px;
+        line-height: 20px;
+    }
+}
