@@ -21,7 +21,6 @@
   --blue-light: #C1C8FF;
   --blue-lightest: #EDEFFA;
   --primary: var(--blue);
-  --price-tag-blue: #DCFFFB;
   --pale-pink: #E0CCD5;
   --pale-orange: #E0D1CC;
   --pale-yellow: #E0DFCC;
@@ -39,15 +38,6 @@
     var(--pale-green) 75%,
     var(--pale-yellow) 81.25%, 
     var(--pale-orange));
-  --rainbow-gradient: conic-gradient(
-    #ffffdf 0%,
-    #e8fffd 16%,
-    #e1ecff 33%,
-    #eedeff 50%,
-    #ffe5e5 66%,
-    #ffe9c9 83%,
-    #ffffd2 100%
-  );
 
   /* layers */
   --layer-elevated: var(--white);
