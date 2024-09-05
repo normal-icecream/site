@@ -18,11 +18,11 @@
 }
 
 @keyframes rotate-background {
-    from {
+  from {
         background-position: center center;
         transform: rotate(0deg);
     }
-    to {
+  to {
         background-position: center center;
         transform: rotate(360deg);
     }
