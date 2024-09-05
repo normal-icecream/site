@@ -14,15 +14,15 @@ export default function decorate(block) {
           // separate out price tag amount & subtext
           const dollarAmount = price.textContent.match(/\$\d+/)[0];
           const subtext = price.textContent.replace(dollarAmount, '').trim();
-          
+
           // containing div to prevent content from rotating with the animated price tag
           const contentDiv = document.createElement('div');
           contentDiv.className = 'title-price-content';
-          
+
           const amountDiv = document.createElement('div');
           amountDiv.textContent = dollarAmount;
           amountDiv.className = 'title-price-amount';
-          
+
           const textContentLength = price.textContent.length;
           const subtextDiv = document.createElement('div');
           subtextDiv.textContent = subtext;
