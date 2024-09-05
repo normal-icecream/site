@@ -17,14 +17,21 @@
     overflow-wrap: break-word;
 }
 
+@keyframes rotateBackground {
+    from {
+        background-position: center center;
+        transform: rotate(0deg);
+    }
+    to {
+        background-position: center center;
+        transform: rotate(360deg);
+    }
+}
+
 .title .title-price {
-    background-image: url('../../icons/pricetag.svg');
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-    height: 125px;
-    width: 125px;
     position: absolute;
+    height: 130px;
+    width: 130px;
     top: -40%;
     right: 10%;
     display: flex;
@@ -32,6 +39,37 @@
     justify-content: center;
     align-items: center;
     margin: 0;
+    overflow: hidden;
+}
+
+.title .title-price::before {
+    content: '';
+    position: absolute;
+    background-image: url('../../icons/pricetag.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    animation: rotateBackground 10s linear infinite;
+    opacity: 1;
+}
+
+.title .title-price-content {
+    position: relative;
+    z-index: 2;
+    transform: rotate(-360deg);
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .title .title-price-amount {
@@ -42,14 +80,14 @@
     padding-top: 10px;
 }
 
-.title .title-price-content {
+.title .title-price-subtext {
     text-align: center;
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-xs);
     line-height: 24px;
 }
 
-.title .title-price-long-content {
+.title .title-price-long-subtext {
     text-align: center;
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-xxs);
@@ -74,11 +112,11 @@
         font-size: var(--heading-size-xxl);
     }
 
-    .title .title-price-content {
+    .title .title-price-subtext {
         font-size: var(--heading-size-s);
     }
 
-    .title .title-price-long-content {
+    .title .title-price-long-subtext {
         font-size: var(--heading-size-xs);
         padding: 0 10px;
         line-height: 20px;

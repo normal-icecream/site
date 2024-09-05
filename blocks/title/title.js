@@ -11,20 +11,28 @@ export default function decorate(block) {
         if (p.textContent === price.textContent) {
           p.className = 'title-price';
 
-          const textContentLength = price.textContent.length;
+          // separate out price tag amount & subtext
           const dollarAmount = price.textContent.match(/\$\d+/)[0];
-          const remainingContent = price.textContent.replace(dollarAmount, '').trim();
-
+          const subtext = price.textContent.replace(dollarAmount, '').trim();
+          
+          // containing div to prevent content from rotating with the animated price tag
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'title-price-content';
+          
           const amountDiv = document.createElement('div');
           amountDiv.textContent = dollarAmount;
           amountDiv.className = 'title-price-amount';
+          
+          const textContentLength = price.textContent.length;
+          const subtextDiv = document.createElement('div');
+          subtextDiv.textContent = subtext;
+          subtextDiv.className = textContentLength > 10 ? 'title-price-long-subtext' : 'title-price-subtext';
 
-          const remainingContentDiv = document.createElement('div');
-          remainingContentDiv.textContent = remainingContent;
-          remainingContentDiv.className = textContentLength > 10 ? 'title-price-long-content' : 'title-price-content';
+          contentDiv.append(amountDiv, subtextDiv);
 
+          // replace original strong element with newly formatted elements
           const strongElement = p.querySelector('strong');
-          strongElement.replaceWith(amountDiv, remainingContentDiv);
+          strongElement.replaceWith(contentDiv);
         }
       }
     }
