@@ -6,18 +6,7 @@ export default function decorate (block) {
     marqueeContent.className = 'marquee-content';
 
     const marqueeCloned = marqueeContainer.innerHTML;
-    // marqueeCloned.className = 'marquee-clone';
     marqueeContainer.innerHTML += marqueeCloned;
 
     console.log("marqueeCloned:", marqueeCloned);
 }
-
-{/* <div className='marquee-container'>
-    <div className='marquee-content'>
-        <p></p>
-        <p></p>
-        <p></p>
-        <p></p>
-        <p></p>
-    </div>
-</div> */}

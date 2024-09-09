@@ -1,10 +1,17 @@
+.marquee-wrapper {
+    margin: 0;
+}
+
 .marquee .marquee-container {
     width: 100vw;
     margin-left: calc(-50vw + 50%);   
     position: relative; 
     overflow: hidden;
-    height: 200px;
-    font-size: var(--body-size-l);
+    height: 60px;
+    /* font-size: var(--body-size-l); */
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .marquee .marquee-content {
@@ -12,14 +19,12 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    animation: marquee 20s linear infinite;
+    animation: marquee 30s linear infinite;
     will-change: transform;
-    /* width: 100%; */
 }
 
 .marquee .marquee-content:nth-of-type(2) {
-    animation-delay: 10s;
-    color: blueviolet;
+    animation-delay: 15s;
     animation-name: marquee, marquee-visibility;
     visibility: hidden; /* Initially hidden */
     animation-fill-mode: forwards;
@@ -29,6 +34,22 @@
     white-space: nowrap;
     margin: 0 20px;
 }
+
+.marquee .marquee-container p span svg {
+    height: 50px;
+    width: 50px;
+    animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+          transform: rotate(0deg);
+      }
+  
+    to {
+          transform: rotate(360deg);
+      }
+  }
 
 @keyframes marquee {
     0% {
@@ -48,6 +69,6 @@
 
 @media (width >= 900px) {
     .marquee .marquee-container {
-        font-size: var(--body-size-xxl);
+        /* font-size: var(--body-size-xxl); */
     }
 }
