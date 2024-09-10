@@ -65,27 +65,6 @@ export function swapIcons() {
 //   }
 // }
 
-function decorateWholesale(main) {
-  // identify catalog json link
-  // fetch catalog json 
-  // build the lil table
-}
-
-function decoratePageType(main) {
-  try {
-    // build auto blocks
-    // check type (is store, for example)
-    // if store, load square, catalog, blah blah
-    // check for specific store types
-    // if store, do something
-    // if truck, do something,
-    // if wholesale, do something else
-    if (wholesale) decorateWholesale(main);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Auto Blocking failed', error);
-  }
-}
 
 /**
  * Decorates links with appropriate classes to style them as buttons
