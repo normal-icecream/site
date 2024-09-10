@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity */
 .table-container {
     margin-bottom: 32px;
 }
@@ -20,10 +21,6 @@
     border-right: 2px solid var(--blue);
     border-top: 2px solid var(--blue);
     border-left: 2px solid var(--blue);
-}
-
-.table {
-    width: 100vw;
     margin-left: calc(-50vw + 50%);
 }
 
@@ -37,7 +34,7 @@
 }
 
 .table thead th h2 {
-    font-size: var(--body-size-xl);
+    font-size: var(--detail-size-xl);
     margin: 0;
     padding: 10px 16px;
 }
