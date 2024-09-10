@@ -19,8 +19,8 @@ export default async function decorate(block) {
     else tbody.append(row);
 
     [...child.children].forEach((col) => {
-        const cell = buildCell(header ? i : i + 1);
-        cell.innerHTML = col.innerHTML;
+      const cell = buildCell(header ? i : i + 1);
+      cell.innerHTML = col.innerHTML;
 
       row.append(cell);
     });
