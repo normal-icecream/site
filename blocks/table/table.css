@@ -1,3 +1,27 @@
+.table-container {
+    margin-bottom: 32px;
+}
+
+.table-container > div.table-wrapper {
+    margin-bottom: 0;
+}
+
+.table-container > .table-wrapper + .table-wrapper {
+    margin-top: 0;
+}
+
+.table-container .table-wrapper:last-child .table {
+    border-top: none;
+}
+
+.table {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    border-right: 2px solid var(--blue);
+    border-top: 2px solid var(--blue);
+    border-left: 2px solid var(--blue);
+}
+
 .table {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
@@ -8,10 +32,7 @@
 }
 
 .table thead th {
-    border-top: 2px solid var(--blue);
-    border-right: none;
     border-bottom: 2px solid var(--blue);
-    border-left: none;
     background-color: var(--blue-lightest);
 }
 
@@ -21,22 +42,24 @@
     padding: 10px 16px;
 }
 
-.table thead th h2:nth-child(1) {
+.table thead th {
     text-align: left;
 }
 
-.table thead th:nth-child(2) {
-    border-left: 2px solid var(--blue);
+.table thead th:nth-of-type(1) {
+    text-align: left;
+    border-right: 2px solid var(--blue);
 }
 
 .table table tbody td {
     border-bottom: 2px solid var(--blue);
     padding-left: 16px;
     padding: 16px;
+    position: relative;
 }
 
-.table table tbody td:nth-of-type(2) {
-    border-left: 2px solid var(--blue);
+.table table tbody td:nth-of-type(1) {
+    border-right: 2px solid var(--blue);
 }
 
 .table table tbody td h3 {
@@ -48,8 +71,8 @@
     margin-top: 0;
 }
 
-.table .table-icon-wrapper {
-    display: flex;
+.table table tbody td p:not([class]) {
+    margin-right: 20px;
 }
 
 .table .img-wrapper {
@@ -57,7 +80,11 @@
     flex-flow: column;
     justify-content: center;
     align-items: center;
-    padding: 0 0 0 12px;
+    width: 40px;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    bottom: 50%;
 }
 
 .table .img-wrapper svg {
@@ -67,4 +94,17 @@
 
 .table .img-wrapper span:first-of-type {
     padding-bottom: 6px
+}
+
+@media (width >= 900px) {
+    .table {
+        width: 100%;
+        margin-left: auto;
+    }
+
+    .table thead th h2 {
+        font-size: var(--body-size-xxl);
+        margin: 0;
+        padding: 10px 16px;
+    }
 }

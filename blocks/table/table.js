@@ -19,30 +19,10 @@ function buildCell(rowIndex) {
       else tbody.append(row);
 
       [...child.children].forEach((col) => {
-        const icons = col.querySelector('p.img-wrapper');
+          const cell = buildCell(header ? i : i + 1);
+          cell.innerHTML = col.innerHTML;
 
-        if (icons) {
-            const cell = buildCell(header ? i : i + 1);
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'table-icon-wrapper';
-
-            const contentDiv = document.createElement('div');
-            const title = col.querySelector('h3');
-            const content = col.querySelector('p');
-            contentDiv.append(title, content);
-            
-            const iconsDiv = document.querySelector('p.img-wrapper');
-
-            wrapper.append(contentDiv, iconsDiv);
-            cell.append(wrapper);
-            row.append(cell);
-        } else {
-            const cell = buildCell(header ? i : i + 1);
-            cell.innerHTML = col.innerHTML;
-            
-            row.append(cell);
-        }
+        row.append(cell);
       });
     });
     block.innerHTML = '';
