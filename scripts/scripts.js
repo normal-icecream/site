@@ -129,9 +129,7 @@ async function decorateWholesale(main) {
       }
     });
 
-    console.log(formData)
     // TODO - Send form json data
-    // On submit it should create a new sheet where we show what amounts of the orders should be packaged, it should deduct any quantities from original sheet.
   })
 
   // Create submit button wrapper
@@ -142,9 +140,10 @@ async function decorateWholesale(main) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.textContent = 'create order';
-  submitButton.disabled = false;
   // TODO - should be disabled if no entries have been made
+  submitButton.disabled = false;
   submitButtonWrapper.append(submitButton)
+
 
   // Create table for every product group
   Object.values(wholesaleMap).forEach((productTypeGroup) => {
@@ -175,6 +174,34 @@ async function decorateWholesale(main) {
         col1.push(description);
       }
 
+      if(product.DIETARY.length > 0) {
+        // split on comma, spaces trimmed, all lowercase, empty values skipped
+        const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
+
+        // Create wrapper element for icons
+        const dietaryWrapper = document.createElement('p');
+        dietaryWrapper.className = 'img-wrapper';
+        
+        // for every icon create a span and add a classname that matches the item name
+        // TODO - need to add dairy free and nut free dietary icons
+        dietaryArray.forEach(item => {
+          let formattedItem;
+          // TODO - standardize these, should be one or the other
+          if(item === 'v' || item === 'vegan') { 
+            formattedItem = 'vegan'
+          } else {
+            formattedItem = item;
+          };
+
+          const iconSpan = document.createElement('span');
+          iconSpan.className = `icon icon-${formattedItem}`;
+          dietaryWrapper.append(iconSpan);
+        })
+        decorateIcons(dietaryWrapper);
+        col1.push(dietaryWrapper);
+      }
+
+
       // Create quantity input
       const quantity = document.createElement('input');
       quantity.type = 'number'; // input type number
@@ -184,12 +211,12 @@ async function decorateWholesale(main) {
       quantity.id = product.ID;
       quantity.addEventListener('change', () => {
         const value = parseInt(quantity.value, 10);
-        // TODO - make sure that everything in here is working
+        // TODO - double check that everything in here is working
+        // TODO - need to add instant warning if they exceed the limit
         // const subtract = form.querySelector('.button.subtract'); 
         const min = parseInt(quantity.min, 10) || 0;
         if (value > min) subtract.removeAttribute('disabled');
         else subtract.disabled = true;
-
         // TODO: disable "add" if max
       });
       col2.push(quantity);
@@ -213,9 +240,7 @@ async function decorateWholesale(main) {
 }
 
 function decoratePageType(main) {
-  // console.log(window.location.pathname);
   const wholesale = window.location.pathname.split('/').some(path => path === 'wholesale');
-  // console.log("json:", json);
   
   // try {
     // build auto blocks

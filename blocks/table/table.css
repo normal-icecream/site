@@ -115,6 +115,25 @@
     margin: 0;
 }
 
+.table tbody tr td:last-child p input {
+    background-color: var(--white);
+    border: none;
+    text-align: center;
+}
+
+
+.table tbody tr td:last-child p 
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.table tbody tr td:last-child p input[type=number] {
+      /* stylelint-disable-next-line property-no-vendor-prefix */
+    -moz-appearance: textfield;
+}
+
 .table tbody tr td:first-of-type h3 {
     margin: 0;
 }

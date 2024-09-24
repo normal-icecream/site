@@ -572,7 +572,6 @@ async function loadBlock(block) {
  * @param {Element} block The block element
  */
 function decorateBlock(block) {
-  // console.log('tacos')
   const shortBlockName = block.classList[0];
   if (shortBlockName) {
     block.classList.add('block');
@@ -601,9 +600,7 @@ function decorateBlocks(main) {
  */
 // ANDI - HERE
 async function loadHeader(header) {
-  // console.log("header:", header);
   const headerBlock = buildBlock('header', '');
-  // console.log("headerBlock:", headerBlock);
   header.append(headerBlock);
   decorateBlock(headerBlock);
   return loadBlock(headerBlock);
