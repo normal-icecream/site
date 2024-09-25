@@ -249,26 +249,26 @@ async function decorateWholesale(main) {
     form.append(submitButtonWrapper);
     section.append(form);
     decorateBlock(productBlock);
-    return loadBlock(productBlock)
-  })
+    return loadBlock(productBlock);
+  });
 }
 
 function decoratePageType(main) {
-  const wholesale = window.location.pathname.split('/').some(path => path === 'wholesale');
-  
-  // try {
-    // build auto blocks
-    // check type (is store, for example)
-    // if store, load square, catalog, blah blah
-    // check for specific store types
-    // if store, do something
-    // if truck, do something,
-    // if wholesale, do something else
-    if (wholesale) decorateWholesale(main);
-  // } catch (error) {
-  //   // eslint-disable-next-line no-console
-  //   console.error('Auto Blocking failed', error);
-  // }
+  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+
+// try {
+  // build auto blocks
+  // check type (is store, for example)
+  // if store, load square, catalog, blah blah
+  // check for specific store types
+  // if store, do something
+  // if truck, do something,
+  // if wholesale, do something else
+  if (wholesale) decorateWholesale(main);
+// } catch (error) {
+//   // eslint-disable-next-line no-console
+//   console.error('Auto Blocking failed', error);
+// }
 }
 
 /**
