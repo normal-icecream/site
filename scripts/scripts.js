@@ -68,30 +68,30 @@ async function decorateWholesale(main) {
   const link = main.querySelector('a[href]');
 
   // Create a map of products from json, grouped by product type
-  let wholesaleMap = {};
+  const wholesaleMap = {};
   if (link.href.endsWith('.json')) {
     try {
       // Fetching wholesale product data from .json URL
       const res = await fetch(link.href);
       const data = await res.json();
       const jsonData = data.data;
-      
+
       // Building object with product type as key
       jsonData.forEach((product) => {
         // Standardize key name format into one word, no spaces
         const formattedProduct = {};
-        Object.keys(product).forEach(key => {
+        Object.keys(product).forEach((key) => {
           const trimmedKey = key.replace(/\s/g, '');
           formattedProduct[trimmedKey] = product[key];
         });
-        product = formattedProduct;
 
-        // If product key doesn't already exist in map, create key with product name and add product to list
-        if (!wholesaleMap[product.TYPE]) { 
-          wholesaleMap[product.TYPE] = [product];
+        // If product key doesn't already exist in map, 
+        // create key with product name and add product to list
+        if (!wholesaleMap[formattedProduct.TYPE]) {
+          wholesaleMap[formattedProduct.TYPE] = [formattedProduct];
         } else {
           // If key exists in map, add product to list with matching key name
-          wholesaleMap[product.TYPE].push(product);
+          wholesaleMap[formattedProduct.TYPE].push(formattedProduct);
         }
       });
     } catch (err) {
@@ -99,10 +99,11 @@ async function decorateWholesale(main) {
     }
   }
 
-  // Select div with the classname .section where the link is a child, insert product tables into div
+  // Select div with the classname .section where the link is a child
+  // Then insert product tables into div
   let section;
   const sectionDivs = document.querySelectorAll('.section');
-  const linkedSection = Array.from(sectionDivs).find(div => div.querySelector('a[href]'));
+  const linkedSection = Array.from(sectionDivs).find((div) => div.querySelector('a[href]'));
   if (linkedSection?.querySelector('a[href]').href === link.href) {
     section = linkedSection;
     const linkWrapper = linkedSection.querySelector('.default-content-wrapper');
@@ -117,29 +118,25 @@ async function decorateWholesale(main) {
   // form.action = '';
 
   // Form handle submit
-  form.addEventListener('submit', function(event) {
+  form.addEventListener('submit', function (event) {
     event.preventDefault();
 
     const formData = {};
     const inputs = form.querySelectorAll('input[type="number"]');
-    
-    inputs.forEach((input) => {
-      // Grab input id and value
-      const id = input.id;
-      const value = input.value;
-      
+
+    inputs.forEach(({ id, value }) => {
       // If input value isn't empty or zero, add to formData
       if (value > 0) {
         formData[id] = {
-          // TODO - Add whatever data we want to send 
-          quantity: value 
+          // TODO - Add whatever data we want to send
+          quantity: value,
         };
       }
     });
-    
+
     // TODO - Send form json data
     // console.log("formData:", formData);
-  })
+  });
 
   // Create submit button wrapper
   const submitButtonWrapper = document.createElement('div');
@@ -149,11 +146,12 @@ async function decorateWholesale(main) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.textContent = 'create order';
-  // TODO - Set to true when checkInput f(x) is working, should be disabled if no entries have been made
+  // TODO - Set to true when checkInput f(x) is working
   submitButton.disabled = false;
-  submitButtonWrapper.append(submitButton)
+  submitButtonWrapper.append(submitButton);
 
-  // Function to check form inputs for valid entries to set Submit button from disabled true to false.
+  // Function to check form inputs for valid entries 
+  // If has valid entries set Submit disabled from true to false.
   // function checkInput() {
   //   const inputs = document.querySelectorAll('input[type="number"]');
   //   let hasAddedQuantity = false;
@@ -170,47 +168,47 @@ async function decorateWholesale(main) {
   // Create table for every product group
   Object.values(wholesaleMap).forEach((productTypeGroup) => {
     // Product type table
-    let table = []; 
+    const table = [];
 
     // Create table headers
     table.push([
       { elems: [productTypeGroup[0].TYPE] },
-      { elems: ['quantity'] }
-    ])
+      { elems: ['quantity'] },
+    ]);
 
     // Add products to table
     productTypeGroup.forEach((product) => {
-      if(product.HIDE !== 'x') {
+      if (product.HIDE !== 'x') {
         // Create pleaceholder array
-        let col1 = [];
-        let col2 = [];
-  
+        const col1 = [];
+        const col2 = [];
+
         if (product.ITEM) {
           const title = document.createElement('h3');
           title.textContent = product.ITEM;
           col1.push(title);
         }
-  
+
         if (product.DESCRIPTION) {
           const description = document.createElement('p');
           description.textContent = product.DESCRIPTION;
           col1.push(description);
         }
-  
-        if(product.DIETARY.length > 0) {
+
+        if (product.DIETARY.length > 0) {
           // split on comma, spaces trimmed, all lowercase, empty values skipped
           const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
-  
+
           // Create wrapper element for icons
           const dietaryWrapper = document.createElement('p');
           dietaryWrapper.className = 'img-wrapper';
-          
+
           // for every icon create a span and add a classname that matches the dietary item name
-          dietaryArray.forEach(item => {         
+          dietaryArray.forEach(item => {     
             const iconSpan = document.createElement('span');
             iconSpan.className = `icon icon-${item}`;
             dietaryWrapper.append(iconSpan);
-          })
+          });
           decorateIcons(dietaryWrapper);
           col1.push(dietaryWrapper);
         }
@@ -226,7 +224,7 @@ async function decorateWholesale(main) {
           // Create quantity input
           const quantity = document.createElement('input');
           quantity.type = 'number';
-          quantity.min = 0; 
+          quantity.min = 0;
           quantity.max = product.AVAILABLE; // max amount per product
           quantity.value = 0;
           quantity.id = product.ID;
@@ -234,10 +232,10 @@ async function decorateWholesale(main) {
           // quantity.addEventListener('input', () => checkInput);
           col2.push(quantity);
         }
-  
+
         table.push([
           { elems: col1 },
-          { elems: col2 }
+          { elems: col2 },
         ]);
       }
     });
@@ -256,7 +254,7 @@ async function decorateWholesale(main) {
 function decoratePageType(main) {
   const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
 
-// try {
+  // try {
   // build auto blocks
   // check type (is store, for example)
   // if store, load square, catalog, blah blah
