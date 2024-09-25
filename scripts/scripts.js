@@ -55,12 +55,10 @@ export function swapIcons() {
   });
 }
 
-// DONE - identify catalog json link
-// DONE - fetch catalog json 
-// DONE - build the lil table
-// DONE - delete link
-// TODO - need to read in icons (vegan & gf etc.)
-// TODO - need to hide row if marked as hidden
+// TODO - submit button disabled until there is a valid entry
+// TODO - set up form post and URL instructions
+// TODO - enter should exit user out of an input field
+// TODO - need to set input fields up to display value
 
 /**
  * fetches wholesale product data and decorates page.
@@ -80,6 +78,14 @@ async function decorateWholesale(main) {
       
       // Building object with product type as key
       jsonData.forEach((product) => {
+        // Standardize key name format into one word, no spaces
+        const formattedProduct = {};
+        Object.keys(product).forEach(key => {
+          const trimmedKey = key.replace(/\s/g, '');
+          formattedProduct[trimmedKey] = product[key];
+        });
+        product = formattedProduct;
+
         // If product key doesn't already exist in map, create key with product name and add product to list
         if (!wholesaleMap[product.TYPE]) { 
           wholesaleMap[product.TYPE] = [product];
@@ -100,6 +106,7 @@ async function decorateWholesale(main) {
   if (linkedSection?.querySelector('a[href]').href === link.href) {
     section = linkedSection;
     const linkWrapper = linkedSection.querySelector('.default-content-wrapper');
+    // Remove link
     linkWrapper.remove();
   }
 
@@ -107,19 +114,20 @@ async function decorateWholesale(main) {
   const form = document.createElement('form');
   form.className = 'table-form';
   // form.method = 'post';
-  // form.action = '' // path we want to send data to
+  // form.action = '';
 
+  // Form handle submit
   form.addEventListener('submit', function(event) {
     event.preventDefault();
 
     const formData = {};
     const inputs = form.querySelectorAll('input[type="number"]');
-  
+    
     inputs.forEach((input) => {
       // Grab input id and value
       const id = input.id;
       const value = input.value;
-  
+      
       // If input value isn't empty or zero, add to formData
       if (value > 0) {
         formData[id] = {
@@ -128,8 +136,9 @@ async function decorateWholesale(main) {
         };
       }
     });
-
+    
     // TODO - Send form json data
+    // console.log("formData:", formData);
   })
 
   // Create submit button wrapper
@@ -140,10 +149,23 @@ async function decorateWholesale(main) {
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.textContent = 'create order';
-  // TODO - should be disabled if no entries have been made
+  // TODO - Set to true when checkInput f(x) is working, should be disabled if no entries have been made
   submitButton.disabled = false;
   submitButtonWrapper.append(submitButton)
 
+  // Function to check form inputs for valid entries to set Submit button from disabled true to false.
+  // function checkInput() {
+  //   const inputs = document.querySelectorAll('input[type="number"]');
+  //   let hasAddedQuantity = false;
+
+  //   inputs.forEach((input) => {
+  //     if(parseInt(input.value) > 0) {
+  //       hasAddedQuantity = true;
+  //     }
+  //   })
+
+  //   submitButton.disabled = !hasAddedQuantity;
+  // }
 
   // Create table for every product group
   Object.values(wholesaleMap).forEach((productTypeGroup) => {
@@ -158,79 +180,71 @@ async function decorateWholesale(main) {
 
     // Add products to table
     productTypeGroup.forEach((product) => {
-      // Create pleaceholder array
-      let col1 = [];
-      let col2 = [];
+      if(product.HIDE !== 'x') {
+        // Create pleaceholder array
+        let col1 = [];
+        let col2 = [];
+  
+        if (product.ITEM) {
+          const title = document.createElement('h3');
+          title.textContent = product.ITEM;
+          col1.push(title);
+        }
+  
+        if (product.DESCRIPTION) {
+          const description = document.createElement('p');
+          description.textContent = product.DESCRIPTION;
+          col1.push(description);
+        }
+  
+        if(product.DIETARY.length > 0) {
+          // split on comma, spaces trimmed, all lowercase, empty values skipped
+          const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
+  
+          // Create wrapper element for icons
+          const dietaryWrapper = document.createElement('p');
+          dietaryWrapper.className = 'img-wrapper';
+          
+          // for every icon create a span and add a classname that matches the dietary item name
+          dietaryArray.forEach(item => {         
+            const iconSpan = document.createElement('span');
+            iconSpan.className = `icon icon-${item}`;
+            dietaryWrapper.append(iconSpan);
+          })
+          decorateIcons(dietaryWrapper);
+          col1.push(dietaryWrapper);
+        }
 
-      if (product.ITEM) {
-        const title = document.createElement('h3');
-        title.textContent = product.ITEM;
-        col1.push(title);
+        // Create input if product isn't sold out
+        // TODO - Should this be a check on available as well as if there is an X?
+        if (product.SOLDOUT === 'x') {
+          const soldoutElement = document.createElement('p');
+          soldoutElement.className = 'table-soldout';
+          soldoutElement.textContent = 'sold out';
+          col2.push(soldoutElement);
+        } else {
+          // Create quantity input
+          const quantity = document.createElement('input');
+          quantity.type = 'number';
+          quantity.min = 0; 
+          quantity.max = product.AVAILABLE; // max amount per product
+          quantity.value = 0;
+          quantity.id = product.ID;
+          // TODO - need to figure out why this isn't working
+          // quantity.addEventListener('input', () => checkInput);
+          col2.push(quantity);
+        }
+  
+        table.push([
+          { elems: col1 },
+          { elems: col2 }
+        ]);
       }
-
-      if (product.DESCRIPTION) {
-        const description = document.createElement('p');
-        description.textContent = product.DESCRIPTION;
-        col1.push(description);
-      }
-
-      if(product.DIETARY.length > 0) {
-        // split on comma, spaces trimmed, all lowercase, empty values skipped
-        const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
-
-        // Create wrapper element for icons
-        const dietaryWrapper = document.createElement('p');
-        dietaryWrapper.className = 'img-wrapper';
-        
-        // for every icon create a span and add a classname that matches the item name
-        // TODO - need to add dairy free and nut free dietary icons
-        dietaryArray.forEach(item => {
-          let formattedItem;
-          // TODO - standardize these, should be one or the other
-          if(item === 'v' || item === 'vegan') { 
-            formattedItem = 'vegan'
-          } else {
-            formattedItem = item;
-          };
-
-          const iconSpan = document.createElement('span');
-          iconSpan.className = `icon icon-${formattedItem}`;
-          dietaryWrapper.append(iconSpan);
-        })
-        decorateIcons(dietaryWrapper);
-        col1.push(dietaryWrapper);
-      }
-
-
-      // Create quantity input
-      const quantity = document.createElement('input');
-      quantity.type = 'number'; // input type number
-      quantity.min = 0; // minimum value 0
-      quantity.max = product.AVAILABLE; // max amount per product
-      quantity.value = 0; // starting value
-      quantity.id = product.ID;
-      quantity.addEventListener('change', () => {
-        const value = parseInt(quantity.value, 10);
-        // TODO - double check that everything in here is working
-        // TODO - need to add instant warning if they exceed the limit
-        // const subtract = form.querySelector('.button.subtract'); 
-        const min = parseInt(quantity.min, 10) || 0;
-        if (value > min) subtract.removeAttribute('disabled');
-        else subtract.disabled = true;
-        // TODO: disable "add" if max
-      });
-      col2.push(quantity);
-
-      table.push([
-        { elems: col1 },
-        { elems: col2 }
-      ]);
     });
 
     const productBlockWrapper = document.createElement('div');
     const productBlock = buildBlock('table', table);
     productBlockWrapper.append(productBlock);
-
     form.append(productBlockWrapper);
     form.append(submitButtonWrapper);
     section.append(form);
