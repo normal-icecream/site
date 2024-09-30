@@ -85,7 +85,7 @@ async function decorateWholesale(main) {
           formattedProduct[trimmedKey] = product[key];
         });
 
-        // If product key doesn't already exist in map, 
+        // If product key doesn't already exist in map,
         // create key with product name and add product to list
         if (!wholesaleMap[formattedProduct.TYPE]) {
           wholesaleMap[formattedProduct.TYPE] = [formattedProduct];
@@ -150,7 +150,7 @@ async function decorateWholesale(main) {
   submitButton.disabled = false;
   submitButtonWrapper.append(submitButton);
 
-  // Function to check form inputs for valid entries 
+  // Function to check form inputs for valid entries
   // If has valid entries set Submit disabled from true to false.
   // function checkInput() {
   //   const inputs = document.querySelectorAll('input[type="number"]');
@@ -204,7 +204,7 @@ async function decorateWholesale(main) {
           dietaryWrapper.className = 'img-wrapper';
 
           // for every icon create a span and add a classname that matches the dietary item name
-          dietaryArray.forEach(item => {     
+          dietaryArray.forEach((item) => {
             const iconSpan = document.createElement('span');
             iconSpan.className = `icon icon-${item}`;
             dietaryWrapper.append(iconSpan);
