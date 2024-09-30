@@ -118,7 +118,7 @@ async function decorateWholesale(main) {
   // form.action = '';
 
   // Form handle submit
-  form.addEventListener('submit', function (event) {
+  form.addEventListener('submit', (event) => {
     event.preventDefault();
 
     const formData = {};
