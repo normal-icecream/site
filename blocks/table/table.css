@@ -11,27 +11,6 @@
     margin-top: 0;
 }
 
-.table-form-submit-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.table-form-submit-wrapper button {
-    height: 50px;
-    width: 300px;
-    background-color: var(--blue);
-    color: var(--white);
-    border-radius: 6px;
-    font-family: var(--heading-font-family);
-    font-size: var(--heading-size-s);
-    margin: 20px 0;
-}
-
-.table-form-submit-wrapper button:disabled {
-    background-color: var(--blue-light);
-}
-
 .table-wrapper:not(:has(+ .table-wrapper)) .table tbody tr:last-of-type td {
     border-bottom: 2px solid var(--blue);
 }
