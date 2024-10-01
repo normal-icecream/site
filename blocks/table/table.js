@@ -1,4 +1,4 @@
-import { removeEmptyElements } from "../../helpers/helpers.js";
+import { removeEmptyElements } from '../../helpers/helpers.js';
 
 function buildCell(rowIndex) {
   const cell = rowIndex ? document.createElement('td') : document.createElement('th');
