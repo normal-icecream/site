@@ -1,5 +1,5 @@
 // Function to remove empty elements based on selector
-export function removeEmptyElements(selector) {
+export default function removeEmptyElements(selector) {
   const elements = document.querySelectorAll(selector);
 
   elements.forEach((element) => {
@@ -9,4 +9,3 @@ export function removeEmptyElements(selector) {
     }
   });
 }
-
