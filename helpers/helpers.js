@@ -1,5 +1,6 @@
+/* eslint-disable import/prefer-default-export */
 // Function to remove empty elements based on selector
-export default function removeEmptyElements(selector) {
+export function removeEmptyElements(selector) {
   const elements = document.querySelectorAll(selector);
 
   elements.forEach((element) => {
