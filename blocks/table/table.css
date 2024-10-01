@@ -11,22 +11,16 @@
     margin-top: 0;
 }
 
-.table-wrapper:not(:has(+ .table-wrapper)) .table tbody tr:last-of-type td {
-    border-bottom: 2px solid var(--blue);
-}
-
 .table {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
 }
 
-.table:first-of-type {
-    border-top: 2px solid var(--blue);
-}
-
 .table table {
     border-spacing: 0;
     width: 100%;
+    border-top: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
 }
 
 .table thead th {
@@ -36,6 +30,10 @@
     font-size: var(--heading-size-xs);
     text-transform: uppercase;
     background-color: var(--blue-lightest);
+}
+
+.table thead:not(:first-child) th {
+    border-top: 2px solid var(--blue);
 }
 
 .table thead th:first-child {
@@ -105,6 +103,9 @@
     .table {
         width: 100%;
         margin-left: auto;
+    }
+
+    .table table {
         border-right: 2px solid var(--blue);
         border-left: 2px solid var(--blue);
     }
