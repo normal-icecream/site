@@ -37,24 +37,17 @@
     overflow: hidden;
 }
 
-.title .title-price::before {
-    content: '';
+.title .title-price span {
     position: absolute;
-    background-image: url('../../icons/pricetag.svg');
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+    height: 240px;
+    width: 240px;
+    padding: 55px;
+}
+
+.title .title-price span svg {
     height: 100%;
     width: 100%;
-    top: 0;
-    right: 0;
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
     animation: rotate-background 10s linear infinite;
-    opacity: 1;
 }
 
 .title .title-price-content {
