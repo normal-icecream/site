@@ -276,13 +276,14 @@ h3,
 h4,
 h5,
 h6 {
-  margin-top: 1.125em;
-  margin-bottom: 0.25em;
   scroll-margin: 1em;
   font-family: var(--heading-font-family);
   font-weight: var(--weight-extrabold);
   line-height: var(--line-height-s);
   text-transform: lowercase;
+  line-height: 1;
+  margin: 0;
+  overflow-wrap: break-word;
 }
 
 h1 {
