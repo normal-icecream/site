@@ -89,10 +89,7 @@
 }
 
 .title .title-price-long-subtext {
-    text-align: center;
-    font-family: var(--heading-font-family);
     font-size: var(--heading-size-xxs);
-    line-height: 24px;
 }
 
 @media (width >= 900px) {
@@ -113,13 +110,7 @@
         font-size: var(--heading-size-xxl);
     }
 
-    .title .title-price-subtext {
-        font-size: var(--heading-size-s);
-    }
-
     .title .title-price-long-subtext {
         font-size: var(--heading-size-xs);
-        padding: 0 10px;
-        line-height: 20px;
-    }
+    } 
 }

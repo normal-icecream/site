@@ -26,7 +26,7 @@ export default function decorate(block) {
           const textContentLength = price.textContent.length;
           const subtextDiv = document.createElement('div');
           subtextDiv.textContent = subtext;
-          subtextDiv.className = textContentLength > 10 ? 'title-price-long-subtext' : 'title-price-subtext';
+          subtextDiv.className = textContentLength > 10 ? 'title-price-subtext title-price-long-subtext' : 'title-price-subtext';
 
           contentDiv.append(amountDiv, subtextDiv);
 
