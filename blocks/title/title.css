@@ -48,6 +48,9 @@
     height: 100%;
     width: 100%;
     animation: rotate-background 10s linear infinite;
+    stroke: var(--blue);
+    stroke-width: 2px;
+    fill: var(--specialty-color-blue);
 }
 
 .title .title-price-content {
