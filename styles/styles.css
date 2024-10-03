@@ -282,7 +282,6 @@ h6 {
   font-weight: var(--weight-extrabold);
   line-height: var(--line-height-s);
   text-transform: lowercase;
-  line-height: 1;
   margin: 0;
   overflow-wrap: break-word;
 }
