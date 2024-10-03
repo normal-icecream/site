@@ -42,11 +42,11 @@ export default function decorate(block) {
           .then((response) => response.text())
           .then((svgContent) => {
             span.innerHTML = svgContent;
-            p.append(span)
+            p.append(span);
           })
           .catch((error) => {
             // eslint-disable-next-line no-console
-            console.log('error loading svg:', error)
+            console.log('error loading svg:', error);
           });
       }
     }
