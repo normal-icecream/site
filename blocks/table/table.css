@@ -26,10 +26,13 @@
 .table thead th {
     padding: 0 12px;
     border-bottom: 2px solid var(--blue);
+    background-color: var(--blue-lightest);
+}
+
+.table thead th p {
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-xs);
     text-transform: uppercase;
-    background-color: var(--blue-lightest);
 }
 
 .table thead:not(:first-child) th {
