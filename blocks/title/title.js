@@ -1,10 +1,8 @@
-// import { decorateIcons } from "../../scripts/aem";
-
 export default function decorate(block) {
   const variants = [...block.classList];
   [...block.children].forEach((row) => {
     // TODO - need to add counter to title, should be set up when doing Square integration
-    
+
     // decorate price tag
     if (variants.includes('price')) {
       const price = row.querySelector('p > strong');
@@ -34,19 +32,22 @@ export default function decorate(block) {
         subtextDiv.className = textContentLength > 10 ? 'title-price-subtext title-price-long-subtext' : 'title-price-subtext';
 
         contentDiv.append(amountDiv, subtextDiv);
-        
+
         const strongElement = p.querySelector('strong');
         strongElement.replaceWith(contentDiv);
 
         const span = document.createElement('span');
 
         fetch(svgPath)
-          .then(response => response.text())
-          .then(svgContent => {
+          .then((response) => response.text())
+          .then((svgContent) => {
             span.innerHTML = svgContent;
             p.append(span)
           })
-          .catch(error => console.log('error loading svg from relative path:', error))
+          .catch((error) => {
+            // eslint-disable-next-line no-console
+            console.log('error loading svg:', error)
+          });
       }
     }
   });
