@@ -11,12 +11,6 @@
     margin-bottom: 40px;
 }
 
-.title h2 {
-    line-height: 1;
-    margin: 1px 0 0;
-    overflow-wrap: break-word;
-}
-
 @keyframes rotate-background {
   from {
         background-position: center center;
