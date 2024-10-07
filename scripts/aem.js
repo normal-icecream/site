@@ -504,7 +504,6 @@ async function fetchPlaceholders(prefix = 'default') {
  * @param {string} blockName name of the block
  * @param {*} content two dimensional array or string or object of content
  */
-// ANDI - HERE for building block
 function buildBlock(blockName, content) {
   const table = Array.isArray(content) ? content : [[content]];
   const blockEl = document.createElement('div');
@@ -598,7 +597,6 @@ function decorateBlocks(main) {
  * @param {Element} header header element
  * @returns {Promise}
  */
-// ANDI - HERE
 async function loadHeader(header) {
   const headerBlock = buildBlock('header', '');
   header.append(headerBlock);
