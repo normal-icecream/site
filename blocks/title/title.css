@@ -1,0 +1,106 @@
+.title {
+    /* The gradient here doesn't look great on desktop, better on mobile. Maybe we can create a slightly different one later */
+    background: var(--gradient);
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 26px;
+    border-top: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
+    position: relative;
+    margin-top: 80px;
+    margin-bottom: 40px;
+}
+
+@keyframes rotate-background {
+  from {
+        background-position: center center;
+        transform: rotate(0deg);
+    }
+
+  to {
+        background-position: center center;
+        transform: rotate(360deg);
+    }
+}
+
+.title .title-price {
+    position: absolute;
+    height: 130px;
+    width: 130px;
+    top: -40%;
+    right: 10%;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    overflow: hidden;
+}
+
+.title .title-price span {
+    position: absolute;
+    height: 240px;
+    width: 240px;
+    padding: 55px;
+}
+
+.title .title-price span svg {
+    height: 100%;
+    width: 100%;
+    animation: rotate-background 10s linear infinite;
+    stroke: var(--blue);
+    stroke-width: 2px;
+    fill: var(--specialty-color-blue);
+}
+
+.title .title-price-content {
+    position: relative;
+    z-index: 2;
+    transform: rotate(-360deg);
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.title .title-price-amount {
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-xl);
+    text-align: center;
+    line-height: 34px;
+    padding-top: 10px;
+}
+
+.title .title-price-subtext {
+    text-align: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-xs);
+    line-height: 24px;
+}
+
+.title .title-price-long-subtext {
+    font-size: var(--heading-size-xxs);
+}
+
+@media (width >= 900px) {
+    .title {
+        width: 100%;
+        margin-left: 0;
+        border-left: 2px solid var(--blue);
+        border-right: 2px solid var(--blue);
+        border-radius: 4px;
+    }
+
+    .title .title-price {
+        right: 3%;
+        top: -50%;
+    }
+
+    .title .title-price-amount {
+        font-size: var(--heading-size-xxl);
+    }
+
+    .title .title-price-long-subtext {
+        font-size: var(--heading-size-xs);
+    } 
+}
