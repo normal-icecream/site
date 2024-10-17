@@ -32,15 +32,15 @@
     background-color: var(--blue-lightest);
 }
 
-.table table thead th:last-child,
-.table table tbody tr th:last-child {
-    width: 125px;
-}
-
 .table table thead th:first-child,
 .table table tbody tr th:first-child {
     text-align: left;
     border-right: 2px solid var(--blue);
+}
+
+.table table thead th:last-child,
+.table table tbody tr th:last-child {
+    width: 125px;
 }
 
 .table table tbody tr td {
