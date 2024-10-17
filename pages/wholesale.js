@@ -1,22 +1,23 @@
+/* eslint-disable default-param-last */
 import { buildBlock } from '../scripts/aem.js';
 
 function createSubmitButton() {
   // Create submit button wrapper
   const submitButtonWrapper = document.createElement('div');
   submitButtonWrapper.className = 'table-form-submit-wrapper';
-  
+
   // Apply styles to the submit button wrapper
   submitButtonWrapper.style.display = 'flex';
   submitButtonWrapper.style.justifyContent = 'center';
   submitButtonWrapper.style.alignItems = 'center';
   submitButtonWrapper.style.margin = '20px 0';
-  
+
   // Create submit button
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.textContent = 'add to cart';
   submitButton.disabled = true;
-  
+
   // Apply inline styles to the submit button
   submitButton.style.height = '50px';
   submitButton.style.width = '300px';
@@ -29,15 +30,15 @@ function createSubmitButton() {
   submitButton.style.cursor = 'pointer';
   submitButton.style.margin = '20px 0';
   submitButton.style.transition = 'background-color 0.3s ease';
-  
+
   if (submitButton.disabled) {
     submitButton.style.backgroundColor = 'var(--blue-light)';
     submitButton.style.cursor = 'not-allowed';
     submitButton.style.opacity = '0.6';
   }
-  
+
   submitButtonWrapper.append(submitButton);
-  return submitButtonWrapper
+  return submitButtonWrapper;
 }
 
 /**
@@ -61,10 +62,10 @@ export async function decorateWholesale(main) {
       inputs.forEach(({ id, value }) => {
         // If input value isn't empty or zero, add to formData
         if (value > 0) {
-            formData[id] = {
-            // TODO - Add whatever data we want to send
-            quantity: value,
-            };
+          formData[id] = {
+          // TODO - Add whatever data we want to send
+          quantity: value,
+          };
         }
       });
       // Add data to cart

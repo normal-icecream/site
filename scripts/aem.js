@@ -507,7 +507,7 @@ async function fetchPlaceholders(prefix = 'default') {
 function buildBlock(blockName, content) {
   const table = Array.isArray(content) ? content : [[content]];
   const blockEl = document.createElement('div');
-  if(blockEl.classList.contains('block')) {
+  if (blockEl.classList.contains('block')) {
     blockEl.classList.add(blockName);
   } else {
     blockEl.classList.add(blockName, 'block');
@@ -578,7 +578,9 @@ async function loadBlock(block) {
 function decorateBlock(block) {
   const shortBlockName = block.classList[0];
   if (shortBlockName) {
-    // Katie note - If this placement of the block class is missing, authored tables aren't rendering. Not sure why atm. Could use your eyes on this.
+    // Katie note - If this placement of the block class is missing, 
+    // authored tables aren't rendering. Not sure why atm. 
+    // Could use your eyes on this.
     block.classList.add('block');
     block.dataset.blockName = shortBlockName;
     block.dataset.blockStatus = 'initialized';

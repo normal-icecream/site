@@ -11,7 +11,7 @@ import {
   loadCSS,
   sampleRUM,
 } from './aem.js';
-import { decorateWholesale } from '../pages/wholesale.js'
+import { decorateWholesale } from '../pages/wholesale.js';
 
 /**
  * load fonts.css and set a session storage flag
