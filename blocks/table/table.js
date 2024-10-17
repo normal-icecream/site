@@ -1,4 +1,4 @@
-import { decorateIcons } from "../../scripts/aem.js";
+import { decorateIcons } from '../../scripts/aem.js';
 
 function buildCell(rowIndex) {
   const cell = rowIndex ? document.createElement('td') : document.createElement('th');
@@ -13,10 +13,10 @@ function checkInput() {
   let hasAddedQuantity = false;
 
   inputs.forEach((input) => {
-  if(parseInt(input.value) > 0) {
-        hasAddedQuantity = true;
+    if (parseInt(input.value, 10) > 0) {
+      hasAddedQuantity = true;
     }
-  })
+  });
 
   submitButton.disabled = !hasAddedQuantity;
 }
@@ -26,7 +26,7 @@ export default async function decorate(block) {
   if (block.hasAttribute('data-src')) {
     const link = block.dataset.src;
     const form = document.querySelector('.table-form');
-   
+
     try {
       // Fetching wholesale product data from .json URL
       const res = await fetch(link);
@@ -43,7 +43,7 @@ export default async function decorate(block) {
           const trimmedKey = key.replace(/\s/g, '');
           formattedProduct[trimmedKey] = product[key];
         });
-        
+
         // Add key to map if it doesn't already exist otherwise add product to key
         if (!wholesaleMap[formattedProduct.TYPE]) {
           wholesaleMap[formattedProduct.TYPE] = [formattedProduct];
@@ -51,7 +51,7 @@ export default async function decorate(block) {
           wholesaleMap[formattedProduct.TYPE].push(formattedProduct);
         }
       });
-      
+
       // decorate tbody
       Object.values(wholesaleMap).forEach((group) => {
         // Create a tbody for each group of products (grouped by TYPE).
@@ -61,7 +61,7 @@ export default async function decorate(block) {
         // create product title header
         const productTh = document.createElement('th');
         const productPTag = document.createElement('p');
-        productPTag.textContent = group[0].TYPE
+        productPTag.textContent = group[0].TYPE;
         productTh.append(productPTag);
 
         // create quantity header
@@ -70,7 +70,7 @@ export default async function decorate(block) {
         quantityPTag.textContent = 'quantity';
         quantityTh.append(quantityPTag);
 
-        labelRow.append(productTh, quantityTh)
+        labelRow.append(productTh, quantityTh);
         tbody.append(labelRow);
 
         // Loop over each product within the group and add table row and data
@@ -84,29 +84,29 @@ export default async function decorate(block) {
             item.textContent = product.ITEM;
             productCell.append(item);
           }
-          
+
           if (product.DESCRIPTION) {
             const description = document.createElement('p');
             description.textContent = product.DESCRIPTION;
             productCell.append(description);
           }
 
-          if(product.DIETARY) {
+          if (product.DIETARY) {
             const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
 
             const imageWrapper = document.createElement('p');
             imageWrapper.className = 'img-wrapper';
-            
+
             // for every icon create a span and add a classname that matches the dietary item name
             dietaryArray.forEach((item) => {
               const iconSpan = document.createElement('span');
               iconSpan.className = `icon icon-${item}`;
               imageWrapper.append(iconSpan);
             });
-            decorateIcons(imageWrapper)
-            productCell.append(imageWrapper)
+            decorateIcons(imageWrapper);
+            productCell.append(imageWrapper);
           }
-          
+
           // Create the quantity cell, showing either "sold out" or an input field.
           const quantityCell = document.createElement('td');
           if (product.SOLDOUT) {
@@ -127,33 +127,33 @@ export default async function decorate(block) {
           // Append product and quantity cells to the row.
           productRow.append(productCell, quantityCell);
           tbody.append(productRow);
-        })
+        });
         // Append the tbody for this group to the table.
         table.append(tbody);
-      })
+      });
       // Add table toto form in table block
       form.prepend(table);
     } catch (err) {
-        throw new Error('no .json');
+      throw new Error('no .json');
     }
   } else {
     const table = document.createElement('table');
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
-  
+
     const header = !block.classList.contains('no-header');
     if (header) table.append(thead);
     table.append(tbody);
-  
+
     [...block.children].forEach((child, i) => {
       const row = document.createElement('tr');
       if (header && i === 0) thead.append(row);
       else tbody.append(row);
-  
+
       [...child.children].forEach((col) => {
         const cell = buildCell(header ? i : i + 1);
         cell.innerHTML = col.innerHTML;
-  
+
         row.append(cell);
       });
     });
