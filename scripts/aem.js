@@ -578,8 +578,8 @@ async function loadBlock(block) {
 function decorateBlock(block) {
   const shortBlockName = block.classList[0];
   if (shortBlockName) {
-    // Katie note - If this placement of the block class is missing, 
-    // authored tables aren't rendering. Not sure why atm. 
+    // Katie note - If this placement of the block class is missing,
+    // authored tables aren't rendering. Not sure why atm.
     // Could use your eyes on this.
     block.classList.add('block');
     block.dataset.blockName = shortBlockName;

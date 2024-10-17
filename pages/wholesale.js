@@ -1,4 +1,4 @@
-/* eslint-disable default-param-last */
+/* eslint-disable import/prefer-default-export */
 import { buildBlock } from '../scripts/aem.js';
 
 function createSubmitButton() {
@@ -63,8 +63,8 @@ export async function decorateWholesale(main) {
         // If input value isn't empty or zero, add to formData
         if (value > 0) {
           formData[id] = {
-          // TODO - Add whatever data we want to send
-          quantity: value,
+            // TODO - Add whatever data we want to send
+            quantity: value,
           };
         }
       });
