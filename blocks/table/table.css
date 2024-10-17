@@ -10,46 +10,20 @@
     margin-top: 0;
 }
 
-.table-form-submit-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.table-form-submit-wrapper button {
-    height: 50px;
-    width: 300px;
-    background-color: var(--blue);
-    color: var(--white);
-    border-radius: 6px;
-    font-family: var(--heading-font-family);
-    font-size: var(--heading-size-s);
-    margin: 20px 0;
-}
-
-.table-form-submit-wrapper button:disabled {
-    background-color: var(--blue-light);
-}
-
-.table-wrapper:not(:has(+ .table-wrapper)) .table tbody tr:last-of-type td {
-    border-bottom: 2px solid var(--blue);
-}
-
 .table {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
 }
 
-.table:first-of-type {
-    border-top: 2px solid var(--blue);
-}
-
 .table table {
     border-spacing: 0;
     width: 100%;
+    border-top: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
 }
 
-.table thead th {
+.table table thead th,
+.table table tbody tr th {
     padding: 0 12px;
     border-bottom: 2px solid var(--blue);
     font-family: var(--heading-font-family);
@@ -58,36 +32,43 @@
     background-color: var(--blue-lightest);
 }
 
-.table thead th:first-child {
+.table table thead th:first-child,
+.table table tbody tr th:first-child {
     text-align: left;
     border-right: 2px solid var(--blue);
 }
 
-.table thead th:last-child {
+.table table thead th:last-child,
+.table table tbody tr th:last-child {
     width: 125px;
 }
 
-.table tbody tr td {
+.table table tbody tr td {
     padding: 16px 12px;
     border-bottom: 2px solid var(--blue);
 }
 
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.table tbody tr td:first-child {
+.table table tbody tr td:first-child {
     border-right: 2px solid var(--blue);
     position: relative;
+}
+
+.table table tbody tr td:first-child p:first-child {
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-l);
+    margin: 0;
 }
 
 .table table tbody tr td:first-child p:not([class]) {
     margin-right: 30px;
     margin-bottom: 0;
-    font-size: var(--body-size-s);
 }
 
-.table tbody tr td:first-child .img-wrapper {
+.table table tbody tr:last-of-type td {
+    border-bottom: 2px solid var(--blue);
+}
+
+.table table tbody tr td:first-child .img-wrapper {
     position: absolute;
     display: flex;
     flex-flow: column;
@@ -99,54 +80,53 @@
     bottom: 50%;
 }
 
-.table tbody tr td:first-child .img-wrapper svg {
+.table table tbody tr td:first-child .img-wrapper svg {
     height: 24px;
     width: auto;
  }
  
-.table tbody tr td:first-child .img-wrapper span:first-of-type {
+.table table tbody tr td:first-child .img-wrapper span:first-of-type {
     padding-bottom: 6px
 }
 
-.table tbody tr td:last-child p {
+.table table tbody tr td:last-child {
     text-align: center;
     font-size: var(--heading-size-l);
     font-family: var(--heading-font-family);
     margin: 0;
 }
 
-.table tbody tr td:last-child p input {
+.table table tbody tr td:last-child input {
     background-color: var(--white);
     border: none;
     text-align: center;
 }
 
 
-.table tbody tr td:last-child p 
+.table table tbody tr td:last-child 
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.table tbody tr td:last-child p input[type=number] {
-      /* stylelint-disable-next-line property-no-vendor-prefix */
-    -moz-appearance: textfield;
+.table table tbody:last-of-type tr:last-child td{
+   border-bottom: none;
 }
 
-.table tbody tr td:first-of-type h3 {
-    margin: 0;
+.table table tbody tr td:last-child p input[type=number] {
+      /* stylelint-disable-next-line property-no-vendor-prefix */
+    -moz-appearance: textfield;
 }
 
 @media (width >= 900px) {
     .table {
         width: 100%;
         margin-left: auto;
-        border-right: 2px solid var(--blue);
-        border-left: 2px solid var(--blue);
     }
 
-    .table table tbody tr td:first-child p:not([class]) {
-        font-size: var(--body-size-m);
+    .table table {
+        border-right: 2px solid var(--blue);
+        border-left: 2px solid var(--blue);
     }
 }
