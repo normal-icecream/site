@@ -40,10 +40,6 @@
     min-height: 300px;
 }
 
-.tile.alt > div {
-   right: 0;
-}
-
 .tile > div > div {
     position: relative;
 }
@@ -76,10 +72,6 @@
     border: 2px solid var(--blue);
 }
 
-.tile.alt > div > div p.img-wrapper {
-    left: -100px;
-}
-
 .tile > div > div p.img-wrapper span svg {
     height: 90px;
     width: 90px;
@@ -89,6 +81,14 @@
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-s);
     padding: 15px 20px;
+}
+
+.tile.alt > div {
+   right: 0;
+}
+
+.tile.alt > div > div p.img-wrapper {
+    left: -100px;
 }
 
 @media (width >= 900px) {
