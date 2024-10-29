@@ -56,7 +56,7 @@ export function swapIcons() {
  * Decorates main with custom blocks based on url path
  * @param {HTMLElement} main The main container element
  */
-function decoratePageType(main) {}
+// function decoratePageType(main) {}
 
 /**
  * Builds all synthetic blocks in a container element.
@@ -123,7 +123,7 @@ async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
-  decoratePageType(main);
+  // decoratePageType(main);
   if (main) {
     decorateMain(main);
     document.body.classList.add('appear');
