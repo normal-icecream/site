@@ -28,6 +28,7 @@
   --pale-teal: #CCE0DF;
   --pale-blue: #CCD7E0;
   --pale-purple: #D5CCE0;
+  --specialty-color-blue: #dcfffb;
   --gradient: conic-gradient(
     var(--pale-orange),
     var(--pale-pink) 15%,
@@ -276,13 +277,13 @@ h3,
 h4,
 h5,
 h6 {
-  margin-top: 1.125em;
-  margin-bottom: 0.25em;
   scroll-margin: 1em;
   font-family: var(--heading-font-family);
   font-weight: var(--weight-extrabold);
   line-height: var(--line-height-s);
   text-transform: lowercase;
+  margin: 0;
+  overflow-wrap: break-word;
 }
 
 h1 {
