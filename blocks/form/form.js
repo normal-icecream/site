@@ -21,7 +21,7 @@ const fields = [
         type: 'tel',
         label: 'Phone Number',
         name: 'phone',
-        pattern: '[0-9]{3}-[0-9]{3}-[0-9]{4}', // pattern for phone number validation
+        // pattern: '[0-9]{3}-[0-9]{3}-[0-9]{4}', // pattern for phone number validation
         placeholder: '000-000-0000',
         required: true,
     },
@@ -41,7 +41,7 @@ const fields = [
         min: 0,
         max: 100,
         step: 1,
-        value: 30, // default value
+        value: 0, // default value
         required: true,
     },
     {

@@ -1,89 +1,159 @@
-// function validate() {}
+import { loadCSS } from '../../scripts/aem.js';
 
+// function validateForm() {}
+
+function buildLabel(field) {
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    return label;
+}
+
+// TODO - this should be changed to create any type of input??
+function buildInput(field) {
+    const input = document.createElement('input');
+    input.type = field.type;
+    input.name = field.name || '';
+    input.placeholder = field.placeholder || '';
+    input.required = !!field.required;
+
+    // input.autocomplete = false;
+    return input;
+}
+
+function buildSelect(field) {
+    const select = document.createElement('select');
+    select.name = field.name || '';
+    return select
+}
+
+function buildTextArea(field) {
+    const textArea = document.createElement('textarea');
+    textArea.placeholder = field.placeholder || '';
+    textArea.rows = field.rows || 4;
+    textArea.cols = field.cols || 50;
+
+    return textArea;
+}
+
+function buildWrapper(field) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `form-${field.type}`;
+    return wrapper;
+}
+
+function buildField(field) {
+    const wrapper = buildWrapper(field);
+
+    // TODO - Need to add/make better validation functions
+    if (field.type === 'input') {
+        const label = buildLabel(field);
+        const input = buildInput(field);
+
+        // QUESTION - add some kind of if label/if input exist then append to wrapper
+        wrapper.append(label, input);
+    } else if (field.type === 'tel') {
+        const label = buildLabel(field);
+        const input = buildInput(field);
+        input.pattern = '[0-9]{3}-[0-9]{3}-[0-9]{4}';
+        
+        wrapper.append(label, input);
+    } else if (field.type === 'password') {
+        const label = buildLabel(field);
+        const input = buildInput(field);
+        input.minLength = field.minLength;
+
+        wrapper.append(label, input);
+    } else if (field.type === 'date') {        
+        const label = buildLabel(field);
+        const input = buildInput(field);
+        if (field.min) input.min = field.min;
+        // if (field.max) input.max = field.max;
+        // Validation, cannot go in the past for year or to far in the future
+
+        wrapper.append(label, input);
+    } else if (field.type === 'time') {
+        // TODO - need to either disable pop up or restyle it
+        const label = buildLabel(field);
+        const input = buildInput(field);
+        if (field.min) input.min = field.min;
+        if (field.max) input.max = field.max;
+
+        wrapper.append(label, input);
+    } else if (field.type === 'textarea') {
+        const label = buildLabel(field);
+        const textArea = buildTextArea(field);
+
+        wrapper.append(label, textArea);
+    } else if (field.type === 'number') {
+        const label = buildLabel(field);
+        const input = buildInput(field);
+        input.value = field.value || 0;
+        input.min = field.min || 0;
+        input.max = field.max || 100;
+
+        wrapper.append(label, input);
+    } else if (field.type === 'radio') {
+        const label = buildLabel(field);
+
+        const optionWrapper = document.createElement('div');
+        field.options.forEach((option) => {
+            option.type = field.type;
+            const radioInput = buildInput(option);
+            const radioLabel = buildLabel(option);
+
+            optionWrapper.append(radioInput, radioLabel);
+        })
+
+        wrapper.append(label, optionWrapper);
+    } else if (field.type === 'checkbox') {
+        const label = buildLabel(field);
+        const input = buildInput(field);
+        // TODO - some of these are in ifs and others have this || figure out the stronger one and we'll make all the others conform to that
+        input.checked = field.checked || false;
+
+        wrapper.append(input, label);
+    } else if (field.type === 'select') {
+        const label = buildLabel(field);
+        const select = buildSelect(field);
+
+        field.options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.label;
+            select.appendChild(optionElement);
+        });
+
+        wrapper.append(label, select);
+    }
+    return wrapper
+}
+    
 export function buildForm(fields) {
-    console.log('fields', fields);
+    // Create form element
     const form = document.createElement('form');
 
+    // Build for field and add to form
     fields.forEach((field) => {
-        // let label;
-        let inputField;
+        const formField = buildField(field);
+        form.append(formField);
+    });
 
-        if (field.label) {
-            const labelElement = document.createElement('label');
-            labelElement.textContent = field.label;
-            form.append(labelElement);
-        }
+    // QUESTION - Maybe add this as another function??
+    // Add onSubmit handler to form
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        console.log('hitting form on submit');
 
-        // TODO - Need to add/make better validation functions
-        if (field.type === 'input' || field.type === 'tel' || field.type === 'password') {
-            inputField = document.createElement('input');
-            inputField.type = field.validation === 'email' ? 'email' : field.type; // sets type to 'tel' for phone field
-            inputField.placeholder = field.placeholder || '';
-            inputField.required = field.required || false;
-            inputField.name = field.name || '';
-            if (field.type === 'tel' && field.pattern) {
-                inputField.pattern = field.pattern; // adds pattern validation for phone
-            }
-            if (field.type === 'password' && field.minLength) {
-                inputField.minLength = field.minLength; // Enforces minimum length for password
-            }
-        } else if (field.type === 'date' || field.type === 'time') {
-            inputField = document.createElement('input');
-            inputField.type = field.type; // This sets 'date' or 'time' as the input type
-            inputField.name = field.name;
-
-            // if (field.min) inputField.min = field.min;
-            // if (field.max) inputField.max = field.max;
-        }
-        else if (field.type === 'textarea') {
-            inputField = document.createElement('textarea');
-            inputField.placeholder = field.placeholder || '';
-            inputField.rows = field.rows || 4;
-            inputField.cols = field.cols || 50;
-            inputField.name = field.name || '';
-        } else if (field.type === 'number') {
-            inputField = document.createElement('input');
-            inputField.type = 'number';
-            inputField.min = field.min || 0;
-            inputField.max = field.max || 100;
-            inputField.value = field.value || 0;
-            inputField.name = field.name || '';
-        } else if (field.type === 'radio') {
-            inputField = document.createElement('div');
-            field.options.forEach(option => {
-                const radioInput = document.createElement('input');
-                radioInput.type = 'radio';
-                radioInput.name = field.name;
-                radioInput.value = option.value;
-    
-                const label = document.createElement('label');
-                label.textContent = option.label;
-                label.appendChild(radioInput);
-                inputField.appendChild(label);
-            });
-        } else if (field.type === 'checkbox') {
-            inputField = document.createElement('input');
-            inputField.type = 'checkbox';
-            inputField.checked = field.checked || false;
-            inputField.name = field.name || '';
-        } else if (field.type === 'select') {
-            inputField = document.createElement('select');
-            inputField.name = field.name || '';
-            field.options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option.value;
-                optionElement.textContent = option.label;
-                inputField.appendChild(optionElement);
-            });
-        } else if (field.type === 'submit') {
-            inputField = document.createElement('button');
-            inputField.type = 'submit';
-            inputField.className = field.className || '';
-            inputField.textContent = field.label || 'Submit';
-        }
-    
-        if (inputField) { form.append(inputField); }
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach((input) => {
+            console.log(input.name)
+            console.log(input.value)
+        })
     })
 
+    // Load styles for form
+    loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
+
+    // Return form
     return form;
 } 

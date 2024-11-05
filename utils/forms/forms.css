@@ -1,0 +1,57 @@
+.form label {
+    font-size: var(--heading-size-xs);
+    font-family: var(--heading-font-family);
+    color: var(--blue);
+    margin: 0;
+}
+
+.form 
+input, 
+textarea,
+select {
+    border: solid 2px var(--blue-light);
+    margin-bottom: 20px;
+    background-color: transparent;
+    padding: 20px;
+}
+
+.form 
+input::placeholder, 
+textarea::placeholder {
+   color: var(--blue-light);
+}
+
+.form .form-radio {
+    padding: 12px 0;
+}
+
+.form .form-radio > div {
+   display: flex;
+   align-items: center;
+   padding: 4px;
+}
+
+.form .form-radio > div input {
+    margin: 0;
+    /* background-color: transparent; */
+    /* color: var(--blue); */
+    height: 20px;
+    width: 20px;
+}
+
+.form .form-radio > div label {
+    margin-left: 12px;
+}
+
+.form .form-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 20px 20px 20px 0;
+}
+
+.form .form-checkbox input {
+   margin: 0 12px 0 0;
+   height: 20px;
+   width: 20px;
+   border-radius: 100%;
+}
