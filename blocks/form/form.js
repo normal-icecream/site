@@ -54,6 +54,7 @@ const fields = [
             { label: 'Strawberry', value: 'strawberry' },
         ],
         required: true,
+        // QUESTION - option for user to select one or many
     },
     {
         type: 'checkbox',
@@ -63,14 +64,40 @@ const fields = [
         required: true,
     },
     {
+        type: 'checkbox-group', // Indicating this is a multi-select group
+        label: 'Select payment options', // Label for the group
+        name: 'payment-options', // Group name to group these checkboxes logically
+        required: true, // The entire group is required
+        options: [
+            {
+                type: 'checkbox',
+                label: 'Pay with gift card',
+                value: 'gift-card',
+                checked: false,
+            },
+            {
+                type: 'checkbox',
+                label: 'Pay with credit card',
+                value: 'credit-card',
+                checked: false,
+            },
+            {
+                type: 'checkbox',
+                label: 'Pay with PayPal',
+                value: 'paypal',
+                checked: false,
+            }
+        ]
+    },
+    {
         type: 'select',
         label: 'Country',
         name: 'country',
         options: [
-            { label: 'United States', value: 'US' },
-            { label: 'Canada', value: 'CA' },
-            { label: 'United Kingdom', value: 'UK' },
-            { label: 'Australia', value: 'AU' }
+            { label: 'United States', value: 'US', selected: false },
+            { label: 'Canada', value: 'CA', selected: false },
+            { label: 'United Kingdom', value: 'UK', selected: false },
+            { label: 'Australia', value: 'AU', selected: false }
         ],
         required: true,
     },
@@ -106,6 +133,11 @@ const fields = [
 ];
 
 export default function decorate(block) {
-    const form = buildForm(fields);
+    function submitHandler(formData) {
+        console.log('formData from form: ', formData)
+    }
+
+    const form = buildForm(fields, submitHandler);
+
     block.append(form);
 }

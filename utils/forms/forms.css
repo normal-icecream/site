@@ -1,3 +1,8 @@
+.form form {
+    display: flex;
+    flex-flow: column;
+}
+
 .form label {
     font-size: var(--heading-size-xs);
     font-family: var(--heading-font-family);
@@ -25,22 +30,36 @@ textarea::placeholder {
     padding: 12px 0;
 }
 
-.form .form-radio > div {
-   display: flex;
-   align-items: center;
+/* .form .form-radio {
    padding: 4px;
-}
+} */
 
-.form .form-radio > div input {
-    margin: 0;
+/* .form .form-radio > div > div {
+   display: flex;
+} */
+
+/* .form .form-radio > div > div input {
+    margin: 0; */
     /* background-color: transparent; */
     /* color: var(--blue); */
-    height: 20px;
+    /* height: 20px;
     width: 20px;
+} */
+
+/* .form .form-radio > div label {
+    margin-left: 12px;
+} */
+
+/* .form .form-radio input {
+    background-color: pink;
+} */
+
+.form .form-radio input[type='radio'] {
+    background-color: tomato;
 }
 
-.form .form-radio > div label {
-    margin-left: 12px;
+.form .form-radio label.has-child {
+    background-color: green;
 }
 
 .form .form-checkbox {
@@ -54,4 +73,23 @@ textarea::placeholder {
    height: 20px;
    width: 20px;
    border-radius: 100%;
+}
+
+.form .form-submit {
+    align-self: center;
+}
+
+.form .form-submit button {
+    background-color: var(--blue);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-m);
+    line-height: 0;
+    min-height: 50px;
+    min-width: 300px;
+    cursor: pointer;
+    border-radius: 6px;
 }
