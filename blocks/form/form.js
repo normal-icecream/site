@@ -6,32 +6,31 @@ const fields = [
         label: 'First Name',
         name: 'firstName',
         placeholder: 'Enter your first name',
-        validation: /^[A-Za-z]+$/, // Allows only letters
         required: true,
+        // This validation should have only the extras, if any to be added to a field that aren't already on the field itself
+        validation: ['no-nums']
     },
     {
-        type: 'input',
+        type: 'email',
         label: 'Email',
         name: 'email',
         placeholder: 'Enter your email',
-        validation: 'email', // or a function to validate email format
         required: true,
     },
     {
         type: 'tel',
         label: 'Phone Number',
         name: 'phone',
-        // pattern: '[0-9]{3}-[0-9]{3}-[0-9]{4}', // pattern for phone number validation
         placeholder: '000-000-0000',
         required: true,
+        validation: ['phone:US']
     },
     {
         type: 'textarea',
         label: 'How did you hear about us?',
         name: 'referralSource',
         placeholder: 'e.g., friend, social media, etc.',
-        rows: 4,
-        cols: 50,
+        rows: 8,
         required: true,
     },
     {
@@ -40,7 +39,6 @@ const fields = [
         name: 'quantity',
         min: 0,
         max: 100,
-        step: 1,
         value: 0, // default value
         required: true,
     },
@@ -53,21 +51,26 @@ const fields = [
             { label: 'Chocolate', value: 'chocolate' },
             { label: 'Strawberry', value: 'strawberry' },
         ],
-        required: true,
-        // QUESTION - option for user to select one or many
+        required: true, // This will force native validation to make sure at least one radio is checked
     },
     {
         type: 'checkbox',
         label: 'want to pay with a gift card?',
         name: 'gift-card',
         checked: false,
+    },
+    {
+        type: 'checkbox',
+        label: 'Would you like to subscribe to our newsletter?',
+        name: 'news-letter',
+        checked: true,
         required: true,
     },
     {
-        type: 'checkbox-group', // Indicating this is a multi-select group
-        label: 'Select payment options', // Label for the group
-        name: 'payment-options', // Group name to group these checkboxes logically
-        required: true, // The entire group is required
+        type: 'checkbox-group',
+        label: 'Select payment options',
+        name: 'payment-options',
+        required: true,
         options: [
             {
                 type: 'checkbox',
@@ -93,21 +96,33 @@ const fields = [
         type: 'select',
         label: 'Country',
         name: 'country',
-        options: [
-            { label: 'United States', value: 'US', selected: false },
-            { label: 'Canada', value: 'CA', selected: false },
-            { label: 'United Kingdom', value: 'UK', selected: false },
-            { label: 'Australia', value: 'AU', selected: false }
-        ],
         required: true,
+        options: [
+            {   label: 'United States',
+                value: 'US',
+                selected: false
+            },
+            {   label: 'Canada',
+                value: 'CA',
+                selected: false
+            },
+            {   label: 'United Kingdom',
+                value: 'UK',
+                selected: false
+            },
+            {   label: 'Australia',
+                value: 'AU',
+                selected: false 
+            }
+        ],
     },
     {
         type: 'date',
         label: 'Select Date',
         name: 'date',
-        min: '2024-10-01', // Earliest allowable date
-        max: '2024-12-31',  // Latest allowable date
-        required: false,
+        // min: '2024-10-01',
+        // max: '2024-12-31',
+        required: true,
     },
     {
         type: 'time',
@@ -115,7 +130,7 @@ const fields = [
         name: 'time',
         min: '09:00', // Earliest allowable time
         max: '17:00',  // Latest allowable time
-        required: false,
+        required: true,
     },
     {
         type: 'password',
@@ -123,7 +138,8 @@ const fields = [
         name: 'password',
         placeholder: 'Enter your password',
         minLength: 8,
-        required: false,
+        maxLength: 20,
+        required: true,
     },
     {
         type: 'submit',
@@ -133,11 +149,10 @@ const fields = [
 ];
 
 export default function decorate(block) {
-    function submitHandler(formData) {
+    function handleSubmit(formData) {
         console.log('formData from form: ', formData)
     }
 
-    const form = buildForm(fields, submitHandler);
-
+    const form = buildForm(fields, handleSubmit);
     block.append(form);
 }
