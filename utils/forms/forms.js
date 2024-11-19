@@ -322,82 +322,35 @@ export function buildForm(fields, handleSubmit) {
         isValid = validateForm(form);
 
         if (isValid) {
-            console.log('hit form submit in form');
-        }
-
-
-
-
-        // input.setCustomValidity('')
-        // event.submitter = disabled - use this to prevent users from clicking submit a million times
-        // const formInputs = form.elements;
-        // const isValid = validateForm(form);
-
-        // Array.from(formInputs).forEach((input) => {
-        //      validateInput(input);
-            // console.log("isValid:", isValid);
-
-        //     input.setCustomValidity('');
-        //     let errorMessages = [];
-
-        //     // Run built-in validation and gather messages
-        //     if (input.validationMessage) {
-        //         errorMessages.push(input.validationMessage);
-        //     }
-
-        //     // Set custom validity if there are any errors
-        //     if (errorMessages.length > 0) {
-        //         isValid = false;
-        //         input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
-        //         showError(input, errorMessages);
-        //     } else {
-        //         clearError(input);
-        //     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // console.log('isValid', isValid)
-
-        // if ( isValid ) {
-        //     console.log('hit form submit in form')
-        //     const data = {};
-        //     const formFields = document.querySelectorAll('input, select, textarea');
+            const data = {};
+            const formFields = document.querySelectorAll('input, select, textarea');
     
-        //     formFields.forEach((field) => {
-        //         // Now process data for valid fields
-        //         if (field.type === 'radio' && field.checked) {
-        //             data[field.name] = field.value;
-        //         } else if (field.type === 'checkbox') {
-        //             if (data[field.name] === undefined) {
-        //                 data[field.name] = field.checked ? (field.value === 'on' ? true : field.value) : false;
-        //             } else {
-        //                 // Convert to array if multiple checkboxes with same name
-        //                 if (!Array.isArray(data[field.name])) {
-        //                     data[field.name] = data[field.name] ? [data[field.name]] : [];
-        //                 }
-        //                 // Add checked value only
-        //                 if (field.checked) {
-        //                     data[field.name].push(field.value);
-        //                 }
-        //             }
-        //         } else {
-        //             data[field.name] = field.value;
-        //         }
+            formFields.forEach((field) => {
+                // Now process data for valid fields
+                if (field.type === 'radio' && field.checked) {
+                    data[field.name] = field.value;
+                } else if (field.type === 'checkbox') {
+                    if (data[field.name] === undefined) {
+                        data[field.name] = field.checked ? (field.value === 'on' ? true : field.value) : false;
+                    } else {
+                        // Convert to array if multiple checkboxes with same name
+                        if (!Array.isArray(data[field.name])) {
+                            data[field.name] = data[field.name] ? [data[field.name]] : [];
+                        }
+                        // Add checked value only
+                        if (field.checked) {
+                            data[field.name].push(field.value);
+                        }
+                    }
+                } else {
+                    data[field.name] = field.value;
+                }
     
-        //     })
-        //     handleSubmit(data);
-        // }
+            });
 
+            handleSubmit(data);
+            
+            }
         });
 
     // Load styles for form
