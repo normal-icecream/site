@@ -36,17 +36,36 @@ function clearError(input) {
     }
 }
 
-function validateInput(input, field) {
+function validateForm(form) {
+    let isValid = true;
+
+    // Loop through all form inputs
+    const formInputs = Array.from(form.elements);
+    formInputs.forEach((input) => {
+        // Skip non-input elements like buttons
+        if (input.type !== 'submit' && input.type !== 'button') {
+            const inputValid = validateInput(input);
+            if (!inputValid) {
+                isValid = false; // Mark the form as invalid if any field fails
+            }
+        }
+    });
+
+    return isValid;
+}
+
+function validateInput(input) {
     input.setCustomValidity('');
     let errorMessages = [];
+    let isValid = true;
 
     // Run built-in validation and gather messages
     if (input.validationMessage) {
         errorMessages.push(input.validationMessage);
     }
-    
-    // Run unique validation rules not handled as default part of input type validations
-    const validationRules = field.validation || [];
+
+    // Retrieve and parse rules
+    const validationRules = JSON.parse(input.dataset.validation || '[]');
     validationRules.forEach(rule => {
         if (rule === 'no-nums' && /\d/.test(input.value)) {
             errorMessages.push("Numbers are not allowed.");
@@ -67,11 +86,14 @@ function validateInput(input, field) {
 
     // Set custom validity if there are any errors
     if (errorMessages.length > 0) {
+        isValid = false;
         input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
         showError(input, errorMessages);
     } else {
         clearError(input);
     }
+
+    return isValid;
 }
 
 function buildInput(field) {
@@ -94,9 +116,14 @@ function buildInput(field) {
     if (field.maxLength) input.maxLength = field.maxLength;
     if (field.max) input.max = field.max;
 
+    // Add validation rules as a data attribute
+    if (field.validation && Array.isArray(field.validation)) {
+        input.dataset.validation = JSON.stringify(field.validation);
+    }
+
     input.addEventListener('change', () => {
         input.classList.add('touched');
-        validateInput(input, field);
+        validateInput(input);
     });
 
     return input;
@@ -278,43 +305,100 @@ function buildField(field) {
 // TODO - add info on function and what it does
 export function buildForm(fields, handleSubmit) {
     const form = document.createElement('form');
-
+    // This allows us to set up custom error handling and styling
+    form.noValidate = true;
+    
     // Build form input for each field in fields, then add to form
     fields.forEach((field) => {
         const formField = buildField(field);
         form.append(formField);
     });
-
+    
     // Form submit handler
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-        const data = {};
-        const formFields = document.querySelectorAll('input, select, textarea');
 
-        formFields.forEach((field) => {
-            // Now process data for valid fields
-            if (field.type === 'radio' && field.checked) {
-                data[field.name] = field.value;
-            } else if (field.type === 'checkbox') {
-                if (data[field.name] === undefined) {
-                    data[field.name] = field.checked ? (field.value === 'on' ? true : field.value) : false;
-                } else {
-                    // Convert to array if multiple checkboxes with same name
-                    if (!Array.isArray(data[field.name])) {
-                        data[field.name] = data[field.name] ? [data[field.name]] : [];
-                    }
-                    // Add checked value only
-                    if (field.checked) {
-                        data[field.name].push(field.value);
-                    }
-                }
-            } else {
-                data[field.name] = field.value;
-            }
+        let isValid = true;
+        isValid = validateForm(form);
 
-        })
-        handleSubmit(data);
-    });
+        if (isValid) {
+            console.log('hit form submit in form');
+        }
+
+
+
+
+        // input.setCustomValidity('')
+        // event.submitter = disabled - use this to prevent users from clicking submit a million times
+        // const formInputs = form.elements;
+        // const isValid = validateForm(form);
+
+        // Array.from(formInputs).forEach((input) => {
+        //      validateInput(input);
+            // console.log("isValid:", isValid);
+
+        //     input.setCustomValidity('');
+        //     let errorMessages = [];
+
+        //     // Run built-in validation and gather messages
+        //     if (input.validationMessage) {
+        //         errorMessages.push(input.validationMessage);
+        //     }
+
+        //     // Set custom validity if there are any errors
+        //     if (errorMessages.length > 0) {
+        //         isValid = false;
+        //         input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
+        //         showError(input, errorMessages);
+        //     } else {
+        //         clearError(input);
+        //     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // console.log('isValid', isValid)
+
+        // if ( isValid ) {
+        //     console.log('hit form submit in form')
+        //     const data = {};
+        //     const formFields = document.querySelectorAll('input, select, textarea');
+    
+        //     formFields.forEach((field) => {
+        //         // Now process data for valid fields
+        //         if (field.type === 'radio' && field.checked) {
+        //             data[field.name] = field.value;
+        //         } else if (field.type === 'checkbox') {
+        //             if (data[field.name] === undefined) {
+        //                 data[field.name] = field.checked ? (field.value === 'on' ? true : field.value) : false;
+        //             } else {
+        //                 // Convert to array if multiple checkboxes with same name
+        //                 if (!Array.isArray(data[field.name])) {
+        //                     data[field.name] = data[field.name] ? [data[field.name]] : [];
+        //                 }
+        //                 // Add checked value only
+        //                 if (field.checked) {
+        //                     data[field.name].push(field.value);
+        //                 }
+        //             }
+        //         } else {
+        //             data[field.name] = field.value;
+        //         }
+    
+        //     })
+        //     handleSubmit(data);
+        // }
+
+        });
 
     // Load styles for form
     loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
