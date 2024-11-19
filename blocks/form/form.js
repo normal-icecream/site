@@ -1,4 +1,4 @@
-import { buildForm } from '../../utils/forms/forms.js';
+import buildForm from '../../utils/forms/forms.js';
 
 const fields = [
   {
@@ -7,7 +7,7 @@ const fields = [
     name: 'firstName',
     placeholder: 'Enter your first name',
     required: true,
-    // This validation should have only the extras, if any
+    // This validation should have only the extras, if any,
     // to be added to a field that aren't already on the field itself
     validation: ['no-nums'],
   },
