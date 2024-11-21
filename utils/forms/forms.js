@@ -1,20 +1,20 @@
 import { loadCSS } from '../../scripts/aem.js';
 
+//TODO - maybe add a should display required prop
 function buildLabel(field) {
     const label = document.createElement('label');
     label.textContent = field.required === true ? `${field.label} *` : field.label;
     return label;
 }
 
-// Helper functions to show and clear error messages
-function showError(input, errorMessages) {
-    // Check if the error container already exists next to the input
-    let errorContainer = input.nextElementSibling;
-    if (!errorContainer || !errorContainer.classList.contains('error-messages')) {
+function showError(container, errorMessages) {
+    const containerParent = container.closest('div[class^="form-"]');
+    let errorContainer = containerParent.querySelector('.error-messages');
+    if (!errorContainer) {
         // Create a new error container if one doesn't already exist
         errorContainer = document.createElement('div');
         errorContainer.className = 'error-messages';
-        input.insertAdjacentElement('afterend', errorContainer);
+        containerParent.append(errorContainer);
     } else {
         // Clear existing error messages if the container already exists
         errorContainer.innerHTML = '';
@@ -29,31 +29,78 @@ function showError(input, errorMessages) {
     });
 }
 
-function clearError(input) {
-    const existingError = input.nextElementSibling;
-    if (existingError && existingError.classList.contains('error-messages')) {
-        existingError.remove();
+function clearError(container) {
+    const containerParent = container.closest('div[class^="form-"]');
+    const errorContainer = containerParent.querySelector('.error-messages');
+    if (errorContainer) {
+        errorContainer.remove(); // Remove the error messages container
     }
 }
 
-function validateForm(form) {
+function validateCheckboxGroup(group) {
+    const { checkboxes, validations, parent } = group; // Extract checkboxes, validations, and parent div
     let isValid = true;
 
-    // Loop through all form inputs
-    const formInputs = Array.from(form.elements);
-    formInputs.forEach((input) => {
-        // Skip non-input elements like buttons
-        if (input.type !== 'submit' && input.type !== 'button') {
-            const inputValid = validateInput(input);
-            if (!inputValid) {
-                isValid = false; // Mark the form as invalid if any field fails
-            }
+    // Check for 'one-required' validation rule
+    if (validations.includes('one-required')) {
+        const isAnyChecked = checkboxes.some(checkbox => checkbox.checked);
+
+        if (!isAnyChecked) {
+            // Display error message on the parent container
+            const errorMessages = ['Please select at least one option.'];
+            showError(parent, errorMessages);
+            isValid = false;
+        } else {
+            // Clear any previous error messages
+            clearError(parent);
         }
-    });
+    }
 
     return isValid;
 }
 
+function getCheckboxGroups(form) {
+    const checkboxGroups = {};
+
+    for (const element of form.elements) {
+        if (element.type === 'checkbox') {
+            const groupName = element.name;
+            if (!groupName) continue;
+
+            if (!checkboxGroups[groupName]) {
+                const checkboxes = Array.from(form.elements).filter(
+                    (el) => el.type === 'checkbox' && el.name === groupName
+                );
+
+                if (checkboxes.length > 1) {
+                    const parentDiv = element.closest('div');
+                    let validations = [];
+
+                    if (parentDiv && parentDiv.dataset.validation) {
+                        try {
+                            validations = JSON.parse(parentDiv.dataset.validation);
+                        } catch (e) {
+                            console.warn(
+                                `Invalid JSON in data-validation for ${groupName}`,
+                                parentDiv.dataset.validation
+                            );
+                        }
+                    }
+
+                    checkboxGroups[groupName] = {
+                        checkboxes,
+                        validations,
+                        parent: parentDiv
+                    };
+                }
+            }
+        }
+    }
+
+    return checkboxGroups;
+}
+
+// TODO - fix issue with multiple errors displaying for tel type
 function validateInput(input) {
     input.setCustomValidity('');
     let errorMessages = [];
@@ -92,6 +139,38 @@ function validateInput(input) {
     } else {
         clearError(input);
     }
+
+    return isValid;
+}
+
+function validateForm(form) {
+    let isValid = true;
+    // Loop through all form inputs
+    const formInputs = Array.from(form.elements);
+    const checkboxGroups = getCheckboxGroups(form);
+
+    // Validate each checkbox group
+    Object.values(checkboxGroups).forEach(group => {
+        const groupValid = validateCheckboxGroup(group);
+        if (!groupValid) {
+            isValid = false;
+        }
+    });
+
+    // Get all grouped checkbox elements
+    const groupedCheckboxes = Object.values(checkboxGroups).flatMap((group) => group.checkboxes);
+
+    // Exclude grouped checkboxes from formInputs
+    const inputsExcludingCheckboxGroups = formInputs.filter((input) => !groupedCheckboxes.includes(input));
+    inputsExcludingCheckboxGroups.forEach((input) => {
+        // Skip non-input elements like buttons
+        if (input.type !== 'submit' && input.type !== 'button') {
+            const inputValid = validateInput(input);
+            if (!inputValid) {
+                isValid = false; // Mark the form as invalid if any field fails
+            }
+        }
+    });
 
     return isValid;
 }
@@ -183,8 +262,10 @@ function buildSelect(field) {
 }
 
 function buildRadio(field) {
-    const radioWrapper = document.createElement('div');
+    // Create the fieldset element to group the radio buttons
+    const fieldset = document.createElement('fieldset');
 
+    // Iterate through the options to create radio buttons and labels
     field.options.forEach((option) => {
         const radioLabel = buildLabel(option);
         const radio = document.createElement('input');
@@ -192,20 +273,31 @@ function buildRadio(field) {
         radio.name = field.name;
         radio.value = option.value;
 
+        // Set required attribute if specified
         if (field.required) radio.required = true;
 
+        // Prepend the radio input to its label
         radioLabel.prepend(radio);
-        radioWrapper.append(radioLabel);
+
+        // Append the label (with radio input) to the fieldset
+        fieldset.appendChild(radioLabel);
     });
 
-    return radioWrapper
+    return fieldset;
 }
 
 function buildCheckboxGroup(field) {
     const checkboxGroupWrapper = document.createElement('div');
 
+    // Add validation rules as a data attribute
+    if (field.validation && Array.isArray(field.validation)) {
+        checkboxGroupWrapper.dataset.validation = JSON.stringify(field.validation);
+    }
+
     field.options.forEach((option) => {
-        if (field.required) option.required = field.required;
+        if (field.required && !field.validation.includes('one-required')) {
+            option.required = field.required
+        };
     
         const input = buildInput(option);
         input.name = field.name;
@@ -349,7 +441,6 @@ export function buildForm(fields, handleSubmit) {
             });
 
             handleSubmit(data);
-            
             }
         });
 

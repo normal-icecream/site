@@ -46,6 +46,9 @@ textarea::placeholder {
 
 .form .error-messages {
     color: var(--red);
+    /* font-size: 14px;
+    margin-top: 4px;
+    display: block; */
     /* background-color: yellowgreen; */
 }
 
@@ -91,8 +94,8 @@ textarea::placeholder {
 }
 
 .form .form-checkbox {
-    display: flex;
-    align-items: center;
+    /* display: flex;
+    align-items: center; */
     padding: 20px 20px 20px 0;
 }
 

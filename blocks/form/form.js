@@ -46,18 +46,44 @@ const fields = [
         type: 'radio',
         label: 'Select a flavor',
         name: 'flavor',
-        options: [
-            { label: 'Vanilla', value: 'vanilla' },
-            { label: 'Chocolate', value: 'chocolate' },
-            { label: 'Strawberry', value: 'strawberry' },
-        ],
         required: true, // This will force native validation to make sure at least one radio is checked
+        options: [
+            {   label: 'Vanilla', 
+                value: 'vanilla' 
+            },
+            { 
+                label: 'Chocolate', 
+                value: 'chocolate' 
+            },
+            {   label: 'Strawberry', 
+                value: 'strawberry' 
+            },
+        ],
+    },
+    {
+        type: 'radio',
+        label: 'Select a topping',
+        // TODO - would be good to add a check to make sure that no other radio groups have the same name.
+        name: 'topping',
+        options: [
+            {   label: 'Sprinkles', 
+                value: 'sprinkles' 
+            },
+            { 
+                label: 'Pickles', 
+                value: 'pickles' 
+            },
+            {   label: 'Cinnamon sticks', 
+                value: 'cinnamon-sticks' 
+            },
+        ],
     },
     {
         type: 'checkbox',
         label: 'want to pay with a gift card?',
         name: 'gift-card',
-        checked: false,
+        // checked: false,
+        required: true,
     },
     {
         type: 'checkbox',
@@ -70,6 +96,7 @@ const fields = [
         type: 'checkbox-group',
         label: 'Select payment options',
         name: 'payment-options',
+        validation: ['one-required'],
         required: true,
         options: [
             {
@@ -88,6 +115,31 @@ const fields = [
                 type: 'checkbox',
                 label: 'Pay with PayPal',
                 value: 'paypal',
+                checked: false,
+            }
+        ]
+    },
+    {
+        type: 'checkbox-group',
+        label: 'Select syrup options',
+        name: 'syrup',
+        options: [
+            {
+                type: 'checkbox',
+                label: 'Maple',
+                value: 'maple',
+                checked: false,
+            },
+            {
+                type: 'checkbox',
+                label: 'Chocolate',
+                value: 'chocolate',
+                checked: false,
+            },
+            {
+                type: 'checkbox',
+                label: 'Caramel',
+                value: 'caramel',
                 checked: false,
             }
         ]
