@@ -11,6 +11,15 @@ const fields = [
         validation: ['no-nums']
     },
     {
+        type: 'input',
+        label: 'Last Name',
+        name: 'lastName',
+        placeholder: 'Enter your last name',
+        required: true,
+        // This validation should have only the extras, if any to be added to a field that aren't already on the field itself
+        validation: ['no-nums']
+    },
+    {
         type: 'email',
         label: 'Email',
         name: 'email',
@@ -23,6 +32,7 @@ const fields = [
         name: 'phone',
         placeholder: '000-000-0000',
         required: true,
+        // This validation should have only the extras, if any to be added to a field that aren't already on the field itself
         validation: ['phone:US']
     },
     {
@@ -30,14 +40,13 @@ const fields = [
         label: 'How did you hear about us?',
         name: 'referralSource',
         placeholder: 'e.g., friend, social media, etc.',
-        rows: 8,
         required: true,
     },
     {
         type: 'number',
         label: 'Quantity',
         name: 'quantity',
-        min: 0,
+        min: 1,
         max: 100,
         value: 0, // default value
         required: true,
@@ -48,32 +57,22 @@ const fields = [
         name: 'flavor',
         required: true, // This will force native validation to make sure at least one radio is checked
         options: [
-            {   label: 'Vanilla', 
-                value: 'vanilla' 
-            },
-            { 
-                label: 'Chocolate', 
-                value: 'chocolate' 
-            },
-            {   label: 'Strawberry', 
-                value: 'strawberry' 
-            },
+            { label: 'Vanilla', },
+            { label: 'Chocolate' },
+            { label: 'Strawberry' },
+            { label: 'Dulce de leche' }
         ],
     },
     {
         type: 'radio',
         label: 'Select a topping',
-        // TODO - would be good to add a check to make sure that no other radio groups have the same name.
         name: 'topping',
         options: [
-            {   label: 'Sprinkles', 
-                value: 'sprinkles' 
-            },
+            { label: 'Sprinkles' },
+            { label: 'Pickles' },
+            { label: 'Snickers', value: 'i snicker at you' },
             { 
-                label: 'Pickles', 
-                value: 'pickles' 
-            },
-            {   label: 'Cinnamon sticks', 
+                label: 'Cinnamon sticks', 
                 value: 'cinnamon-sticks' 
             },
         ],
@@ -81,21 +80,22 @@ const fields = [
     {
         type: 'checkbox',
         label: 'want to pay with a gift card?',
-        name: 'gift-card',
-        // checked: false,
+        name: 'giftCard',
+        value: 'giftCard',
         required: true,
     },
     {
         type: 'checkbox',
         label: 'Would you like to subscribe to our newsletter?',
-        name: 'news-letter',
+        name: 'subscribe',
+        value: 'newsletter',
         checked: true,
         required: true,
     },
     {
         type: 'checkbox-group',
         label: 'Select payment options',
-        name: 'payment-options',
+        name: 'paymentOptions',
         validation: ['one-required'],
         required: true,
         options: [
@@ -103,19 +103,16 @@ const fields = [
                 type: 'checkbox',
                 label: 'Pay with gift card',
                 value: 'gift-card',
-                checked: false,
             },
             {
                 type: 'checkbox',
                 label: 'Pay with credit card',
                 value: 'credit-card',
-                checked: false,
             },
             {
                 type: 'checkbox',
                 label: 'Pay with PayPal',
                 value: 'paypal',
-                checked: false,
             }
         ]
     },
@@ -128,19 +125,17 @@ const fields = [
                 type: 'checkbox',
                 label: 'Maple',
                 value: 'maple',
-                checked: false,
+                checked: true
             },
             {
                 type: 'checkbox',
                 label: 'Chocolate',
                 value: 'chocolate',
-                checked: false,
             },
             {
                 type: 'checkbox',
                 label: 'Caramel',
                 value: 'caramel',
-                checked: false,
             }
         ]
     },
@@ -148,23 +143,50 @@ const fields = [
         type: 'select',
         label: 'Country',
         name: 'country',
+        placeholder: 'Select an option',
         required: true,
         options: [
-            {   label: 'United States',
+            {   
+                label: 'United States',
                 value: 'US',
-                selected: false
             },
-            {   label: 'Canada',
+            {   
+                label: 'Canada',
                 value: 'CA',
-                selected: false
             },
-            {   label: 'United Kingdom',
-                value: 'UK',
-                selected: false
+            {   
+                label: 'United Kingdom',
+                value: 'UK A',
             },
-            {   label: 'Australia',
+            {   
+                label: 'Australia',
                 value: 'AU',
-                selected: false 
+            }
+        ],
+    },
+    {
+        type: 'select',
+        label: 'Pick up location',
+        name: 'pickupLocation',
+        placeholder: 'Select an option',
+        required: true,
+        options: [
+            {   
+                label: 'Store',
+                selected: true
+            },
+            {   
+                label: 'Spaceship',
+            },
+            {   
+                label: 'Truck',
+            },
+            {   
+                label: 'Warehouse',
+            },
+            {   
+                label: 'Harmons',
+                value: 'harmons grocery',
             }
         ],
     },
@@ -172,8 +194,8 @@ const fields = [
         type: 'date',
         label: 'Select Date',
         name: 'date',
-        // min: '2024-10-01',
-        // max: '2024-12-31',
+        min: '2024-10-01',
+        max: '2024-12-31',
         required: true,
     },
     {
@@ -189,14 +211,11 @@ const fields = [
         label: 'Password',
         name: 'password',
         placeholder: 'Enter your password',
-        minLength: 8,
-        maxLength: 20,
         required: true,
     },
     {
         type: 'submit',
-        label: 'Submit',
-        className: 'submit-button',
+        label: 'Place Order',
     },
 ];
 
@@ -206,7 +225,5 @@ export default function decorate(block) {
     }
 
     const form = buildForm(fields, handleSubmit);
-    
-
     block.append(form);
 }

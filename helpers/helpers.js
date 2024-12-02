@@ -10,3 +10,7 @@ export function removeEmptyElements(selector) {
     }
   });
 }
+
+export function toKebabCase(string) {
+  return string.split('').map(char => char === ' ' ? '-' : char).join('').toLowerCase()
+}

@@ -1,6 +1,30 @@
 .form form {
     display: flex;
     flex-flow: column;
+    text-transform: lowercase;
+}
+
+.form div {
+    margin: 6px;
+}
+
+.form div.invalid input, 
+.form div.invalid select, 
+.form div.invalid textarea {
+    border: solid 2px var(--red);
+    color: var(--red);
+    background-color: var(--red-light);
+    -webkit-text-fill-color: var(--red) !important;
+}
+
+.form div.invalid input[type="checkbox"] {
+    border: 20px solid var(--red);
+    background-color: var(--red-light);
+}
+
+.form div.invalid input::placeholder,
+.form div.invalid textarea::placeholder {
+    color: var(--red);
 }
 
 .form label {
@@ -8,7 +32,10 @@
     font-family: var(--heading-font-family);
     color: var(--blue);
     margin: 0;
-    margin-top: 10px;
+}
+
+.form label.label-invalid {
+    color: var(--red);
 }
 
 .form 
@@ -18,21 +45,9 @@ select {
     border: solid 2px var(--blue-light);
     background-color: transparent;
     padding: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     color: var(--blue);
 } 
-
-.form input.touched:valid,
-textarea.touched:valid,
-select.touched:valid {
-    border: solid 2px var(--blue-light);
-}
-
-.form input.touched:invalid,
-textarea.touched:invalid,
-select.touched:invalid {
-    border: solid 2px var(--red);
-}
 
 .form 
 input::placeholder, 
@@ -40,67 +55,13 @@ textarea::placeholder {
    color: var(--blue-light);
 }
 
-.form .form-radio {
-    padding: 12px 0;
-}
-
 .form .error-messages {
     color: var(--red);
-    /* font-size: 14px;
-    margin-top: 4px;
-    display: block; */
-    /* background-color: yellowgreen; */
-}
-
-.form span.forms-errors {
-    margin: 100px;
-    background-color: violet;
-}
-
-.form-submit {
-    margin: 20px;
-}
-
-/* .form .form-radio {
-   padding: 4px;
-} */
-
-/* .form .form-radio > div > div {
-   display: flex;
-} */
-
-/* .form .form-radio > div > div input {
-    margin: 0; */
-    /* background-color: transparent; */
-    /* color: var(--blue); */
-    /* height: 20px;
-    width: 20px;
-} */
-
-/* .form .form-radio > div label {
-    margin-left: 12px;
-} */
-
-/* .form .form-radio input {
-    background-color: pink;
-} */
-
-.form .form-radio input[type='radio'] {
-    background-color: tomato;
-}
-
-.form .form-radio label.has-child {
-    background-color: green;
-}
-
-.form .form-checkbox {
-    /* display: flex;
-    align-items: center; */
-    padding: 20px 20px 20px 0;
+    font-size: 12px;
+    display: block;
 }
 
 .form .form-checkbox input {
-   margin: 0 12px 0 0;
    height: 20px;
    width: 20px;
    border-radius: 100%;
@@ -111,8 +72,9 @@ textarea::placeholder {
 }
 
 .form .form-submit button {
-    background-color: var(--blue);
+    text-transform: lowercase;
     color: var(--white);
+    background-color: var(--blue);
     display: flex;
     align-items: center;
     justify-content: center;
