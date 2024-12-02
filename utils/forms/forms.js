@@ -195,8 +195,17 @@ function validateInput(input) {
         clearError(input);
     }
 
+    // Set custom validity if there are any errors
+    if (errorMessages.length > 0) {
+      isValid = false;
+      input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
+      showError(input, errorMessages);
+    } else {
+      clearError(input);
+    }
+  
     return isValid;
-}
+};
 
 /**
  * Validates all inputs and checkbox groups in a given form.
@@ -257,10 +266,10 @@ function buildInput(field) {
     if (field.required) input.required = true;
     if (field.max) input.max = field.max;
 
-    // Add validation rules as a data attribute
-    if (field.validation && Array.isArray(field.validation)) {
-        input.dataset.validation = JSON.stringify(field.validation);
-    }
+  // Add validation rules as a data attribute
+  if (field.validation && Array.isArray(field.validation)) {
+    input.dataset.validation = JSON.stringify(field.validation);
+  }
 
     // Trigger input validation when the user types into the field
     input.addEventListener('input', () => {
@@ -299,8 +308,8 @@ function buildTextArea(field) {
  * @returns {HTMLElement} A configured `<select>` element with event listeners and options.
  */
 function buildSelect(field) {
-    const select = document.createElement('select');
-    select.name = field.name || ''; // Sets name attribute
+  const select = document.createElement('select');
+  select.name = field.name || ''; // Sets name attribute
 
     // Add required and default value attributes if specified
     if (field.required) select.required = field.required;
@@ -328,7 +337,7 @@ function buildSelect(field) {
         validateInput(select);
     });
 
-    return select;
+  return select;
 }
 
 /**
@@ -403,27 +412,27 @@ function buildSubmitButton(field) {
  * @returns {HTMLDivElement} - A `<div>` element containing the checkbox group.
  */
 function buildCheckboxGroup(field) {
-    const checkboxGroupWrapper = document.createElement('div');
+  const checkboxGroupWrapper = document.createElement('div');
 
-    // Add validation rules as a data attribute
-    if (field.validation && Array.isArray(field.validation)) {
-        checkboxGroupWrapper.dataset.validation = JSON.stringify(field.validation);
-    }
+  // Add validation rules as a data attribute
+  if (field.validation && Array.isArray(field.validation)) {
+      checkboxGroupWrapper.dataset.validation = JSON.stringify(field.validation);
+  }
+  
+  field.options.forEach((option) => {
+      if (field.required && !field.validation.includes('one-required')) {
+          option.required = field.required
+      };
+  
+      // Set each checkbox to have the name of it group
+      option.name = field.name;
+  
+      // create checkbox element
+      const checkbox = buildCheckbox(option);
+      checkboxGroupWrapper.append(checkbox);
+  });
 
-    field.options.forEach((option) => {
-        if (field.required && !field.validation.includes('one-required')) {
-            option.required = field.required
-        };
-
-        // Set each checkbox to have the name of it group
-        option.name = field.name;
-
-        // create checkbox element
-        const checkbox = buildCheckbox(option);
-        checkboxGroupWrapper.append(checkbox);
-    });
-
-    return checkboxGroupWrapper;
+  return checkboxGroupWrapper;
 }
 
 /**
@@ -668,9 +677,10 @@ export function buildForm(fields, handleSubmit) {
         }
     });
 
-    // Load styles for form
-    loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
-
-    // Return form
-    return form;
+      handleSubmit(data);
+      // Load styles for form
+      loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
+      
+      // Return form
+      return form;
 }

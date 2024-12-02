@@ -1,4 +1,4 @@
-import { buildForm } from "../../utils/forms/forms.js";
+import buildForm from '../../utils/forms/forms.js';
 
 const fields = [
     {
@@ -220,10 +220,11 @@ const fields = [
 ];
 
 export default function decorate(block) {
-    function handleSubmit(formData) {
-        console.log('formData from form: ', formData)
-    }
+  function handleSubmit(formData) {
+    // eslint-disable-next-line no-console
+    console.log('formData from form: ', formData);
+  }
 
-    const form = buildForm(fields, handleSubmit);
-    block.append(form);
+  const form = buildForm(fields, handleSubmit);
+  block.append(form);
 }
