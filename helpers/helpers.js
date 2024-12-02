@@ -11,6 +11,17 @@ export function removeEmptyElements(selector) {
   });
 }
 
+/**
+ * Converts a given string into kebab-case and sets them all to lowercase.
+ * @param {string} string - The input string to be converted.
+ * @returns {string} - The kebab-case version of the input string.
+ */
 export function toKebabCase(string) {
-  return string.split('').map((char) => char === ' ' ? '-' : char).join('').toLowerCase();
+  return string
+    .split('')
+    .map((char) => {
+      return char === ' ' ? '-' : char;
+    })
+    .join('')
+    .toLowerCase();
 }
