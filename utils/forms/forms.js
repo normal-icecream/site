@@ -311,31 +311,31 @@ function buildSelect(field) {
   const select = document.createElement('select');
   select.name = field.name || ''; // Sets name attribute
 
-    // Add required and default value attributes if specified
-    if (field.required) select.required = field.required;
-
-    // Add options if provided
-    if (field.options && Array.isArray(field.options)) {
-      const placeholder = document.createElement('option');
-      placeholder.value = field.value || '';
-      placeholder.textContent = field.placeholder;
-      placeholder.selected = true;
-      placeholder.disabled = true;
-      select.append(placeholder);
-        
-      field.options.forEach(option => {
-        const optionElement = document.createElement('option');
-        optionElement.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
-        optionElement.textContent = option.label || '';  // Sets text content for option
-        if (option.selected) optionElement.selected = option.selected;
-        select.appendChild(optionElement);
-      });
-    }
-
-    // Trigger input validation when the user types into the field
-    select.addEventListener('input', () => {
-      validateInput(select);
+  // Add required and default value attributes if specified
+  if (field.required) select.required = field.required;
+  
+  // Add options if provided
+  if (field.options && Array.isArray(field.options)) {
+    const placeholder = document.createElement('option');
+    placeholder.value = field.value || '';
+    placeholder.textContent = field.placeholder;
+    placeholder.selected = true;
+    placeholder.disabled = true;
+    select.append(placeholder);
+    
+    field.options.forEach(option => {
+    const optionElement = document.createElement('option');
+    optionElement.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
+    optionElement.textContent = option.label || '';  // Sets text content for option
+    if (option.selected) optionElement.selected = option.selected;
+    select.appendChild(optionElement);
     });
+  }
+
+  // Trigger input validation when the user types into the field
+  select.addEventListener('input', () => {
+    validateInput(select);
+  });
 
   return select;
 }
