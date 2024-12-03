@@ -470,39 +470,40 @@ function buildField(field) {
     case 'time':
     case 'number':
     case 'password':
-        input = buildInput(field);
-        break;
+      input = buildInput(field);
+      break;
 
     case 'textarea':
-        input = buildTextArea(field);
-        break;
+      input = buildTextArea(field);
+      break;
 
     case 'select':
-        input = buildSelect(field);
-        break;
+      input = buildSelect(field);
+      break;
     
     case 'radio':
-        input = buildRadio(field);
-        break;
+      input = buildRadio(field);
+      break;
 
     case 'checkbox':
-        label = '';
-        input = buildCheckbox(field);
-        break;
+      label = '';
+      input = buildCheckbox(field);
+      break;
 
     case 'checkbox-group':
-        input = buildCheckboxGroup(field);
-        break;
+      input = buildCheckboxGroup(field);
+      break;
 
     case 'submit':
-        label = '';
-        input = buildSubmitButton(field);
-        break;
+      label = '';
+      input = buildSubmitButton(field);
+      break;
 
     default:
-        // Log a message if the field type is unsupported
-        console.log(`Field type ${field.type} not supported`);
-        break;
+      // Log a message if the field type is unsupported
+      // eslint-disable-next-line no-console
+      console.log(`Field type ${field.type} not supported`);
+      break;
   }
   
   // Append the label and input to the wrapper
@@ -513,11 +514,14 @@ function buildField(field) {
 }
 
 /**
- * This function checks if the `fields` array contains valid field definitions and if the `handleSubmit`
- * parameter is a valid function. If any validation fails, an error is thrown with an appropriate message.
- * @param {Array} fields - An array of field configuration objects, each representing a form input.
+ * This function checks if the `fields` array contains valid field definitions and if the 
+ * `handleSubmit` parameter is a valid function. If any validation fails, an error is 
+ * thrown with an appropriate message.
+ * @param {Array} fields - An array of field configuration objects, each representing a 
+ * form input.
  * @param {Function} handleSubmit - A callback function to handle form submission.
- * @throws {Error} If `fields` is not a non-empty array or contains invalid field definitions.
+ * @throws {Error} If `fields` is not a non-empty array or contains invalid field 
+ * definitions.
  * @throws {Error} If `handleSubmit` is not a function.
  */
 function validateBuildFormInputs(fields, handleSubmit) {
@@ -525,52 +529,52 @@ function validateBuildFormInputs(fields, handleSubmit) {
   if (!Array.isArray(fields) || fields.length === 0) {
       throw new Error('The "fields" parameter must be a non-empty array of field definitions.');
   }
-  
+
   // Iterate over each field in the `fields` array
   fields.forEach((field, index) => {
-      if (!field.type || typeof field.type !== 'string') {
-          throw new Error(`Missing valid "type" property from config at index ${index}.`);
+    if (!field.type || typeof field.type !== 'string') {
+      throw new Error(`Missing valid "type" property from config at index ${index}.`);
+    }
+    if ((!field.name || typeof field.name !== 'string') && field.type !== 'submit') {
+      throw new Error(`Missing valid "name" property from config at index ${index}.`);
+    }
+    if (field.placeholder !== undefined && typeof field.placeholder !== 'string') {
+      throw new Error(`Field at index ${index} has an invalid "placeholder" property. It must be a string.`);
+    }
+    if (['text', 'textarea'].includes(field.type) && !field.placeholder) {
+      throw new Error(`Field at index ${index} of type "${field.type}" must include a "placeholder" property.`);
+    }
+    if (field.type === 'checkbox') {
+      if ((!field.value || typeof field.value !== 'string')) {
+        throw new Error(`Missing valid "value" property from config at index ${index}.`);
       }
-      if ((!field.name || typeof field.name !== 'string') && field.type !== 'submit') {
-          throw new Error(`Missing valid "name" property from config at index ${index}.`);
+    }
+    if (field.type === 'select') {
+      if (!field.placeholder) {
+        throw new Error(`Missing valid "placeholder" property from config at index ${index}.`);
       }
-      if (field.placeholder !== undefined && typeof field.placeholder !== 'string') {
-          throw new Error(`Field at index ${index} has an invalid "placeholder" property. It must be a string.`);
-      }
-      if (['text', 'textarea'].includes(field.type) && !field.placeholder) {
-          throw new Error(`Field at index ${index} of type "${field.type}" must include a "placeholder" property.`);
-      }
-      if (field.type === 'checkbox') {
-          if ((!field.value || typeof field.value !== 'string')) {
-              throw new Error(`Missing valid "value" property from config at index ${index}.`);
-          }
-      }
-      if (field.type === 'select') {
-        if (!field.placeholder) {
-            throw new Error(`Missing valid "placeholder" property from config at index ${index}.`)
-        }
-        if (!field.options) {
-            throw new Error(`Missing valid "options" property from config at index ${index}.`)
-        } else {
-          if (field.options.length > 0) {
-            field.options.forEach((option, i) => {
-              if (!option.label) {
-                throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
-              }
-            });
-
-            const selectedOptions = field.options.filter((option) => option.selected);
-            if (selectedOptions.length > 1) {
-                throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
+      if (!field.options) {
+        throw new Error(`Missing valid "options" property from config at index ${index}.`);
+      } else {
+        if (field.options.length > 0) {
+          field.options.forEach((option, i) => {
+            if (!option.label) {
+              throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
             }
+          });
+
+          const selectedOptions = field.options.filter((option) => option.selected);
+          if (selectedOptions.length > 1) {
+            throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
           }
         }
       }
+    }
     if (field.type === 'radio') {
       if (!field.options) {
         throw new Error(`Options array missing from ${field.name} radio.`);
       }
-        
+
       if (field.options.length > 0) {
         field.options.forEach((option) => {
           if (!option.label) {
@@ -583,21 +587,19 @@ function validateBuildFormInputs(fields, handleSubmit) {
       if (!field.options) {
         throw new Error(`Options array missing from ${field.name} checkbox group.`);
       } else {
-        if (field.options.length > 0) {
-          field.options.forEach((option) => {
-            if (!option.type) {
-                throw new Error('"Type" is missing from option');
-            }
+        field.options.forEach((option) => {
+          if (!option.type) {
+              throw new Error('"Type" is missing from option');
+          }
 
-            if (!option.value) {
+          if (!option.value) {
               throw new Error('"Value" is missing from option');
-            }
+          }
 
-            if (!option.label) {
+          if (!option.label) {
               throw new Error('"Label" is missing from option');
-            }
-          });
-        }
+          }
+        });
       }
     }
   });
