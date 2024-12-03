@@ -521,124 +521,124 @@ function buildField(field) {
  * @throws {Error} If `handleSubmit` is not a function.
  */
 function validateBuildFormInputs(fields, handleSubmit) {
-// Check if `fields` is a non-empty array
-if (!Array.isArray(fields) || fields.length === 0) {
-    throw new Error('The "fields" parameter must be a non-empty array of field definitions.');
-}
-
-// Iterate over each field in the `fields` array
-fields.forEach((field, index) => {
-    if (!field.type || typeof field.type !== 'string') {
-        throw new Error(`Missing valid "type" property from config at index ${index}.`);
-    }
-    if ((!field.name || typeof field.name !== 'string') && field.type !== 'submit') {
-        throw new Error(`Missing valid "name" property from config at index ${index}.`);
-    }
-    if (field.placeholder !== undefined && typeof field.placeholder !== 'string') {
-        throw new Error(`Field at index ${index} has an invalid "placeholder" property. It must be a string.`);
-    }
-    if (['text', 'textarea'].includes(field.type) && !field.placeholder) {
-        throw new Error(`Field at index ${index} of type "${field.type}" must include a "placeholder" property.`);
-    }
-    if (field.type === 'checkbox') {
-        if ((!field.value || typeof field.value !== 'string')) {
-            throw new Error(`Missing valid "value" property from config at index ${index}.`);
-        }
-    }
-    if (field.type === 'select') {
-        if (!field.placeholder) {
-            throw new Error(`Missing valid "placeholder" property from config at index ${index}.`)
-        }
-        if (!field.options) {
-            throw new Error(`Missing valid "options" property from config at index ${index}.`)
-        } else {
-            if (field.options.length > 0) {
-                field.options.forEach((option, i) => {
-                    if (!option.label) {
-                        throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
-                    }
-                });
-
-                const selectedOptions = field.options.filter(option => option.selected);
-                if (selectedOptions.length > 1) {
-                    throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
-                }
-            }
-        }
-    }
+  // Check if `fields` is a non-empty array
+  if (!Array.isArray(fields) || fields.length === 0) {
+      throw new Error('The "fields" parameter must be a non-empty array of field definitions.');
+  }
+  
+  // Iterate over each field in the `fields` array
+  fields.forEach((field, index) => {
+      if (!field.type || typeof field.type !== 'string') {
+          throw new Error(`Missing valid "type" property from config at index ${index}.`);
+      }
+      if ((!field.name || typeof field.name !== 'string') && field.type !== 'submit') {
+          throw new Error(`Missing valid "name" property from config at index ${index}.`);
+      }
+      if (field.placeholder !== undefined && typeof field.placeholder !== 'string') {
+          throw new Error(`Field at index ${index} has an invalid "placeholder" property. It must be a string.`);
+      }
+      if (['text', 'textarea'].includes(field.type) && !field.placeholder) {
+          throw new Error(`Field at index ${index} of type "${field.type}" must include a "placeholder" property.`);
+      }
+      if (field.type === 'checkbox') {
+          if ((!field.value || typeof field.value !== 'string')) {
+              throw new Error(`Missing valid "value" property from config at index ${index}.`);
+          }
+      }
+      if (field.type === 'select') {
+          if (!field.placeholder) {
+              throw new Error(`Missing valid "placeholder" property from config at index ${index}.`)
+          }
+          if (!field.options) {
+              throw new Error(`Missing valid "options" property from config at index ${index}.`)
+          } else {
+              if (field.options.length > 0) {
+                  field.options.forEach((option, i) => {
+                      if (!option.label) {
+                          throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
+                      }
+                  });
+  
+                  const selectedOptions = field.options.filter((option) => option.selected);
+                  if (selectedOptions.length > 1) {
+                      throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
+                  }
+              }
+          }
+      }
     if (field.type === 'radio') {
+      if (!field.options) {
+        throw new Error(`Options array missing from ${field.name} radio.`);
+      }
+        
+      if (field.options.length > 0) {
+        field.options.forEach((option) => {
+          if (!option.label) {
+            throw new Error('Label is missing from option');
+          }
+        });
+      }
+    }
+      if (field.type === 'checkbox-group') {
         if (!field.options) {
-            throw new Error(`Options array missing from ${field.name} radio.`);
+          throw new Error(`Options array missing from ${field.name} checkbox group.`);
         } else {
             if (field.options.length > 0) {
-                field.options.forEach(option => {
-                    if (!option.label) {
-                        throw new Error('Label is missing from option');
-                    }
-                })
+            field.options.forEach((option) => {
+            if (!option.type) {
+                throw new Error('Type is missing from option');
             }
-        }
-    }
-    if (field.type === 'checkbox-group') {
-        if (!field.options) {
-            throw new Error(`Options array missing from ${field.name} checkbox group.`)
-        } else {
-            if (field.options.length > 0) {
-                field.options.forEach(option => {
-                    if (!option.type) {
-                        throw new Error('Type is missing from option');
-                    }
+  
+                      if (!option.value) {
+                          throw new Error('Value is missing from option');
+                      }
+  
+                      if (!option.label) {
+                          throw new Error('Label is missing from option');
+                      }
+                  });
+              }
+          }
+      }
+  });
 
-                    if (!option.value) {
-                        throw new Error('Value is missing from option');
-                    }
-
-                    if (!option.label) {
-                        throw new Error('Label is missing from option');
-                    }
-                })
-            }
-        }
-    }
-});
-
-// Check if `handleSubmit` is a function
-if (typeof handleSubmit !== 'function') {
+  // Check if `handleSubmit` is a function
+  if (typeof handleSubmit !== 'function') {
     throw new Error('The "handleSubmit" parameter must be a function.');
-}
+  }
 }
 
 /**
  * Constructs a dynamic HTML form based on provided field definitions and handles form submission.
- * @param {Array} fields - An array of objects where each object defines a form field. 
+ * @param {Array} fields - An array of objects where each object defines a form field.
  * @param {Function} handleSubmit - A callback function to handle the form data on submission.
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
 export default function buildForm(fields, handleSubmit) {
   // Validate inputs before proceeding
   validateBuildFormInputs(fields, handleSubmit);
-  
+
   // Create the <form> element
   const form = document.createElement('form');
-  
+
   // Disable browser's default validation UI in favor of custom validation logic and styling
   form.noValidate = true;
-  
+
   // If no submit button is provided, add one
-  const hasSubmit = fields.some(field => field.type === 'submit')
+  const hasSubmit = fields.some((field) => field.type === 'submit');
   if (!hasSubmit) {
-      fields.push({
-          type: 'submit',
-          label: 'Submit'
-      })
+    fields.push({
+        type: 'submit',
+        label: 'Submit',
+    });
   }
-  
+
   // Loop through each field definition and dynamically build its corresponding form input
   fields.forEach((field) => {
-      const formField = buildField(field);
-      form.append(formField);
+    const formField = buildField(field);
+    form.append(formField);
   });
-  
+
   // Attach an event listener to handle form submission
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -649,9 +649,9 @@ export default function buildForm(fields, handleSubmit) {
     if (isValid) {
       const data = {}; // Initialize an object to store form data
       const formFields = document.querySelectorAll('input, select, textarea');
-  
-    // Process each form field to gather its value
-    formFields.forEach((field) => {
+
+      // Process each form field to gather its value
+      formFields.forEach((field) => {
         if (field.type === 'radio' && field.checked) {
           data[field.name] = field.value;
         } else if (field.type === 'checkbox') {
