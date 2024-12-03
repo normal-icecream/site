@@ -82,16 +82,16 @@ function getCheckboxGroups(form) {
 
   // Iterate through all form elements
   Array.from(form.elements).forEach((element) => {
-  if (element.type === 'checkbox') {
-    const groupName = element.name;
+    if (element.type === 'checkbox') {
+      const groupName = element.name;
 
-    if (groupName) {
+      if (groupName) {
         // Check if the group has already been processed
         if (!checkboxGroups[groupName]) {
-        // Find all checkboxes sharing the same group name
-        const checkboxes = Array.from(form.elements).filter(
+          // Find all checkboxes sharing the same group name
+          const checkboxes = Array.from(form.elements).filter(
             (el) => el.type === 'checkbox' && el.name === groupName,
-        );
+          );
           // Only consider groups with more than one checkbox
           if (checkboxes.length > 1) {
             const parentDiv = element.closest('div'); // Find the closest parent div
@@ -103,8 +103,8 @@ function getCheckboxGroups(form) {
               } catch (e) {
                 // eslint-disable-next-line no-console
                 console.warn(
-                `Invalid JSON in data-validation for ${groupName}`,
-                parentDiv.dataset.validation,
+                  `Invalid JSON in data-validation for ${groupName}`,
+                  parentDiv.dataset.validation,
                 );
               }
             }
