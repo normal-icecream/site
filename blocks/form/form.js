@@ -7,9 +7,9 @@ const fields = [
     name: 'firstName',
     placeholder: 'Enter your first name',
     required: true,
-    // This validation should have only the extras, 
+    // This validation should have only the extras,
     // if any to be added to a field that aren't already on the field itself
-    validation: ['no-nums']
+    validation: ['no-nums'],
   },
   {
     type: 'input',
@@ -17,9 +17,9 @@ const fields = [
     name: 'lastName',
     placeholder: 'Enter your last name',
     required: true,
-    // This validation should have only the extras, 
+    // This validation should have only the extras,
     // if any to be added to a field that aren't already on the field itself
-    validation: ['no-nums']
+    validation: ['no-nums'],
   },
   {
     type: 'email',
@@ -34,9 +34,9 @@ const fields = [
     name: 'phone',
     placeholder: '000-000-0000',
     required: true,
-    // This validation should have only the extras, 
+    // This validation should have only the extras,
     // if any to be added to a field that aren't already on the field itself
-    validation: ['phone:US']
+    validation: ['phone:US'],
   },
   {
     type: 'textarea',
@@ -61,10 +61,10 @@ const fields = [
     // This will force native validation to make sure at least one radio is checked
     required: true,
     options: [
-      { label: 'Vanilla', },
+      { label: 'Vanilla' },
       { label: 'Chocolate' },
       { label: 'Strawberry' },
-      { label: 'Dulce de leche' }
+      { label: 'Dulce de leche' },
     ],
   },
   {
@@ -75,9 +75,9 @@ const fields = [
       { label: 'Sprinkles' },
       { label: 'Pickles' },
       { label: 'Snickers', value: 'i snicker at you' },
-      { 
-        label: 'Cinnamon sticks', 
-        value: 'cinnamon-sticks' 
+      {
+        label: 'Cinnamon sticks',
+        value: 'cinnamon-sticks',
       },
     ],
   },
@@ -117,8 +117,8 @@ const fields = [
         type: 'checkbox',
         label: 'Pay with PayPal',
         value: 'paypal',
-      }
-    ]
+      },
+    ],
   },
   {
     type: 'checkbox-group',
@@ -129,7 +129,7 @@ const fields = [
         type: 'checkbox',
         label: 'Maple',
         value: 'maple',
-        checked: true
+        checked: true,
       },
       {
         type: 'checkbox',
@@ -140,8 +140,8 @@ const fields = [
         type: 'checkbox',
         label: 'Caramel',
         value: 'caramel',
-      }
-    ]
+      },
+    ],
   },
   {
     type: 'select',
@@ -150,22 +150,22 @@ const fields = [
     placeholder: 'Select an option',
     required: true,
     options: [
-      {   
+      {
         label: 'United States',
         value: 'US',
       },
-      {   
+      {
         label: 'Canada',
         value: 'CA',
       },
-      {   
+      {
         label: 'United Kingdom',
         value: 'UK A',
       },
-      {   
+      {
         label: 'Australia',
         value: 'AU',
-      }
+      },
     ],
   },
   {
@@ -175,23 +175,23 @@ const fields = [
     placeholder: 'Select an option',
     required: true,
     options: [
-      {   
+      {
         label: 'Store',
-        selected: true
+        selected: true,
       },
-      {   
+      {
         label: 'Spaceship',
       },
-      {   
+      {
         label: 'Truck',
       },
-      {   
+      {
         label: 'Warehouse',
       },
-      {   
+      {
         label: 'Harmons',
         value: 'harmons grocery',
-      }
+      },
     ],
   },
   {
@@ -207,7 +207,7 @@ const fields = [
     label: 'Select Time',
     name: 'time',
     min: '09:00', // Earliest allowable time
-    max: '17:00',  // Latest allowable time
+    max: '17:00', // Latest allowable time
     required: true,
   },
   {
