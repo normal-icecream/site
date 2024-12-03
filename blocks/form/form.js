@@ -58,7 +58,8 @@ const fields = [
     type: 'radio',
     label: 'Select a flavor',
     name: 'flavor',
-    required: true, // This will force native validation to make sure at least one radio is checked
+    // This will force native validation to make sure at least one radio is checked
+    required: true,
     options: [
       { label: 'Vanilla', },
       { label: 'Chocolate' },
