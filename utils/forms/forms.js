@@ -81,10 +81,9 @@ function getCheckboxGroups(form) {
   const checkboxGroups = {}; // Object to store grouped checkboxes
 
   // Iterate through all form elements
-//   for (const element of form.elements) {
-    Array.from(form.elements).forEach((element) => {
-    if (element.type === 'checkbox') {
-        const groupName = element.name;
+  Array.from(form.elements).forEach((element) => {
+  if (element.type === 'checkbox') {
+    const groupName = element.name;
 
     if (groupName) {
         // Check if the group has already been processed
