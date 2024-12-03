@@ -316,25 +316,25 @@ function buildSelect(field) {
 
     // Add options if provided
     if (field.options && Array.isArray(field.options)) {
-        const placeholder = document.createElement('option');
-        placeholder.value = field.value || '';
-        placeholder.textContent = field.placeholder;
-        placeholder.selected = true;
-        placeholder.disabled = true;
-        select.append(placeholder);
+      const placeholder = document.createElement('option');
+      placeholder.value = field.value || '';
+      placeholder.textContent = field.placeholder;
+      placeholder.selected = true;
+      placeholder.disabled = true;
+      select.append(placeholder);
         
-        field.options.forEach(option => {
-            const optionElement = document.createElement('option');
-            optionElement.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
-            optionElement.textContent = option.label || '';  // Sets text content for option
-            if (option.selected) optionElement.selected = option.selected;
-            select.appendChild(optionElement);
-        });
+      field.options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
+        optionElement.textContent = option.label || '';  // Sets text content for option
+        if (option.selected) optionElement.selected = option.selected;
+        select.appendChild(optionElement);
+      });
     }
 
     // Trigger input validation when the user types into the field
     select.addEventListener('input', () => {
-        validateInput(select);
+      validateInput(select);
     });
 
   return select;
@@ -351,25 +351,25 @@ function buildRadio(field) {
   
   // Iterate through the options to create radio buttons and labels
   field.options.forEach((option) => {
-      const radioLabel = buildLabel(option);
-      const radio = document.createElement('input');
-      radio.type = 'radio';
-      radio.name = field.name;
-      radio.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
-  
-      // Set required attribute if specified
-      if (field.required) radio.required = true;
-  
-      // Prepend the radio input to its label
-      radioLabel.prepend(radio);
-  
-      // Trigger input validation when the user types into the field
-      radio.addEventListener('input', () => {
-          validateInput(radio);
-      });
-  
-      // Append the label (with radio input) to the fieldset
-      fieldset.appendChild(radioLabel);
+    const radioLabel = buildLabel(option);
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = field.name;
+    radio.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
+
+    // Set required attribute if specified
+    if (field.required) radio.required = true;
+
+    // Prepend the radio input to its label
+    radioLabel.prepend(radio);
+
+    // Trigger input validation when the user types into the field
+    radio.addEventListener('input', () => {
+      validateInput(radio);
+    });
+
+    // Append the label (with radio input) to the fieldset
+    fieldset.appendChild(radioLabel);
   });
   return fieldset;
 }
@@ -377,20 +377,21 @@ function buildRadio(field) {
 /**
  * Creates and returns a labeled checkbox input element based on the provided field.
  * @param {Object} field - An object containing configuration options for the checkbox.
- * @returns {HTMLElement} A label element containing the checkbox input and its associated label text.
+ * @returns {HTMLElement} A label element containing the checkbox input 
+ * and its associated label text.
  */
 function buildCheckbox(field) {
   // Create the checkbox input element using a helper function
   const input = buildInput(field);
-  
+
   // Set the name attribute for the checkbox
   input.name = field.name;
-  
+
   if (field.checked) input.checked = true;
-  
+
   const checkboxLabel = buildLabel(field);
   checkboxLabel.prepend(input);
-  
+
   return checkboxLabel;
 }
 
@@ -418,11 +419,11 @@ function buildCheckboxGroup(field) {
   if (field.validation && Array.isArray(field.validation)) {
     checkboxGroupWrapper.dataset.validation = JSON.stringify(field.validation);
   }
-  
+
   field.options.forEach((option) => {
     if (field.required && !field.validation.includes('one-required')) {
-        option.required = field.required
-    };
+      option.required = field.required;
+    }
 
     // Set each checkbox to have the name of it group
     option.name = field.name;
@@ -456,11 +457,11 @@ function buildWrapper(field) {
 function buildField(field) {
   // Create a wrapper element for the field
   const wrapper = buildWrapper(field);
-  
+
   // Create a label for the field
   let label = buildLabel(field);
   let input;
-  
+
   // A switch statement to handle building different field types
   switch (field.type) {
     case 'input':
@@ -480,7 +481,7 @@ function buildField(field) {
     case 'select':
       input = buildSelect(field);
       break;
-    
+
     case 'radio':
       input = buildRadio(field);
       break;
@@ -505,22 +506,22 @@ function buildField(field) {
       console.log(`Field type ${field.type} not supported`);
       break;
   }
-  
+
   // Append the label and input to the wrapper
   wrapper.append(label, input);
-  
+
   // Return the completed field element
   return wrapper;
 }
 
 /**
- * This function checks if the `fields` array contains valid field definitions and if the 
- * `handleSubmit` parameter is a valid function. If any validation fails, an error is 
+ * This function checks if the `fields` array contains valid field definitions and if the
+ * `handleSubmit` parameter is a valid function. If any validation fails, an error is
  * thrown with an appropriate message.
- * @param {Array} fields - An array of field configuration objects, each representing a 
+ * @param {Array} fields - An array of field configuration objects, each representing a
  * form input.
  * @param {Function} handleSubmit - A callback function to handle form submission.
- * @throws {Error} If `fields` is not a non-empty array or contains invalid field 
+ * @throws {Error} If `fields` is not a non-empty array or contains invalid field
  * definitions.
  * @throws {Error} If `handleSubmit` is not a function.
  */
@@ -589,15 +590,15 @@ function validateBuildFormInputs(fields, handleSubmit) {
       } else {
         field.options.forEach((option) => {
           if (!option.type) {
-              throw new Error('"Type" is missing from option');
+            throw new Error('"Type" is missing from option');
           }
 
           if (!option.value) {
-              throw new Error('"Value" is missing from option');
+            throw new Error('"Value" is missing from option');
           }
 
           if (!option.label) {
-              throw new Error('"Label" is missing from option');
+            throw new Error('"Label" is missing from option');
           }
         });
       }
