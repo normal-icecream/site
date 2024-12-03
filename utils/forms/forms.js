@@ -99,15 +99,15 @@ function getCheckboxGroups(form) {
             let validations = [];
             // Extract validation rules from the parent div's data attribute
             if (parentDiv && parentDiv.dataset.validation) {
-            try {
-              validations = JSON.parse(parentDiv.dataset.validation); // Parse validation JSON
-            } catch (e) {
-              // eslint-disable-next-line no-console
-              console.warn(
-              `Invalid JSON in data-validation for ${groupName}`,
-              parentDiv.dataset.validation,
-              );
-            }
+              try {
+                validations = JSON.parse(parentDiv.dataset.validation); // Parse validation JSON
+              } catch (e) {
+                // eslint-disable-next-line no-console
+                console.warn(
+                `Invalid JSON in data-validation for ${groupName}`,
+                parentDiv.dataset.validation,
+                );
+              }
             }
             // Store the checkbox group with its details
             checkboxGroups[groupName] = {
@@ -562,9 +562,9 @@ function validateBuildFormInputs(fields, handleSubmit) {
       }
       if (field.options.length > 0) {
         field.options.forEach((option, i) => {
-        if (!option.label) {
-          throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
-        }
+          if (!option.label) {
+            throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
+          }
         });
 
         const selectedOptions = field.options.filter((option) => option.selected);
