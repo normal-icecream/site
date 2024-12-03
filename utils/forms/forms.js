@@ -546,25 +546,25 @@ function validateBuildFormInputs(fields, handleSubmit) {
           }
       }
       if (field.type === 'select') {
-          if (!field.placeholder) {
-              throw new Error(`Missing valid "placeholder" property from config at index ${index}.`)
-          }
-          if (!field.options) {
-              throw new Error(`Missing valid "options" property from config at index ${index}.`)
-          } else {
-              if (field.options.length > 0) {
-                  field.options.forEach((option, i) => {
-                      if (!option.label) {
-                          throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
-                      }
-                  });
-  
-                  const selectedOptions = field.options.filter((option) => option.selected);
-                  if (selectedOptions.length > 1) {
-                      throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
-                  }
+        if (!field.placeholder) {
+            throw new Error(`Missing valid "placeholder" property from config at index ${index}.`)
+        }
+        if (!field.options) {
+            throw new Error(`Missing valid "options" property from config at index ${index}.`)
+        } else {
+          if (field.options.length > 0) {
+            field.options.forEach((option, i) => {
+              if (!option.label) {
+                throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
               }
+            });
+
+            const selectedOptions = field.options.filter((option) => option.selected);
+            if (selectedOptions.length > 1) {
+                throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
+            }
           }
+        }
       }
     if (field.type === 'radio') {
       if (!field.options) {
@@ -579,27 +579,27 @@ function validateBuildFormInputs(fields, handleSubmit) {
         });
       }
     }
-      if (field.type === 'checkbox-group') {
-        if (!field.options) {
-          throw new Error(`Options array missing from ${field.name} checkbox group.`);
-        } else {
-            if (field.options.length > 0) {
-            field.options.forEach((option) => {
+    if (field.type === 'checkbox-group') {
+      if (!field.options) {
+        throw new Error(`Options array missing from ${field.name} checkbox group.`);
+      } else {
+        if (field.options.length > 0) {
+          field.options.forEach((option) => {
             if (!option.type) {
-                throw new Error('Type is missing from option');
+                throw new Error('"Type" is missing from option');
             }
-  
-                      if (!option.value) {
-                          throw new Error('Value is missing from option');
-                      }
-  
-                      if (!option.label) {
-                          throw new Error('Label is missing from option');
-                      }
-                  });
-              }
-          }
+
+            if (!option.value) {
+              throw new Error('"Value" is missing from option');
+            }
+
+            if (!option.label) {
+              throw new Error('"Label" is missing from option');
+            }
+          });
+        }
       }
+    }
   });
 
   // Check if `handleSubmit` is a function
@@ -628,8 +628,8 @@ export default function buildForm(fields, handleSubmit) {
   const hasSubmit = fields.some((field) => field.type === 'submit');
   if (!hasSubmit) {
     fields.push({
-        type: 'submit',
-        label: 'Submit',
+      type: 'submit',
+      label: 'Submit',
     });
   }
 
