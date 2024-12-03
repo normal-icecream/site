@@ -656,30 +656,30 @@ export default function buildForm(fields, handleSubmit) {
           data[field.name] = field.value;
         } else if (field.type === 'checkbox') {
           if (data[field.name] === undefined) {
-              data[field.name] = field.checked ? (field.value === 'on' ? true : field.value) : false;
+            data[field.name] = field.checked ? (field.value !== 'on' && field.value) || true : false;
           } else {
-              // If multiple checkboxes share the same name, store their values in an array
-              if (!Array.isArray(data[field.name])) {
-                  data[field.name] = data[field.name] ? [data[field.name]] : [];
-              }
-              if (field.checked) {
-                  data[field.name].push(field.value);
-              }
+            // If multiple checkboxes share the same name, store their values in an array
+            if (!Array.isArray(data[field.name])) {
+              data[field.name] = data[field.name] ? [data[field.name]] : [];
+            }
+            if (field.checked) {
+              data[field.name].push(field.value);
+            }
           }
         } else {
           // For other input types, store their value directly
           data[field.name] = field.value;
         }
       });
-  
+
       // Pass the collected form data to the provided handleSubmit callback
       handleSubmit(data);
     }
   });
-  
+
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
-  
+
   // Return form
   return form;
 }
