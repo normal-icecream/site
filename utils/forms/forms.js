@@ -8,10 +8,10 @@ import { toKebabCase } from '../../helpers/helpers.js';
  */
 function buildLabel(field) {
   const label = document.createElement('label');
-  
+
   // Add an asterisk if the field is required
   label.textContent = field.required === true ? `${field.label} *` : field.label;
-  
+
   return label; // Return the constructed label element
 }
 
@@ -21,30 +21,30 @@ function buildLabel(field) {
  * @param {string[]} errorMessages - Array of error messages to display.
  */
 function showError(container, errorMessages) {
-  const containerParent = container.closest('div[class^="form-"]');  // Locate the parent container
+  const containerParent = container.closest('div[class^="form-"]'); // Locate the parent container
   containerParent.classList.add('invalid'); // Add an invalid class to the parent container
-  
+
   // Add invalid styling to the label
   const label = containerParent.querySelector('label');
   label.classList.add('label-invalid');
-  
+
   // Check if an error container already exists
   let errorContainer = containerParent.querySelector('.error-messages');
   if (!errorContainer) {
-      // Create a new error container if none exists
-      errorContainer = document.createElement('div');
-      errorContainer.className = 'error-messages';
-      containerParent.append(errorContainer);
+    // Create a new error container if none exists
+    errorContainer = document.createElement('div');
+    errorContainer.className = 'error-messages';
+    containerParent.append(errorContainer);
   } else {
-      // Clear existing error messages
-      errorContainer.innerHTML = '';
+    // Clear existing error messages
+    errorContainer.innerHTML = '';
   }
-  
+
   // Append each error message as a separate span element
   errorMessages.forEach(msg => {
-      const span = document.createElement('span');
-      span.textContent = msg;
-      errorContainer.append(span);
+    const span = document.createElement('span');
+    span.textContent = msg;
+    errorContainer.append(span);
   });
 }
 
