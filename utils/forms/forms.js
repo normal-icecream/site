@@ -41,7 +41,7 @@ function showError(container, errorMessages) {
   }
 
   // Append each error message as a separate span element
-  errorMessages.forEach(msg => {
+  errorMessages.forEach((msg) => {
     const span = document.createElement('span');
     span.textContent = msg;
     errorContainer.append(span);
@@ -55,70 +55,69 @@ function showError(container, errorMessages) {
 function clearError(container) {
   const containerParent = container.closest('div[class^="form-"]'); // Locate the parent container
   containerParent.classList.remove('invalid'); // Remove invalid class from the parent container
-  
+
   // Remove invalid styling from the label
   const label = containerParent.querySelector('label');
   label.classList.remove('label-invalid');
-  
+
   // Remove the error messages container if it exists
   const errorContainer = containerParent.querySelector('.error-messages');
   if (errorContainer) {
-      errorContainer.remove(); // Remove the error messages container
+    errorContainer.remove(); // Remove the error messages container
   }
 }
 
 /**
- * Extracts groups of related checkboxes from a form, along with their validation rules and parent container.
+ * Extracts groups of related checkboxes from a form, along with their validation rules and 
+ * parent container.
  * @param {HTMLFormElement} form - The form element containing the checkboxes.
- * @returns {Object} An object where each key is a group name, and the value is an object containing:
+ * @returns {Object} An object where each key is a group name, and the value is an object 
+ * containing:
  *  - {HTMLInputElement[]} checkboxes: Array of checkboxes in the group.
  *  - {string[]} validations: Array of validation rules for the group.
  *  - {HTMLElement} parent: The parent container element for the checkbox group.
  */
 function getCheckboxGroups(form) {
   const checkboxGroups = {}; // Object to store grouped checkboxes
-  
+
   // Iterate through all form elements
   for (const element of form.elements) {
-      if (element.type === 'checkbox') {
-          const groupName = element.name;
-          if (!groupName) continue; // Skip checkboxes without a name attribute
-  
-          // Check if the group has already been processed
-          if (!checkboxGroups[groupName]) {
-              // Find all checkboxes sharing the same group name
-              const checkboxes = Array.from(form.elements).filter(
-                  (el) => el.type === 'checkbox' && el.name === groupName
+    if (element.type === 'checkbox') {
+      const groupName = element.name;
+      if (!groupName) continue; // Skip checkboxes without a name attribute
+
+      // Check if the group has already been processed
+      if (!checkboxGroups[groupName]) {
+        // Find all checkboxes sharing the same group name
+        const checkboxes = Array.from(form.elements).filter(
+          (el) => el.type === 'checkbox' && el.name === groupName
+        );  
+        // Only consider groups with more than one checkbox
+        if (checkboxes.length > 1) {
+          const parentDiv = element.closest('div'); // Find the closest parent div
+          let validations = [];  
+          // Extract validation rules from the parent div's data attribute
+          if (parentDiv && parentDiv.dataset.validation) {
+            try {
+              validations = JSON.parse(parentDiv.dataset.validation); // Parse validation JSON
+            } catch (e) {
+              console.warn(
+                `Invalid JSON in data-validation for ${groupName}`,
+                parentDiv.dataset.validation
               );
-  
-              // Only consider groups with more than one checkbox
-              if (checkboxes.length > 1) {
-                  const parentDiv = element.closest('div'); // Find the closest parent div
-                  let validations = [];
-  
-                  // Extract validation rules from the parent div's data attribute
-                  if (parentDiv && parentDiv.dataset.validation) {
-                      try {
-                          validations = JSON.parse(parentDiv.dataset.validation); // Parse validation JSON
-                      } catch (e) {
-                          console.warn(
-                              `Invalid JSON in data-validation for ${groupName}`,
-                              parentDiv.dataset.validation
-                          );
-                      }
-                  }
-  
-                  // Store the checkbox group with its details
-                  checkboxGroups[groupName] = {
-                      checkboxes, // The group of checkboxes
-                      validations, // Validation rules
-                      parent: parentDiv // Parent container
-                  };
-              }
-          }
-      }
+            }
+          }  
+          // Store the checkbox group with its details
+          checkboxGroups[groupName] = {
+            checkboxes, // The group of checkboxes
+            validations, // Validation rules
+            parent: parentDiv // Parent container
+          };
+        }
+      };
+    }
   }
-  
+
   // Return the organized checkbox groups
   return checkboxGroups;
 }
@@ -131,19 +130,19 @@ function getCheckboxGroups(form) {
 function validateCheckboxGroup(group) {
   const { checkboxes, validations, parent } = group; // Extract relevant properties from the group object
   let isValid = true;
-  
+
   // Validation: Check if at least one checkbox is required to be selected
   if (validations.includes('one-required')) {
-      const isAnyChecked = checkboxes.some(checkbox => checkbox.checked);
-  
-      if (!isAnyChecked) {
-          // If none are selected, add an error message to the parent container
-          const errorMessages = ['Please select at least one option.'];
-          showError(parent, errorMessages);
-          isValid = false;
-      }
+    const isAnyChecked = checkboxes.some((checkbox) => checkbox.checked);
+
+    if (!isAnyChecked) {
+      // If none are selected, add an error message to the parent container
+      const errorMessages = ['Please select at least one option.'];
+      showError(parent, errorMessages);
+      isValid = false;
+    }
   }
-  
+
   return isValid;
 }
 
@@ -154,58 +153,58 @@ function validateCheckboxGroup(group) {
  */
 function validateInput(input) {
   input.setCustomValidity(''); // Reset any previous custom validity
-  let errorMessages = []; // Array to collect error messages
+  const errorMessages = []; // Array to collect error messages
   let isValid = true; // Tracks the validity of the input
-  
+
   // Built-in validation: Check for any browser-detected issues
   if (!input.validity.valid) {
-      errorMessages.push(input.validationMessage); // Add default validation message
+    errorMessages.push(input.validationMessage); // Add default validation message
   }
-  
+
   // Custom validation rules: Parse from data-validation attribute
   const validationRules = JSON.parse(input.dataset.validation || '[]');
-  validationRules.forEach(rule => {
-      // Rule: No numbers allowed
-      if (rule === 'no-nums' && /\d/.test(input.value)) {
-          errorMessages.push("Numbers are not allowed.");
+  validationRules.forEach((rule) => {
+    // Rule: No numbers allowed
+    if (rule === 'no-nums' && /\d/.test(input.value)) {
+      errorMessages.push('Numbers are not allowed.');
+    }
+    
+    // Rule: US phone number validation
+    if (rule === 'phone:US' && /\d/.test(input.value)) {
+      const digitsOnly = input.value.replace(/\D/g, '');
+
+      // Add error for missing digits
+      if (digitsOnly.length < 10) {
+        errorMessages.push(`Missing ${10 - digitsOnly.length} digit${digitsOnly.length === 9 ? '' : 's'}`);
       }
-      
-      // Rule: US phone number validation
-      if (rule === 'phone:US' && /\d/.test(input.value)) {
-          const digitsOnly = input.value.replace(/\D/g, '');
-      
-          // Add error for missing digits
-          if (digitsOnly.length < 10) { 
-              errorMessages.push(`Missing ${10 - digitsOnly.length} digit${digitsOnly.length === 9 ? '' : 's'}`); 
-          } 
-          
-          // Add error for excess digits
-          if (digitsOnly.length > 10){
-              errorMessages.push('There should only be 10 digits in this entry.');
-          }
+
+      // Add error for excess digits
+      if (digitsOnly.length > 10) {
+        errorMessages.push('There should only be 10 digits in this entry.');
       }
+    }
   });
-  
+
   // Apply error messages if validation failed
   if (errorMessages.length > 0) {
-      isValid = false;
-      input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
-      showError(input, errorMessages);
+    isValid = false;
+    input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
+    showError(input, errorMessages);
   } else {
-      clearError(input);
+    clearError(input);
   }
-  
+
   // Set custom validity if there are any errors
   if (errorMessages.length > 0) {
-      isValid = false;
-      input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
-      showError(input, errorMessages);
+    isValid = false;
+    input.setCustomValidity(errorMessages.join('\n')); // This will trigger :invalid
+    showError(input, errorMessages);
   } else {
-      clearError(input);
+    clearError(input);
   }
-  
+
   return isValid;
-};
+}
 
 /**
  * Validates all inputs and checkbox groups in a given form.
@@ -214,36 +213,38 @@ function validateInput(input) {
  */
 function validateForm(form) {
   let isValid = true;
-  
+
   // Get all form inputs as an array
   const formInputs = Array.from(form.elements);
-  
+
   // Retrieve grouped checkboxes based on specific criteria
   const checkboxGroups = getCheckboxGroups(form);
-  
+
   // Validate each checkbox group
-  Object.values(checkboxGroups).forEach(group => {
-      const groupValid = validateCheckboxGroup(group);
-      if (!groupValid) {
-          isValid = false;
-      }
+  Object.values(checkboxGroups).forEach((group) => {
+    const groupValid = validateCheckboxGroup(group);
+    if (!groupValid) {
+      isValid = false;
+    }
   });
-  
+
   // Extract all grouped checkboxes into a flat array
   const groupedCheckboxes = Object.values(checkboxGroups).flatMap((group) => group.checkboxes);
-  
+
   // Exclude grouped checkboxes from other form inputs
-  const inputsExcludingCheckboxGroups = formInputs.filter((input) => !groupedCheckboxes.includes(input));
-  inputsExcludingCheckboxGroups.forEach((input) => {
-      // Skip non-input elements like buttons
-      if (input.type !== 'submit' && input.type !== 'button' && input.type !== 'reset') {
-          const inputValid = validateInput(input); // Validate individual input
-          if (!inputValid) {
-              isValid = false; // Mark the form as invalid if any field fails
-          }
-      }
+  const inputsExcludingCheckboxGroups = formInputs.filter((input) => {
+    !groupedCheckboxes.includes(input)
   });
-  
+  inputsExcludingCheckboxGroups.forEach((input) => {
+    // Skip non-input elements like buttons
+    if (input.type !== 'submit' && input.type !== 'button' && input.type !== 'reset') {
+      const inputValid = validateInput(input); // Validate individual input
+      if (!inputValid) {
+        isValid = false; // Mark the form as invalid if any field fails
+      }
+    }
+  });
+
   // Return the overall validity of the form
   return isValid;
 }
@@ -254,14 +255,14 @@ function validateForm(form) {
  */
 function buildInput(field) {
   const input = document.createElement('input');
-  
+
   // Set standard attributes, with defaults where applicable
   input.type = field.type || 'text';
   input.name = field.name || '';
   input.placeholder = field.placeholder || '';
   input.value = field.value ?? '';
   input.min = field.min ?? '';
-  
+
   // Apply additional optional attributes
   if (field.required) input.required = true;
   if (field.max) input.max = field.max;
@@ -273,9 +274,9 @@ function buildInput(field) {
 
   // Trigger input validation when the user types into the field
   input.addEventListener('input', () => {
-      validateInput(input); // Validate the current input
+    validateInput(input); // Validate the current input
   });
-  
+
   // Return the fully configured <input> element
   return input;
 }
@@ -287,18 +288,18 @@ function buildInput(field) {
  */
 function buildTextArea(field) {
   const textarea = document.createElement('textarea');
-  textarea.name = field.name || '';  // Sets name attribute
-  textarea.placeholder = field.placeholder || '';  // Sets placeholder if provided
-  textarea.value = field.value || '';  // Sets default value if provided
+  textarea.name = field.name || ''; // Sets name attribute
+  textarea.placeholder = field.placeholder || ''; // Sets placeholder if provided
+  textarea.value = field.value || ''; // Sets default value if provided
   textarea.rows = 8;
   
   if (field.required) textarea.required = true;
-  
+
   // Trigger input validation when the user types into the field
   textarea.addEventListener('input', () => {
-      validateInput(textarea);
+    validateInput(textarea);
   });
-  
+
   return textarea;
 }
 
@@ -313,7 +314,7 @@ function buildSelect(field) {
 
   // Add required and default value attributes if specified
   if (field.required) select.required = field.required;
-  
+
   // Add options if provided
   if (field.options && Array.isArray(field.options)) {
     const placeholder = document.createElement('option');
@@ -322,13 +323,13 @@ function buildSelect(field) {
     placeholder.selected = true;
     placeholder.disabled = true;
     select.append(placeholder);
-    
-    field.options.forEach(option => {
-    const optionElement = document.createElement('option');
-    optionElement.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
-    optionElement.textContent = option.label || '';  // Sets text content for option
-    if (option.selected) optionElement.selected = option.selected;
-    select.appendChild(optionElement);
+
+    field.options.forEach((option) => {
+      const optionElement = document.createElement('option');
+      optionElement.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
+      optionElement.textContent = option.label || ''; // Sets text content for option
+      if (option.selected) optionElement.selected = option.selected;
+      select.appendChild(optionElement);
     });
   }
 
@@ -528,7 +529,7 @@ function buildField(field) {
 function validateBuildFormInputs(fields, handleSubmit) {
   // Check if `fields` is a non-empty array
   if (!Array.isArray(fields) || fields.length === 0) {
-      throw new Error('The "fields" parameter must be a non-empty array of field definitions.');
+    throw new Error('The "fields" parameter must be a non-empty array of field definitions.');
   }
 
   // Iterate over each field in the `fields` array
@@ -566,7 +567,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
 
           const selectedOptions = field.options.filter((option) => option.selected);
           if (selectedOptions.length > 1) {
-            throw new Error(`Multiple selected options provided for a single-select dropdown. Please remove one of them.`);
+            throw new Error('Multiple selected options provided for a single-select dropdown. Please remove one of them.');
           }
         }
       }
