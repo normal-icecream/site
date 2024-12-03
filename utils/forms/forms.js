@@ -68,10 +68,10 @@ function clearError(container) {
 }
 
 /**
- * Extracts groups of related checkboxes from a form, along with their validation rules and 
+ * Extracts groups of related checkboxes from a form, along with their validation rules and
  * parent container.
  * @param {HTMLFormElement} form - The form element containing the checkboxes.
- * @returns {Object} An object where each key is a group name, and the value is an object 
+ * @returns {Object} An object where each key is a group name, and the value is an object
  * containing:
  *  - {HTMLInputElement[]} checkboxes: Array of checkboxes in the group.
  *  - {string[]} validations: Array of validation rules for the group.
@@ -81,42 +81,45 @@ function getCheckboxGroups(form) {
   const checkboxGroups = {}; // Object to store grouped checkboxes
 
   // Iterate through all form elements
-  for (const element of form.elements) {
-    if (element.type === 'checkbox') {
-      const groupName = element.name;
-      if (!groupName) continue; // Skip checkboxes without a name attribute
+//   for (const element of form.elements) {
+    Array.from(form.elements).forEach((element) => {
+        if (element.type === 'checkbox') {
+          const groupName = element.name;
 
-      // Check if the group has already been processed
-      if (!checkboxGroups[groupName]) {
-        // Find all checkboxes sharing the same group name
-        const checkboxes = Array.from(form.elements).filter(
-          (el) => el.type === 'checkbox' && el.name === groupName
-        );  
-        // Only consider groups with more than one checkbox
-        if (checkboxes.length > 1) {
-          const parentDiv = element.closest('div'); // Find the closest parent div
-          let validations = [];  
-          // Extract validation rules from the parent div's data attribute
-          if (parentDiv && parentDiv.dataset.validation) {
-            try {
-              validations = JSON.parse(parentDiv.dataset.validation); // Parse validation JSON
-            } catch (e) {
-              console.warn(
-                `Invalid JSON in data-validation for ${groupName}`,
-                parentDiv.dataset.validation
-              );
+        if (groupName) {
+          // Check if the group has already been processed
+          if (!checkboxGroups[groupName]) {
+            // Find all checkboxes sharing the same group name
+            const checkboxes = Array.from(form.elements).filter(
+              (el) => el.type === 'checkbox' && el.name === groupName,
+            );
+            // Only consider groups with more than one checkbox
+            if (checkboxes.length > 1) {
+              const parentDiv = element.closest('div'); // Find the closest parent div
+              let validations = [];
+              // Extract validation rules from the parent div's data attribute
+              if (parentDiv && parentDiv.dataset.validation) {
+                try {
+                  validations = JSON.parse(parentDiv.dataset.validation); // Parse validation JSON
+                } catch (e) {
+                  // eslint-disable-next-line no-console
+                  console.warn(
+                    `Invalid JSON in data-validation for ${groupName}`,
+                    parentDiv.dataset.validation,
+                  );
+                }
+              }
+              // Store the checkbox group with its details
+              checkboxGroups[groupName] = {
+                checkboxes, // The group of checkboxes
+                validations, // Validation rules
+                parent: parentDiv, // Parent container
+              };
             }
           }  
-          // Store the checkbox group with its details
-          checkboxGroups[groupName] = {
-            checkboxes, // The group of checkboxes
-            validations, // Validation rules
-            parent: parentDiv // Parent container
-          };
-        }
-      };
+      }
     }
-  }
+  })
 
   // Return the organized checkbox groups
   return checkboxGroups;
@@ -128,7 +131,8 @@ function getCheckboxGroups(form) {
  * @returns {boolean} `true` if the checkbox group is valid; `false` otherwise.
  */
 function validateCheckboxGroup(group) {
-  const { checkboxes, validations, parent } = group; // Extract relevant properties from the group object
+  // Extract relevant properties from the group object
+  const { checkboxes, validations, parent } = group;
   let isValid = true;
 
   // Validation: Check if at least one checkbox is required to be selected
@@ -168,7 +172,7 @@ function validateInput(input) {
     if (rule === 'no-nums' && /\d/.test(input.value)) {
       errorMessages.push('Numbers are not allowed.');
     }
-    
+
     // Rule: US phone number validation
     if (rule === 'phone:US' && /\d/.test(input.value)) {
       const digitsOnly = input.value.replace(/\D/g, '');
@@ -232,10 +236,8 @@ function validateForm(form) {
   const groupedCheckboxes = Object.values(checkboxGroups).flatMap((group) => group.checkboxes);
 
   // Exclude grouped checkboxes from other form inputs
-  const inputsExcludingCheckboxGroups = formInputs.filter((input) => {
-    !groupedCheckboxes.includes(input)
-  });
-  inputsExcludingCheckboxGroups.forEach((input) => {
+  const withoutCheckboxGroups = formInputs.filter((input) => !groupedCheckboxes.includes(input));
+  withoutCheckboxGroups.forEach((input) => {
     // Skip non-input elements like buttons
     if (input.type !== 'submit' && input.type !== 'button' && input.type !== 'reset') {
       const inputValid = validateInput(input); // Validate individual input
@@ -292,7 +294,7 @@ function buildTextArea(field) {
   textarea.placeholder = field.placeholder || ''; // Sets placeholder if provided
   textarea.value = field.value || ''; // Sets default value if provided
   textarea.rows = 8;
-  
+
   if (field.required) textarea.required = true;
 
   // Trigger input validation when the user types into the field
@@ -349,7 +351,7 @@ function buildSelect(field) {
 function buildRadio(field) {
   // Create the fieldset element to group the radio buttons
   const fieldset = document.createElement('fieldset');
-  
+
   // Iterate through the options to create radio buttons and labels
   field.options.forEach((option) => {
     const radioLabel = buildLabel(option);
@@ -378,7 +380,7 @@ function buildRadio(field) {
 /**
  * Creates and returns a labeled checkbox input element based on the provided field.
  * @param {Object} field - An object containing configuration options for the checkbox.
- * @returns {HTMLElement} A label element containing the checkbox input 
+ * @returns {HTMLElement} A label element containing the checkbox input
  * and its associated label text.
  */
 function buildCheckbox(field) {
@@ -557,18 +559,17 @@ function validateBuildFormInputs(fields, handleSubmit) {
       }
       if (!field.options) {
         throw new Error(`Missing valid "options" property from config at index ${index}.`);
-      } else {
-        if (field.options.length > 0) {
-          field.options.forEach((option, i) => {
-            if (!option.label) {
-              throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
-            }
-          });
+      }
+      if (field.options.length > 0) {
+        field.options.forEach((option, i) => {
+        if (!option.label) {
+          throw new Error(`Missing valid "label" property from config at index ${index}, options array index ${i}.`);
+        }
+        });
 
-          const selectedOptions = field.options.filter((option) => option.selected);
-          if (selectedOptions.length > 1) {
-            throw new Error('Multiple selected options provided for a single-select dropdown. Please remove one of them.');
-          }
+        const selectedOptions = field.options.filter((option) => option.selected);
+        if (selectedOptions.length > 1) {
+          throw new Error('Multiple selected options provided for a single-select dropdown. Please remove one of them.');
         }
       }
     }
