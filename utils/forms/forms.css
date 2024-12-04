@@ -55,6 +55,11 @@ textarea::placeholder {
    color: var(--blue-light);
 }
 
+.form textarea {
+   height: 200px;
+   resize: vertical;
+}
+
 .form .error-messages {
     color: var(--red);
     font-size: 12px;
