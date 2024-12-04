@@ -60,7 +60,7 @@ textarea::placeholder {
 }
 
 .form textarea {
-   height: 185px;
+   /* height: 185px; */
    resize: vertical;
 }
 
