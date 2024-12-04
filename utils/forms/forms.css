@@ -55,6 +55,10 @@ textarea::placeholder {
    color: var(--blue-light);
 }
 
+.form .form-textarea {
+   height: 219px;
+}
+
 .form textarea {
    height: 185px;
    resize: vertical;
