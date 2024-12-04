@@ -38,13 +38,13 @@ const fields = [
     // if any to be added to a field that aren't already on the field itself
     validation: ['phone:US'],
   },
-  // {
-  //   type: 'textarea',
-  //   label: 'How did you hear about us?',
-  //   name: 'referralSource',
-  //   placeholder: 'e.g., friend, social media, etc.',
-  //   required: true,
-  // },
+  {
+    type: 'textarea',
+    label: 'How did you hear about us?',
+    name: 'referralSource',
+    placeholder: 'e.g., friend, social media, etc.',
+    required: true,
+  },
   {
     type: 'number',
     label: 'Quantity',
