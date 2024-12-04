@@ -32,7 +32,6 @@
     font-family: var(--heading-font-family);
     color: var(--blue);
     margin: 0;
-    height: 24px;
 }
 
 .form label.label-invalid {
