@@ -9,7 +9,7 @@ const fields = [
     required: true,
     // This validation should have only the extras,
     // if any to be added to a field that aren't already on the field itself
-    validation: ['no-nums'],
+    validation: ['no-nums']
   },
   {
     type: 'input',

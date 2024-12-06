@@ -263,6 +263,10 @@ function buildInput(field) {
   input.placeholder = field.placeholder || '';
   input.value = field.value ?? '';
   input.min = field.min ?? '';
+  input.autocomplete = 'off';
+// //   input.height = 106.195
+// //   input.style.height = '300px'
+//   input.style.height = '106.195px'
 
   // Apply additional optional attributes
   if (field.required) input.required = true;
