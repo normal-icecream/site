@@ -1,4 +1,4 @@
-/* .form form {
+.form form {
     display: flex;
     flex-flow: column;
     text-transform: lowercase;
@@ -90,4 +90,4 @@ textarea::placeholder {
     min-width: 300px;
     cursor: pointer;
     border-radius: 6px;
-} */
+}
