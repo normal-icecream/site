@@ -1,0 +1,127 @@
+.tile {
+    margin-bottom: 300px;
+    position: relative;
+}
+
+.tile picture img {
+    height: 400px;
+    object-fit: cover;
+    border-top: 2px solid var(--blue);
+    border-right: none;
+    border-bottom: 2px solid var(--blue);
+    border-left: 2px solid var(--blue);
+    border-top-left-radius: 80px;
+    margin-left: auto;
+    margin-right: calc(-50vw + 50%);
+}
+
+.tile.alt picture img {
+    margin-left: calc(-50vw + 50%);
+    border-top-left-radius: 0;
+    border-top-right-radius: 80px;
+    border-top: 2px solid var(--blue);
+    border-right: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
+    border-left: none;
+}
+
+.tile > div {
+    position: absolute;
+    background-color: var(--white);
+    bottom: -240px;
+    border: 2px solid var(--blue);
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-l);
+    text-align: center;
+    width: 250px;
+    min-height: 300px;
+}
+
+.tile > div > div {
+    position: relative;
+}
+
+.tile > div > div h2 {
+    margin: 0;
+}
+
+.tile > div > div > div > p {
+    font-size: var(--body-size-s);
+    margin: 0;
+}
+
+.tile > div > div > div > p:first-of-type,
+.tile > div > div > div > p:last-of-type {
+    margin-top: 30px;
+}
+
+.tile > div > div p.img-wrapper {
+    position: absolute;
+    top: 0;
+    right: -100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 125px;
+    width: 125px;
+    background: var(--gradient);
+    border-radius: 100%;
+    border: 2px solid var(--blue);
+}
+
+.tile > div > div p.img-wrapper span svg {
+    height: 90px;
+    width: 90px;
+}
+
+.tile > div > div .button-wrapper a {
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-s);
+    padding: 15px 20px;
+}
+
+.tile.alt > div {
+   right: 0;
+}
+
+.tile.alt > div > div p.img-wrapper {
+    left: -100px;
+}
+
+@media (width >= 900px) {
+    .tile {
+        margin-bottom: 100px;
+    }
+
+    .tile > div {
+        position: absolute;
+        background-color: var(--white);
+        bottom: -50px;
+        margin-left: 50px;
+    }
+    
+    .tile.alt > div {
+        margin-right: 50px;
+    }
+
+    .tile picture img,
+    .tile.alt picture img {
+        margin-left: auto;
+        margin-right: auto;
+        border: 2px solid var(--blue);
+    }
+
+    .tile > div > div p.img-wrapper {
+        top: 80px;
+        right: -160px;
+        height: 150px;
+        width: 150px;
+    }
+
+    .tile.alt > div > div p.img-wrapper {
+        left: -160px;
+    }
+}
