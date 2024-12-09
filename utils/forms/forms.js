@@ -473,22 +473,18 @@ function buildField(field) {
     case 'time':
     case 'number':
     case 'password':
-      wrapper.style.height = '106.195px';
       input = buildInput(field);
       break;
 
     case 'textarea':
-      wrapper.style.height = '238.258px';
       input = buildTextArea(field);
       break;
 
     case 'select':
-      wrapper.style.height = '109.5px';
       input = buildSelect(field);
       break;
 
     case 'radio':
-        wrapper.style.height = '142px';
       input = buildRadio(field);
       break;
 
@@ -623,6 +619,9 @@ function validateBuildFormInputs(fields, handleSubmit) {
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
 export default function buildForm(fields, handleSubmit) {
+  // Load styles for form
+  loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
+
   // Validate inputs before proceeding
   validateBuildFormInputs(fields, handleSubmit);
 
@@ -684,9 +683,6 @@ export default function buildForm(fields, handleSubmit) {
       handleSubmit(data);
     }
   });
-
-  // Load styles for form
-  loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
 
   // Return form
   return form;
