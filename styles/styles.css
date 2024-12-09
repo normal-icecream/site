@@ -18,6 +18,8 @@
   /* brand */
   --white: #FFFCF3;
   --blue: #0B21E0;
+  --red: #FB0619;
+  --red-light: #fceff0;
   --blue-light: #C1C8FF;
   --blue-lightest: #EDEFFA;
   --primary: var(--blue);
@@ -161,7 +163,7 @@ main {
   }
 
   main {
-    margin: calc(var(--header-height) + var(--horizontal-spacing)) auto 0;
+    margin: 112px auto 0;
   }
 }
 

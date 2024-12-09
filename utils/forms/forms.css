@@ -1,0 +1,92 @@
+.form form {
+    display: flex;
+    flex-flow: column;
+    text-transform: lowercase;
+}
+
+.form div {
+    margin: 6px;
+}
+
+.form div.invalid input, 
+.form div.invalid select, 
+.form div.invalid textarea {
+    border: solid 2px var(--red);
+    color: var(--red);
+    background-color: var(--red-light);
+    -webkit-text-fill-color: var(--red) !important;
+}
+
+.form div.invalid input[type="checkbox"] {
+    border: 20px solid var(--red);
+    background-color: var(--red-light);
+}
+
+.form div.invalid input::placeholder,
+.form div.invalid textarea::placeholder {
+    color: var(--red);
+}
+
+.form label {
+    font-size: var(--heading-size-xs);
+    font-family: var(--heading-font-family);
+    color: var(--blue);
+    margin: 0;
+}
+
+.form label.label-invalid {
+    color: var(--red);
+}
+
+.form 
+input, 
+textarea,
+select {
+    border: solid 2px var(--blue-light);
+    background-color: transparent;
+    padding: 20px;
+    margin-bottom: 6px;
+    color: var(--blue);
+} 
+
+.form 
+input::placeholder, 
+textarea::placeholder {
+   color: var(--blue-light);
+}
+
+.form textarea {
+   resize: vertical;
+}
+
+.form .error-messages {
+    color: var(--red);
+    font-size: 12px;
+    display: block;
+}
+
+.form .form-checkbox input {
+   height: 20px;
+   width: 20px;
+   border-radius: 100%;
+}
+
+.form .form-submit {
+    align-self: center;
+}
+
+.form .form-submit button {
+    text-transform: lowercase;
+    color: var(--white);
+    background-color: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-m);
+    line-height: 0;
+    min-height: 50px;
+    min-width: 300px;
+    cursor: pointer;
+    border-radius: 6px;
+}
