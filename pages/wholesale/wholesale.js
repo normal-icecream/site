@@ -23,7 +23,7 @@ function showError(errorMessages) {
 
   if (!errorContainer) {
     submitContainer.classList.add('invalid');
-    
+
     const errorMessagesDiv = document.createElement('div');
     errorMessagesDiv.className = 'error-messages';
     errorMessages.forEach((message) => {
@@ -31,36 +31,36 @@ function showError(errorMessages) {
       messageDiv.textContent = message;
       errorMessagesDiv.append(messageDiv);
     });
-    
+
     submitContainer.append(errorMessagesDiv);
   }
 }
 
 function clearError() {
-    const submitContainer = document.querySelector('.table-form-submit-wrapper');
-    submitContainer.classList.remove('invalid');
+  const submitContainer = document.querySelector('.table-form-submit-wrapper');
+  submitContainer.classList.remove('invalid');
 
-    let errorContainer = submitContainer.querySelector('.error-messages');
-    if (errorContainer) {
-      errorContainer.remove();
-    }
+  let errorContainer = submitContainer.querySelector('.error-messages');
+  if (errorContainer) {
+    errorContainer.remove();
+  }
 }
 
 function validateForm() {
-    let isValid = true;
-    const formFields = Array.from(document.querySelectorAll('input'));
-    const errorMessages = [];
+  let isValid = true;
+  const formFields = Array.from(document.querySelectorAll('input'));
+  const errorMessages = [];
 
-    const hasEntry = formFields.some((field) => field.value > 0)
-    if (!hasEntry) {
-      isValid = false;
-      errorMessages.push('Please enter at least one valid quantity or value to submit.');
-      showError(errorMessages);
-    } else {
-      isValid = true;
-      clearError();
-    }
-    return isValid;
+  const hasEntry = formFields.some((field) => field.value > 0);
+  if (!hasEntry) {
+    isValid = false;
+    errorMessages.push('Please enter at least one valid quantity or value to submit.');
+    showError(errorMessages);
+  } else {
+    isValid = true;
+    clearError();
+  }
+  return isValid;
 }
 
 /**
@@ -85,7 +85,7 @@ export async function decorateWholesale(main) {
       if (isValid) {
         const formData = {};
         const inputs = form.querySelectorAll('input[type="number"]');
-          inputs.forEach(({ id, value }) => {
+        inputs.forEach(({ id, value }) => {
           // If input value isn't empty or zero, add to formData
           if (value > 0) {
             formData[id] = {
