@@ -1,17 +1,10 @@
 /* eslint-disable import/prefer-default-export */
-import { buildBlock } from '../../scripts/aem.js';
-import { loadCSS } from '../../scripts/aem.js';
+import { buildBlock, loadCSS } from '../../scripts/aem.js';
 
 function createSubmitButton() {
   // Create submit button wrapper
   const submitButtonWrapper = document.createElement('div');
   submitButtonWrapper.className = 'table-form-submit-wrapper';
-
-  // Apply styles to the submit button wrapper
-  submitButtonWrapper.style.display = 'flex';
-  submitButtonWrapper.style.justifyContent = 'center';
-  submitButtonWrapper.style.alignItems = 'center';
-  submitButtonWrapper.style.margin = '20px 0';
 
   // Create submit button
   const submitButton = document.createElement('button');
@@ -26,7 +19,7 @@ function showError(errorMessages) {
   const submitContainer = document.querySelector('.table-form-submit-wrapper');
 
   // Check if an error container already exists
-  let errorContainer = submitContainer.querySelector('.error-messages');
+  const errorContainer = submitContainer.querySelector('.error-messages');
 
   if (!errorContainer) {
     submitContainer.classList.add('invalid');
@@ -56,7 +49,7 @@ function clearError() {
 function validateForm() {
     let isValid = true;
     const formFields = Array.from(document.querySelectorAll('input'));
-    const errorMessages = []
+    const errorMessages = [];
 
     const hasEntry = formFields.some((field) => field.value > 0)
     if (!hasEntry) {
@@ -67,11 +60,11 @@ function validateForm() {
       isValid = true;
       clearError();
     }
-    return isValid
+    return isValid;
 }
 
 /**
- * Sets up wholesale static table block structure
+* Sets up wholesale static table block structure
 */
 export async function decorateWholesale(main) {
   // Load styles for form
@@ -86,24 +79,23 @@ export async function decorateWholesale(main) {
 
     // Form handle submit
     form.addEventListener('submit', (event) => {
-       event.preventDefault();
+      event.preventDefault();
 
       const isValid = validateForm();
       if (isValid) {
-          const formData = {};
-          const inputs = form.querySelectorAll('input[type="number"]');
+        const formData = {};
+        const inputs = form.querySelectorAll('input[type="number"]');
           inputs.forEach(({ id, value }) => {
-            // If input value isn't empty or zero, add to formData
-            if (value > 0) {
-              formData[id] = {
-                // TODO - Add whatever data we want to send
-                quantity: value,
-              };
-            }
-          });
-          // Add data to cart
-          // TODO - Send form json data
-          // console.log("formData:", formData);
+          // If input value isn't empty or zero, add to formData
+          if (value > 0) {
+            formData[id] = {
+              // TODO - Add whatever data we want to send
+              quantity: value,
+            };
+          }
+        });
+        // Add data to cart
+        // console.log("formData:", formData);
       }
     });
 

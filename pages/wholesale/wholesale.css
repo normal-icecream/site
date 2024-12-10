@@ -1,6 +1,9 @@
 .table-form-submit-wrapper {
     display: flex;
     flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
 }
 
 .table-form-submit-wrapper button {
