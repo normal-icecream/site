@@ -40,7 +40,7 @@ function clearError() {
   const submitContainer = document.querySelector('.table-form-submit-wrapper');
   submitContainer.classList.remove('invalid');
 
-  let errorContainer = submitContainer.querySelector('.error-messages');
+  const errorContainer = submitContainer.querySelector('.error-messages');
   if (errorContainer) {
     errorContainer.remove();
   }
