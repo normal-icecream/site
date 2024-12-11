@@ -1,0 +1,30 @@
+.table-form-submit-wrapper {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.table-form-submit-wrapper button {
+    height: 50px;
+    width: 300px;
+    background-color: var(--blue);
+    color: var(--white);
+    border-radius: 6px;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-s);
+    border: none;
+    cursor: pointer;
+    margin: 20px 0;
+    transition: background-color 0.3s ease;
+}
+
+.table-form-submit-wrapper.invalid button {
+    background-color: var(--red);
+}
+
+.error-messages {
+    color: var(--red);
+    text-transform: lowercase;
+}

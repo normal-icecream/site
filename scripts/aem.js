@@ -507,8 +507,15 @@ async function fetchPlaceholders(prefix = 'default') {
 function buildBlock(blockName, content) {
   const table = Array.isArray(content) ? content : [[content]];
   const blockEl = document.createElement('div');
-  // build image block nested div structure
-  blockEl.classList.add(blockName);
+  // // build image block nested div structure
+  // blockEl.classList.add(blockName);
+
+  if (blockEl.classList.contains('block')) {
+    blockEl.classList.add(blockName);
+  } else {
+    blockEl.classList.add(blockName, 'block');
+  }
+
   table.forEach((row) => {
     const rowEl = document.createElement('div');
     row.forEach((col) => {

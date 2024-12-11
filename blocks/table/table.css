@@ -1,4 +1,3 @@
-/* stylelint-disable no-descending-specificity */
 .table-container {
     margin-bottom: 32px;
 }
@@ -23,58 +22,60 @@
     border-bottom: 2px solid var(--blue);
 }
 
-.table thead th {
+.table table thead th,
+.table table tbody tr th {
     padding: 0 12px;
     border-bottom: 2px solid var(--blue);
-    background-color: var(--blue-lightest);
-}
-
-.table thead th p {
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-xs);
     text-transform: uppercase;
+    background-color: var(--blue-lightest);
 }
 
-.table thead:not(:first-child) th {
-    border-top: 2px solid var(--blue);
-}
-
-.table thead th:first-child {
+.table table thead tr th:first-child {
     text-align: left;
     border-right: 2px solid var(--blue);
 }
 
-.table thead th:last-child {
+.table table tbody tr th:first-child {
+    text-align: left;
+    border-right: 2px solid var(--blue);
+}
+
+.table table thead tr th:last-child {
     width: 125px;
 }
 
-.table tbody tr td {
+.table table tbody tr th:last-child {
+    width: 125px;
+}
+
+.table table tbody tr td {
     padding: 16px 12px;
     border-bottom: 2px solid var(--blue);
 }
 
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.table tbody tr td:first-child {
+.table table tbody tr td:first-child {
     border-right: 2px solid var(--blue);
     position: relative;
 }
 
-.table table tbody tr td:first-child p:not([class]):nth-child(1) {
-    margin: 0;
-    font-size: var(--heading-size-l);
+.table table tbody tr td:first-child p:first-child {
     font-family: var(--heading-font-family);
+    font-size: var(--heading-size-l);
+    margin: 0;
 }
 
-.table table tbody tr td:first-child p:not([class]):nth-child(2) {
-    margin-right: 40px;
+.table table tbody tr td:first-child p:not([class]) {
+    margin-right: 30px;
     margin-bottom: 0;
-    font-size: var(--body-size-m);
 }
 
-.table tbody tr td:first-child .img-wrapper {
+.table table tbody tr:last-of-type td {
+    border-bottom: 2px solid var(--blue);
+}
+
+.table table tbody tr td:first-child .img-wrapper {
     position: absolute;
     display: flex;
     flex-flow: column;
@@ -86,20 +87,44 @@
     bottom: 50%;
 }
 
-.table tbody tr td:first-child .img-wrapper svg {
+.table table tbody tr td:first-child .img-wrapper svg {
     height: 24px;
     width: auto;
  }
- 
-.table tbody tr td:first-child .img-wrapper span:first-of-type {
+
+.table table tbody tr td:first-child .img-wrapper span:first-of-type {
     padding-bottom: 6px
 }
 
-.table tbody tr td:last-child p {
+.table table tbody tr td:last-child {
     text-align: center;
     font-size: var(--heading-size-l);
     font-family: var(--heading-font-family);
     margin: 0;
+}
+
+.table table tbody tr td:last-child input {
+    background-color: var(--white);
+    border: none;
+    text-align: center;
+}
+
+
+.table table tbody tr td:last-child 
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.table table tbody:last-of-type tr:last-child td{
+   border-bottom: none;
+}
+
+.table table tbody tr td:last-child p input[type='number'] {
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -moz-appearance: textfield;
 }
 
 @media (width >= 900px) {
