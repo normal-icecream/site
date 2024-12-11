@@ -1,5 +1,7 @@
 import { decorateIcons } from '../../scripts/aem.js';
 
+const isDesktop = window.matchMedia('(min-width: 900px)');
+
 function buildCell(rowIndex) {
   const cell = rowIndex ? document.createElement('td') : document.createElement('th');
   if (!rowIndex) cell.setAttribute('scope', 'col');
@@ -78,11 +80,13 @@ export default async function decorate(block) {
         // Loop over each product within the group and add table row and data
         group.forEach((product) => {
           const productRow = document.createElement('tr');
+          // Setting default height to handle CLS error
+          productRow.style.height = isDesktop.matches ? '100px' : '175px';
           const productCell = document.createElement('td');
 
           // Add product name, description, and dietary icons if they exist.
           if (product.ITEM) {
-            const item = document.createElement('p');
+            const item = document.createElement('h4');
             item.textContent = product.ITEM;
             productCell.append(item);
           }
