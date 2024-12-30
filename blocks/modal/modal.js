@@ -1,14 +1,14 @@
 export function toggleModal(block) {
   const modalWrapper = block.closest('.modal-wrapper');
   const isExpanded = modalWrapper.getAttribute('aria-expanded') === 'true';
-  
+
   modalWrapper.setAttribute('aria-expanded', !isExpanded);
   modalWrapper.style.display = isExpanded ? 'none' : 'block';
 }
 
 export default function decorate(block) {
   const variants = [...block.classList];
-  
+
   const modalWrapper = block.closest('.modal-wrapper');
   modalWrapper.setAttribute('aria-expanded', 'false');
   modalWrapper.style.display = 'none';
@@ -30,10 +30,10 @@ export default function decorate(block) {
     // TODO - Need to fix this so user can set button text
     button.textContent = 'open';
     button.addEventListener('click', () => toggleModal(block));
-  
+
     modalWrapper.after(button);
   }
-  
+
   const closeModalButton = document.createElement('button');
   closeModalButton.textContent = 'X';
   closeModalButton.className = 'modal-close-btn';
