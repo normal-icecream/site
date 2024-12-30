@@ -1,6 +1,7 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { swapIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
+import { toggleModal } from '../modal/modal.js';
 
 // media query match that indicates desktop width
 const isDesktop = window.matchMedia('(width >= 900px)');
@@ -129,6 +130,10 @@ export default async function decorate(block) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
+    button.addEventListener('click', () => {
+      const modalBlock = document.querySelector('.modal.cart');
+      toggleModal(modalBlock);
+    })
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');
