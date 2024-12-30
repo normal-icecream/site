@@ -10,12 +10,21 @@
     background-color: var(--white);
 }
 
-.modal.block > div {
+.modal > div {
     width: 100%;
     height: 100%;
+}
+
+.modal > div > div {
     display: flex;
+    flex-flow: column;
     align-items: center;
-    justify-content: center;
+}
+
+.modal > div > div p.img-wrapper picture img {
+    height: 500px;
+    width: auto;
+    /* align-self: center; */
 }
 
 .modal-btn {
