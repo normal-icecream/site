@@ -133,7 +133,7 @@ export default async function decorate(block) {
     button.addEventListener('click', () => {
       const modalBlock = document.querySelector('.modal.cart');
       toggleModal(modalBlock);
-    })
+    });
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');
