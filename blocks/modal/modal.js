@@ -12,12 +12,12 @@ export default function decorate(block) {
   const modalWrapper = block.closest('.modal-wrapper');
   modalWrapper.setAttribute('aria-expanded', 'false');
   modalWrapper.style.display = 'none';
-  
+
   if (variants.includes('cart')) {
     const cartKey = window.location.pathname.split('/')[1];
 
     const div = document.createElement('div');
-    div.textContent = cartKey
+    div.textContent = cartKey;
     block.append(div);
 
     // Cart TODO's
