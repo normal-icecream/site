@@ -1,0 +1,5 @@
+.cart-card-wrapper {
+    border: 2px solid var(--blue-light);
+    height: 100px;
+    padding: var(--horizontal-spacing);
+}

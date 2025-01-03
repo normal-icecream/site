@@ -1,9 +1,22 @@
+import { getCart, getLastCart } from '../../utils/cart/cart.js'
+
 export function toggleModal(block) {
   const modalWrapper = block.closest('.modal-wrapper');
+  // console.log("before modalWrapper:", modalWrapper);
   const isExpanded = modalWrapper.getAttribute('aria-expanded') === 'true';
-
+  // console.log("isExpanded:", isExpanded);
+  
   modalWrapper.setAttribute('aria-expanded', !isExpanded);
+  // TODO - this is broken for some reason on cart modal??? It's not switching to display block.
   modalWrapper.style.display = isExpanded ? 'none' : 'block';
+  // console.log("after modalWrapper:", modalWrapper);
+}
+
+function getModalTitle(title) {
+  const modalTitle = document.createElement('h2');
+  modalTitle.textContent = title;
+  modalTitle.className = 'modal-cart-title';
+  return modalTitle;
 }
 
 export default function decorate(block) {
@@ -16,13 +29,12 @@ export default function decorate(block) {
   if (variants.includes('cart')) {
     const cartKey = window.location.pathname.split('/')[1];
 
-    const div = document.createElement('div');
-    div.textContent = cartKey;
-    block.append(div);
+    const cart = getCart(cartKey);
+    const lastCart = getLastCart();
+    const cartTitle = getModalTitle(`Your ${lastCart} order`);
 
-    // Cart TODO's
-    // Get cart
-    // insert cart contents into modal body
+    block.append(cartTitle);
+    block.append(cart);
   } else {
     // create and append button to block
     const button = document.createElement('button');
