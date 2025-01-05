@@ -2,14 +2,11 @@ import { getCart, getLastCart } from '../../utils/cart/cart.js'
 
 export function toggleModal(block) {
   const modalWrapper = block.closest('.modal-wrapper');
-  // console.log("before modalWrapper:", modalWrapper);
   const isExpanded = modalWrapper.getAttribute('aria-expanded') === 'true';
-  // console.log("isExpanded:", isExpanded);
   
   modalWrapper.setAttribute('aria-expanded', !isExpanded);
   // TODO - this is broken for some reason on cart modal??? It's not switching to display block.
   modalWrapper.style.display = isExpanded ? 'none' : 'block';
-  // console.log("after modalWrapper:", modalWrapper);
 }
 
 function getModalTitle(title) {
@@ -22,6 +19,7 @@ function getModalTitle(title) {
 export default function decorate(block) {
   const variants = [...block.classList];
 
+  // Set initial modal state
   const modalWrapper = block.closest('.modal-wrapper');
   modalWrapper.setAttribute('aria-expanded', 'false');
   modalWrapper.style.display = 'none';

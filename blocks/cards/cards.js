@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+// import { addToCart, removeFromCart } from '../../utils/cart/cart.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -20,13 +21,14 @@ function debounce(func, delay) {
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
  */
-function decrement(input) {
+function decrement(input, itemId, title) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
     input.value = total - 1;
     input.dispatchEvent(new Event('change'));
     // TODO: update cart totals
+    removeFromCart(itemId, title);
   }
 }
 
@@ -34,13 +36,14 @@ function decrement(input) {
  * Increases the value of an input element by 1 (while observing the max value).
  * @param {HTMLInputElement} input - Input element whose value will be incremented.
  */
-function increment(input) {
+function increment(input, itemId, title) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
     input.value = total + 1;
     input.dispatchEvent(new Event('change'));
     // TODO: update cart totals
+    addToCart(itemId, title);
   }
 }
 
@@ -100,6 +103,7 @@ function clampBodies(wrapper) {
 }
 
 export default function decorate(block) {
+  // console.log("block:", block.children);
   const variants = [...block.classList];
   // reorganize cards in ordered list
   const ul = document.createElement('ul');
@@ -113,6 +117,16 @@ export default function decorate(block) {
     image.className = 'cards-card-image';
     body.className = 'cards-card-body';
     card.append(image, body);
+
+    const squareButton = body.querySelector('.button-wrapper');
+    const squareLink = squareButton.querySelector('a')
+    ?.getAttribute('href')
+    .split('/');
+    const squareProductId = squareLink[squareLink.length - 1];
+    const itemTitle = body.querySelector('h3').textContent;
+    // Get item quantity from localstorage
+
+    squareButton.remove();
 
     // decorate image
     const img = image.querySelector('picture > img');
@@ -182,7 +196,7 @@ export default function decorate(block) {
         // TODO: disable "add" if max
       });
       cart.append(total);
-
+      
       // build action buttons
       const actions = ['subtract', 'add'];
       actions.forEach((action) => {
@@ -194,13 +208,14 @@ export default function decorate(block) {
         const symbol = document.createElement('i');
         symbol.className = `symbol symbol-${action}`;
         button.append(symbol);
+
         if (action === 'subtract') {
           button.disabled = true;
           cart.prepend(button);
-          button.addEventListener('click', () => decrement(total));
+          button.addEventListener('click', () => decrement(total, squareProductId, itemTitle));
         } else {
           cart.append(button);
-          button.addEventListener('click', () => increment(total));
+          button.addEventListener('click', () => increment(total, squareProductId, itemTitle));
         }
       });
       li.append(cart);
