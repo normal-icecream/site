@@ -4,7 +4,7 @@
  * Creates a new HTML element, applies attributes, and appends children.
  * @param {string} tag - Tag name of the element to create.
  * @param {Object} attrs - Object containing attributes to set on element.
- * @param {string|Node|Array<string|Node>} children - Children to append to the element.
+ * @param {string|Node|Array<string|Node>} children - Children to append to element.
  * @returns {HTMLElement} - Fully constructed element.
  */
 export function createEl(tag, attrs, children) {
