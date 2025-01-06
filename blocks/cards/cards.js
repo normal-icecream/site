@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-// import { addToCart, removeFromCart } from '../../utils/cart/cart.js';
+import { upsertItemToCart, removeFromCart } from '../../utils/cart/cart.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -21,14 +21,14 @@ function debounce(func, delay) {
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
  */
-function decrement(input, itemId, title) {
+function decrement(input, id) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
     input.value = total - 1;
     input.dispatchEvent(new Event('change'));
     // TODO: update cart totals
-    removeFromCart(itemId, title);
+    removeFromCart(id);
   }
 }
 
@@ -36,14 +36,14 @@ function decrement(input, itemId, title) {
  * Increases the value of an input element by 1 (while observing the max value).
  * @param {HTMLInputElement} input - Input element whose value will be incremented.
  */
-function increment(input, itemId, title) {
+function increment(input, id) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
     input.value = total + 1;
     input.dispatchEvent(new Event('change'));
     // TODO: update cart totals
-    addToCart(itemId, title);
+    upsertItemToCart(id);
   }
 }
 
@@ -123,7 +123,6 @@ export default function decorate(block) {
     ?.getAttribute('href')
     .split('/');
     const squareProductId = squareLink[squareLink.length - 1];
-    const itemTitle = body.querySelector('h3').textContent;
     // Get item quantity from localstorage
 
     squareButton.remove();
@@ -212,10 +211,11 @@ export default function decorate(block) {
         if (action === 'subtract') {
           button.disabled = true;
           cart.prepend(button);
-          button.addEventListener('click', () => decrement(total, squareProductId, itemTitle));
+          // Fetch catalog item by Id to display in new modal variations and mods to choose from.
+          button.addEventListener('click', () => decrement(total, squareProductId));
         } else {
           cart.append(button);
-          button.addEventListener('click', () => increment(total, squareProductId, itemTitle));
+          button.addEventListener('click', () => increment(total, squareProductId));
         }
       });
       li.append(cart);

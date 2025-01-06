@@ -1,12 +1,49 @@
 import { loadCSS } from '../../scripts/aem.js';
 
 const allowedCartPages = Object.freeze([
-    'pick-up',
-    'catering',
+    'store',
     'shipping',
-    'wholesale',
     'merch'
 ]);
+
+// carts: {
+//     'store': {
+//         'line_items': [
+//                 {
+//                     'catalog_object_id':'A1',
+//                     'fp': 'A1-wholemilkId', 
+//                     'quantity': 1,
+//                     'modifiers': [
+//                         { 'id': 'wholemilkId' },
+//                     ]
+//                 },
+//                 {
+//                     'id':'A1',
+//                     'fp': 'A1-oatMilkId', 
+//                     'quantity': 1,
+//                     'modifiers': [
+//                         { 'id': 'oatMilkId' },
+//                     ]
+//                 },
+//         ],
+//     },
+//     'shipping': {
+//         'last_updated': '',
+//         'line_items': [],
+//     },
+//     'merch': {
+//         'last_updated': '',
+//         'line_items': [],
+//     },
+//     'lastcart': ''
+// }
+
+// function CartCatalogObject(id, quantity, modifiers) {
+//     this.catalog_object_id = id;
+//     this.quantity = quantity;
+//     this.fp = id + '-' + modifiers.id; // obvi needs to be smarter
+//     this.modifiers = modifiers;
+// }
 
 function getEmptyCartMessage() {
     // TODO - add styling
@@ -16,6 +53,7 @@ function getEmptyCartMessage() {
 }
 
 function getCartCard(cartItems) {
+    // Fetch catalog from Square
     const cartCardWrapper = document.createElement('div');
     cartCardWrapper.className = 'cart card-wrapper';
 
@@ -46,51 +84,35 @@ function getCartCard(cartItems) {
     return cartCardWrapper;
 }
 
-export function addToCart(itemId, title) {
-    const normalCart = JSON.parse(localStorage.getItem('normal-cart'));
+// function createCatalogItem(id, quantity, modifiers) {
+
+// }
+
+export function upsertItemToCart(itemId) {
+    console.log("itemId:", itemId);
+    const carts = JSON.parse(localStorage.getItem('carts'));
     const lastCart = getLastCart();
-    const cartToUpdate = normalCart[lastCart];
-    // console.log("cartToUpdate:", cartToUpdate);
-    
-    // if (cartToUpdate['line_items'].length > 0) {
-    //     const itemToUpdate = cartToUpdate['line_items'][itemId];
-    //     console.log("itemToUpdate:", itemToUpdate);
 
-
-    // } else {
-    //     cartToUpdate['line_items'].push({
-    //         id: itemId,
-    //         quantity: 1,
-    //         title,
-    //     })
-    // }
-
-    // console.log(cartToUpdate)
-
-    // adds new item if it doesn't already exist
-    // if it does exist then update item by one
+    // If object doesn't already exist in line_items for cart then add to line_items
+    // If it does exist, update item
+    // If a mod or variation has been added then create new item in list with unique & easily queriable fp
 }
 
-export function removeFromCart(itemId, title) {
-    // console.log('hitting removeItemFromCart');
-    const lastCart = getLastCart();
-    // console.log("lastCart:", lastCart);
-
-    // Decrements item quantity by one it it exists
-    // removes last item from cart
+export function removeFromCart(itemId) {
+    console.log("itemId:", itemId);
 }
 
 export function setLastCart(pageName) {
-    const normalCart = JSON.parse(localStorage.getItem('normal-cart'));
+    const normalCart = JSON.parse(localStorage.getItem('carts'));
     if (normalCart && allowedCartPages.includes(pageName)) {
-        normalCart['last-cart'] = pageName;
-        localStorage.setItem('normal-cart', JSON.stringify(normalCart));
+        normalCart['lastcart'] = pageName;
+        localStorage.setItem('carts', JSON.stringify(normalCart));
     }
 }
 
 export function getLastCart() {
-    const normalCart = JSON.parse(localStorage.getItem('normal-cart'));
-    return normalCart ? normalCart['last-cart'] : '';
+    const normalCart = JSON.parse(localStorage.getItem('carts'));
+    return normalCart ? normalCart['lastcart'] : '';
 }
 
 export function getCart(cartKey) {
@@ -101,35 +123,24 @@ export function getCart(cartKey) {
     if (isCartPage) setLastCart(cartKey);
 
     let cart = [];
-    const cartData = JSON.parse(localStorage.getItem('normal-cart'));
+    const cartData = JSON.parse(localStorage.getItem('carts'));
     if (!cartData) {
-        localStorage.setItem('normal-cart', JSON.stringify({
-            'pick-up': {
-                'last_updated': '',
+        localStorage.setItem('carts', JSON.stringify({
+            'store': {
                 'line_items': [],
             },
             'shipping': {
-                'last_updated': '',
-                'line_items': [],
-            },
-            'wholesale': {
-                'last_updated': '',
-                'line_items': [],
-            },
-            'catering': {
-                'last_updated': '',
                 'line_items': [],
             },
             'merch': {
-                'last_updated': '',
                 'line_items': [],
             },
-            'last-cart': ''
+            'lastcart': ''
         }));
         cart = getEmptyCartMessage();
     } else {
-        if (cartData['last-cart'].length > 0) {
-            const currentCartData = cartData[cartData['last-cart']];
+        if (cartData['lastcart'].length > 0) {
+            const currentCartData = cartData[cartData['lastcart']];
             if (currentCartData.length > 0) {
                 cart = getCartCard(currentCartData);
             } else {
@@ -141,33 +152,3 @@ export function getCart(cartKey) {
     }
     return cart;
 }
-
-
-
-// {
-//     "location_id": "RXJXAWG01MBF5",
-//     "customer_id": "",
-//     'pick-up': [
-//         'last-updated': ''
-//         "line_items": [
-//             'quantity': '3'
-//         ],
-//     ],
-//     'shipping': [
-//         'last-updated': ''
-//         "line_items": [],
-//     ],
-//     'wholesale': [
-//         'last-updated': ''
-//         "line_items": [],
-//     ],
-//     'catering': [
-//         'last-updated': ''
-//         "line_items": [],
-//     ],
-//     'last-cart': '',
-//     'meta-data': {
-//         'cart-total': '',
-
-//     }
-// }
