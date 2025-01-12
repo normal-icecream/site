@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { getCatalogObject } from '../../api/square/catalog.js';
+import { getCatalogItem } from '../../api/square/catalog.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -125,7 +125,7 @@ export default function decorate(block) {
       console.log("squareProductId:", squareProductId);
   
       if (squareProductId) {
-        const squareCatalogObject = await getCatalogObject(squareProductId);
+        const squareCatalogObject = await getCatalogItem(squareProductId);
         console.log("squareCatalogObject taco:", squareCatalogObject);
       }
     }

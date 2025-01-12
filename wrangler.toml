@@ -10,3 +10,7 @@ vars = { ENVIRONMENT = "sandbox" }
 
 [env.production]
 vars = { ENVIRONMENT = "production" }
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.

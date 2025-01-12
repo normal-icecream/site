@@ -8,6 +8,7 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   const headers = { 'Content-Type': 'application/json' };
   const options = { method, headers };
 
+  console.log("options:", options);
   if (data) {
     options.body = JSON.stringify(data);
   }

@@ -6,7 +6,15 @@ const ALLOWED_ORIGINS = [
 
 export default {
   async fetch(request, env) {
+    console.log("request.headers:", request.headers.entries());
+    // request.headers.entries().forEach
+
+    request.headers.entries().forEach((entry, i) => {
+      console.log(i, entry);
+    })
+    // console.log("request.body:", request.body.get('Body'));
     const originHeader = request.headers.get('Origin');
+    console.log("originHeader:", originHeader);
     const isAllowed = ALLOWED_ORIGINS.find((element) => originHeader.endsWith(element));
     if (!isAllowed) {
       return new Response('Forbidden', {
@@ -25,6 +33,8 @@ export default {
         },
       });
     }
+
+    // if(originHeader)
 
     const isProduction = env.ENVIRONMENT === 'production';
     const apiKey = isProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
