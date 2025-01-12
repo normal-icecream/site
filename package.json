@@ -6,7 +6,13 @@
   "scripts": {
     "lint:js": "eslint .",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
-    "lint": "npm run lint:js && npm run lint:css"
+    "lint": "npm run lint:js && npm run lint:css",
+    "start:proxy": "node proxy.js",
+    "start:aem": "aem up",
+    "start:wrangler-sandbox": "wrangler dev --env sandbox --remote",
+    "start:wrangler-prod": "wrangler dev --env production --remote",
+    "start:all-prod": "concurrently \"aem up\" \"node proxy.js\" \"npm run start:wrangler-prod\"",
+    "start:all-sandbox": "concurrently \"aem up\" \"node proxy.js\" \"npm run start:wrangler-sandbox\""
   },
   "repository": {
     "type": "git",
@@ -19,6 +25,7 @@
   "homepage": "https://main--site--normal-icecream.hlx.live/",
   "devDependencies": {
     "@babel/eslint-parser": "7.24.7",
+    "concurrently": "^9.1.2",
     "eslint": "8.57.0",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-plugin-import": "2.29.1",

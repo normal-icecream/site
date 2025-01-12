@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { getCatalogObject } from '../../api/square/catalog.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -105,7 +106,7 @@ export default function decorate(block) {
   const ul = document.createElement('ul');
 
   // decorate each card
-  [...block.children].forEach((row) => {
+  [...block.children].forEach(async (row) => {
     const li = document.createElement('li');
     const card = document.createElement('div');
     card.className = 'cards-card';
@@ -113,6 +114,21 @@ export default function decorate(block) {
     image.className = 'cards-card-image';
     body.className = 'cards-card-body';
     card.append(image, body);
+
+    // TODO - add logic that checks more specifically for the add to cart labeled button
+    const squareButton = body.querySelector('.button-wrapper');
+    if (squareButton) {
+      const squareLink = squareButton.querySelector('a')
+      ?.getAttribute('href')
+      .split('/');
+      const squareProductId = squareLink[squareLink.length - 1];
+      console.log("squareProductId:", squareProductId);
+  
+      if (squareProductId) {
+        const squareCatalogObject = await getCatalogObject(squareProductId);
+        console.log("squareCatalogObject taco:", squareCatalogObject);
+      }
+    }
 
     // decorate image
     const img = image.querySelector('picture > img');
@@ -165,6 +181,8 @@ export default function decorate(block) {
       // decorate cart actions
       const cart = document.createElement('form');
       cart.className = 'cards-card-cart';
+
+      // const squareObjectId = 
 
       // build total field
       const total = document.createElement('input');
