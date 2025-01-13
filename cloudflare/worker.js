@@ -22,7 +22,7 @@ export default {
     const isAllowed = ALLOWED_ORIGINS.find((element) => originHeader.endsWith(element));
     if (!isAllowed) {
       // Reject the request with a 403 status if the origin is not allowed
-      return new Response('Forbidden: Requests from origin header ${originHeader} are not allowed.', {
+      return new Response(`Forbidden: Requests from origin header ${originHeader} are not allowed.`, {
         status: 403,
         headers: { 'Content-Type': 'text/plain' },
       });
