@@ -1,5 +1,7 @@
+/* eslint-disable import/prefer-default-export */
+
 // Define the base URL for API requests depending on the environment
-// If running on localhost, use the local development server; 
+// If running on localhost, use the local development server;
 // otherwise, use the production Cloudflare Worker URL
 const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8787' // Local development server
@@ -25,14 +27,8 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   try {
     // Send the API request and await the response
     const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-
-    // Check if the response status is OK (status code 2xx)
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-
     return await response.json();
   } catch (error) {
-    throw error;
+    throw new Error(`API Error: ${response.status}`);
   }
 }

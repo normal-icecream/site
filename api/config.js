@@ -24,10 +24,10 @@ export const API_ENDPOINTS = {
       list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
     },
     // ORDERS: {
-      // Add endpoint URL here
+    // Add endpoint URL here
     // },
     // PAYMENTS: {
-      // Add endpoint URL here
+    // Add endpoint URL here
     // },
   },
   // ADD any other API here

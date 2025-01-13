@@ -1,4 +1,3 @@
-import { getCatalogList } from '../../api/square/catalog.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
@@ -104,9 +103,6 @@ export default function decorate(block) {
   const variants = [...block.classList];
   // reorganize cards in ordered list
   const ul = document.createElement('ul');
-
-  const list = getCatalogList();
-  console.log("list:", list);
 
   // decorate each card
   [...block.children].forEach(async (row) => {

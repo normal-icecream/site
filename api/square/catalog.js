@@ -16,10 +16,8 @@ export async function getCatalogItem(itemId) {
     // Use the API client to fetch the catalog item from the Square API
     const item = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.item(itemId), 'GET');
 
-    // If the item exists, return its object property
-    if (item) {
-      return item.object;
-    }
+    // return square object
+    return item.object;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching catalog item:', error);
@@ -37,10 +35,8 @@ export async function getCatalogList() {
     // Use the API client to fetch the catalog list from the Square API
     const catalogList = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.list, 'GET');
 
-    // If the catalog list exists, return its objects property
-    if (catalogList) {
-      return catalogList.objects;
-    }
+    // return list
+    return catalogList.objects;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching catalog list:', error);
