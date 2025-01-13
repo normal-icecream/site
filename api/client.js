@@ -24,18 +24,14 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
     options.body = JSON.stringify(data);
   }
 
-  try {
-    // Send the API request and await the response
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  // Send the API request and await the response
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
 
-    // Check if the response status indicates an error
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} - ${response.statusText}`);
-    }
-
-    // Parse and return the JSON response
-    return response.json();
-  } catch (error) {
-    throw new Error(`API Error: ${response.status}`);
+  // Check if the response status indicates an error
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
   }
+
+  // Parse and return the JSON response
+  return response.json();
 }
