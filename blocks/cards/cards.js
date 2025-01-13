@@ -1,4 +1,3 @@
-import { getCatalogList } from '../../api/square/catalog.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
@@ -106,7 +105,7 @@ export default function decorate(block) {
   const ul = document.createElement('ul');
 
   // decorate each card
-  [...block.children].forEach(async (row) => {
+  [...block.children].forEach((row) => {
     const li = document.createElement('li');
     const card = document.createElement('div');
     card.className = 'cards-card';
@@ -114,9 +113,6 @@ export default function decorate(block) {
     image.className = 'cards-card-image';
     body.className = 'cards-card-body';
     card.append(image, body);
-
-    const list = await getCatalogList();
-    console.log("list:", list);
 
     // decorate image
     const img = image.querySelector('picture > img');

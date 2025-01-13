@@ -27,7 +27,9 @@ npm run lint
 
 ## Cloudflare Worker - Local development
 1. Install Wrangler in project root - `npm install wrangler`
-1. Run `wrangler deploy` To update cloudflare with any updates to the worker.js file
-1. Run `wrangler dev --env production --remote` to turn Cloudflare worker on to test Square locally for PRODUCTION environment
-1. Run `wrangler dev --env sandbox --remote` to turn Cloudflare worker on to test Square locally for SANDBOX environment
+1. Run `wrangler deploy` To update worker code in Cloudflare Dashboard. You should `NOT` edit worker code in Cloudflare Dashboard directly. Any changes that need to be made to the worker code should be done through the worker.js file.
+1. Run `wrangler dev --remote` to test Square locally, this turns the worker server `ON`. 
+    1. If you want to test `production` locally, go to wrangler.toml and change `[vars] ENVIRONMENT = 'production'`
+    1. If you want to test `sandbox` locally, go to wrangler.toml and change `[vars] ENVIRONMENT = 'sandbox'`
+
 1. [Wrangler commands](https://developers.cloudflare.com/workers/wrangler/commands)

@@ -10,6 +10,14 @@ export default {
     // Get the 'Origin' header from the incoming request to validate the source
     const originHeader = request.headers.get('Origin');
 
+    // Check if originHeader is null or undefined
+    if (!originHeader) {
+      return new Response('Forbidden: Origin header is missing', {
+        status: 403,
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    }
+
     // Check if the request's origin is in the list of allowed origins
     const isAllowed = ALLOWED_ORIGINS.find((element) => originHeader.endsWith(element));
     if (!isAllowed) {
