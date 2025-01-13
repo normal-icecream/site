@@ -1,3 +1,4 @@
+import { getCatalogList } from '../../api/square/catalog.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
@@ -113,6 +114,9 @@ export default function decorate(block) {
     image.className = 'cards-card-image';
     body.className = 'cards-card-body';
     card.append(image, body);
+
+    const list = await getCatalogList();
+    console.log("list:", list);
 
     // decorate image
     const img = image.querySelector('picture > img');
