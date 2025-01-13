@@ -1,4 +1,4 @@
-import { apiClient } from '../client.js'
+import { apiClient } from '../client.js';
 import { API_ENDPOINTS } from '../config.js';
 
 /**
@@ -21,7 +21,9 @@ export async function getCatalogItem(itemId) {
       return item.object;
     }
   } catch (error) {
-    console.error("Error fetching catalog item:", error);
+    // eslint-disable-next-line no-console
+    console.error('Error fetching catalog item:', error);
+    throw new Error(`Failed to fetch catalog item: ${error.message}`);
   }
 }
 
@@ -29,7 +31,7 @@ export async function getCatalogItem(itemId) {
  * Fetches the list of catalog items from the Square API.
  * @returns {Promise<Array>} - A promise that resolves to an array of catalog item objects.
  * @throws {Error} - Throws an error if the API call fails.
- */
+*/
 export async function getCatalogList() {
   try {
     // Use the API client to fetch the catalog list from the Square API
@@ -37,9 +39,11 @@ export async function getCatalogList() {
 
     // If the catalog list exists, return its objects property
     if (catalogList) {
-      return catalogList.objects
+      return catalogList.objects;
     }
   } catch (error) {
-    console.error("Error fetching catalog list:", error);
+    // eslint-disable-next-line no-console
+    console.error('Error fetching catalog list:', error);
+    throw new Error(`Failed to fetch catalog list: ${error.message}`);
   }
 }

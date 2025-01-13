@@ -38,8 +38,7 @@ export default {
     const baseUrl = isProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
     // Extract the pathname from the request URL and modify it to match the Square API
-    const url = new URL(request.url);
-    const pathname = url.pathname;
+    const { pathname } = new URL(request.url);
     const squareUrl = `${baseUrl}${pathname.replace('/api/square', '')}`;
 
     // Create a new request object to forward the modified request to the Square API

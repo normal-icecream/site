@@ -1,9 +1,9 @@
 // Define the base URL for API requests depending on the environment
-// If running on localhost, use the local development server; otherwise, use the production Cloudflare Worker URL
-const API_BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:8787' // Local development server 
-    : 'https://square-worker.website-f57.workers.dev'; // Production URL of your Cloudflare Worker
+// If running on localhost, use the local development server; 
+// otherwise, use the production Cloudflare Worker URL
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8787' // Local development server
+  : 'https://square-worker.website-f57.workers.dev'; // Production URL of your Cloudflare Worker
 
 /**
  * A generic API client function to interact with the server-side API.
@@ -33,7 +33,6 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
 
     return await response.json();
   } catch (error) {
-    console.error('API Client Error:', error);
     throw error;
   }
 }
