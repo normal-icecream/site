@@ -12,8 +12,8 @@ export default {
 
     // Check if originHeader is null or undefined
     if (!originHeader) {
-      return new Response('Forbidden: Origin header is missing', {
-        status: 403,
+      return new Response('Bad Request: Origin header is missing', {
+        status: 400,
         headers: { 'Content-Type': 'text/plain' },
       });
     }
@@ -22,7 +22,7 @@ export default {
     const isAllowed = ALLOWED_ORIGINS.find((element) => originHeader.endsWith(element));
     if (!isAllowed) {
       // Reject the request with a 403 status if the origin is not allowed
-      return new Response('Forbidden', {
+      return new Response('Forbidden: Requests from origin header ${originHeader} are not allowed.', {
         status: 403,
         headers: { 'Content-Type': 'text/plain' },
       });
@@ -41,7 +41,7 @@ export default {
 
     // Determine the environment to select the correct API key and base URL
     const isProduction = env.ENVIRONMENT === 'production';
-    // Set API key from encrypptd env var stored in Cloudflare
+    // Set API key from encrypted env var stored in Cloudflare
     const apiKey = isProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     const baseUrl = isProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
