@@ -27,7 +27,7 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   try {
     // Send the API request and await the response
     const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    return await response.json();
+    return response.json();
   } catch (error) {
     throw new Error(`API Error: ${response.status}`);
   }
