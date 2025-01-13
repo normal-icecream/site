@@ -41,7 +41,7 @@ export default {
 
     // Determine the environment to select the correct API key and base URL
     const isProduction = env.ENVIRONMENT === 'production';
-    // Set API key from encrypted env var stored in Cloudflare
+    // Get sandbox or prod auth API key stored in Cloudflare
     const apiKey = isProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     const baseUrl = isProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
