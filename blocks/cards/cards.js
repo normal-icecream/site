@@ -1,5 +1,4 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { getCatalogItem } from '../../api/square/catalog.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -114,21 +113,6 @@ export default function decorate(block) {
     image.className = 'cards-card-image';
     body.className = 'cards-card-body';
     card.append(image, body);
-
-    // TODO - add logic that checks more specifically for the add to cart labeled button
-    const squareButton = body.querySelector('.button-wrapper');
-    if (squareButton) {
-      const squareLink = squareButton.querySelector('a')
-      ?.getAttribute('href')
-      .split('/');
-      const squareProductId = squareLink[squareLink.length - 1];
-      console.log("squareProductId:", squareProductId);
-  
-      if (squareProductId) {
-        const squareCatalogObject = await getCatalogItem(squareProductId);
-        console.log("squareCatalogObject taco:", squareCatalogObject);
-      }
-    }
 
     // decorate image
     const img = image.querySelector('picture > img');
