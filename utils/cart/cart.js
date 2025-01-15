@@ -1,6 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
 import { getCatalogItem, getCatalogList, upsertCatalogItem } from "../../api/square/catalog.js";
-import { hitSandbox } from "../../api/sandboxConfig.js";
+import { hitProduction, hitSandbox } from "../../api/environmentConfig.js";
 
 const allowedCartPages = Object.freeze([
     'store',
@@ -91,10 +91,11 @@ function getCartCard(cartItems) {
 // }
 
 export async function upsertItemToCart(prodSquareItemId) {
-    const prodItem = await getCatalogItem(prodSquareItemId);
+    // Need to make sure thism request ALWAYS hits prod
+    const prodItem = await hitProduction(getCatalogItem, prodSquareItemId);
     console.log("prodItem:", prodItem);
 
-    const prodCatalog = await getCatalogList();
+    const prodCatalog = await hitProduction(getCatalogList);
     console.log("prodCatalog:", prodCatalog);
 
     const sandboxCatalogItems = await hitSandbox(getCatalogList);
