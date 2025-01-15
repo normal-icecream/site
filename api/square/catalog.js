@@ -43,3 +43,25 @@ export async function getCatalogList() {
     throw new Error(`Failed to fetch catalog list: ${error.message}`);
   }
 }
+
+
+
+// TODO - add function description
+export async function upsertCatalogItem(itemData) {
+  if (!itemData) {
+    // Validate that an itemId is provided before making the API call
+    throw new Error('ItemData is required to upsert catalog item');
+  }
+
+  try {
+    console.log('itemData', itemData)
+    // const test = {
+
+    // }
+
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error upserting catalog item:', error);
+    throw new Error(`Failed to upsert catalog item: ${error.message}`);
+  }
+}

@@ -1,4 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
+import { getCatalogItem, getCatalogList, upsertCatalogItem } from "../../api/square/catalog.js";
+import { hitSandbox } from "../../api/sandboxConfig.js";
 
 const allowedCartPages = Object.freeze([
     'store',
@@ -88,10 +90,38 @@ function getCartCard(cartItems) {
 
 // }
 
-export function upsertItemToCart(itemId) {
-    console.log("itemId:", itemId);
-    const carts = JSON.parse(localStorage.getItem('carts'));
-    const lastCart = getLastCart();
+export async function upsertItemToCart(prodSquareItemId) {
+    const prodItem = await getCatalogItem(prodSquareItemId);
+    console.log("prodItem:", prodItem);
+
+    const prodCatalog = await getCatalogList();
+    console.log("prodCatalog:", prodCatalog);
+
+    const sandboxCatalogItems = await hitSandbox(getCatalogList);
+    console.log("sandboxCatalogItems:", sandboxCatalogItems);
+
+    if (prodItem && sandboxCatalogItems) {
+        const filteredSandboxItems = sandboxCatalogItems.filter((item) => item.type === 'ITEM');
+        const prodItemIsInSandboxAccount = filteredSandboxItems.find((item) => item.item_data.name === prodItem.item_data.name)
+        console.log("prodItemIsInSandboxAccount:", prodItemIsInSandboxAccount);
+
+        if (!prodItemIsInSandboxAccount) {
+            const item = await hitSandbox(upsertCatalogItem, prodItem);
+            console.log("item:", item);
+        }
+    }
+
+    // If on Localhost or .page URL > get prodItemId > Check to see if there is an equavalent prodItem in sandbox > if there is, use that ID for all requests, if not add one to sandbox and use that one's Id to make requests going forward.
+
+    // If .live or .club URL ? get prodId and use that for all requests
+
+    // Double check that worker is working properly to route requests based on URL.
+    
+
+    // const carts = JSON.parse(localStorage.getItem('carts'));
+    // console.log("carts:", carts);
+    // const lastCart = getLastCart();
+    // console.log("lastCart:", lastCart);
 
     // If object doesn't already exist in line_items for cart then add to line_items
     // If it does exist, update item

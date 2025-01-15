@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { sandboxConfig } from "../api/sandboxConfig.js";
 
 // Define the base URL for API requests depending on the environment
 // If running on localhost, use the local development server;
@@ -25,7 +26,8 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   }
 
   // Send the API request and await the response
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  const sandboxParam = sandboxConfig.useSandbox ? '?env=sandbox' : '';
+  const response = await fetch(`${API_BASE_URL}${endpoint}${sandboxParam}`, options);
 
   // Check if the response status indicates an error
   if (!response.ok) {

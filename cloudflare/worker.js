@@ -1,14 +1,21 @@
 // List of URLs that are allowed to make requests to Square based on environment
+// TODO - add .club as an allowed origin
 const ALLOWED_ORIGINS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
   '--site--normal-icecream.aem.live', // Production domain/
 ];
 
+const SANDBOX_ROUTES = [
+  'localhost:3000', // Local development
+  '--site--normal-icecream.aem.page', // Preview domain/
+];
+
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
     const originHeader = request.headers.get('Origin');
+    console.log("originHeader:", originHeader);
 
     // Check if originHeader is null or undefined
     if (!originHeader) {
@@ -27,7 +34,7 @@ export default {
         headers: { 'Content-Type': 'text/plain' },
       });
     }
-
+    
     if (request.method === 'OPTIONS') {
       // Handle CORS preflight requests by responding with appropriate headers
       return new Response(null, {
@@ -39,15 +46,17 @@ export default {
       });
     }
 
-    // Determine the environment to select the correct API key and base URL
-    const isProduction = env.ENVIRONMENT === 'production';
-    // Get sandbox or prod auth API key stored in Cloudflare
-    const apiKey = isProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
-    const baseUrl = isProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+    const shouldHitSandbox = SANDBOX_ROUTES.find((element) => originHeader.endsWith(element));
+    console.log("shouldHitSandbox:", shouldHitSandbox);
+    
+    const url = new URL(request.url);
+    const forceSandbox = url.searchParams.get('env') === 'sandbox';
+    const useProduction = !forceSandbox && env.ENVIRONMENT === 'production';
+    const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
+    const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
     // Extract the pathname from the request URL and modify it to match the Square API
-    const { pathname } = new URL(request.url);
-    const squareUrl = `${baseUrl}${pathname.replace('/api/square', '')}`;
+    const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
 
     // Create a new request object to forward the modified request to the Square API
     const modifiedRequest = new Request(squareUrl, {
