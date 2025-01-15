@@ -46,7 +46,7 @@ export default {
       });
     }
 
-    const shouldHitSandbox = SANDBOX_ROUTES.find((element) => originHeader.endsWith(element));
+    const shouldHitSandbox = SANDBOX_ROUTES.some((element) => originHeader.endsWith(element));
     console.log("shouldHitSandbox:", shouldHitSandbox);
     
     const url = new URL(request.url);
@@ -54,6 +54,7 @@ export default {
     const useProduction = !forceSandbox && env.ENVIRONMENT === 'production';
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+    console.log("baseUrl:", baseUrl);
 
     // Extract the pathname from the request URL and modify it to match the Square API
     const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
