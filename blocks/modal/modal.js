@@ -9,20 +9,17 @@ export function toggleModal(block) {
 export default function decorate(block) {
   const variants = [...block.classList];
 
+  // Set initial modal state
   const modalWrapper = block.closest('.modal-wrapper');
   modalWrapper.setAttribute('aria-expanded', 'false');
   modalWrapper.style.display = 'none';
 
   if (variants.includes('cart')) {
-    const cartKey = window.location.pathname.split('/')[1];
+    // TODO - Add cart title and content
+    const title = document.createElement('h2');
+    title.textContent = 'Modal title';
 
-    const div = document.createElement('div');
-    div.textContent = cartKey;
-    block.append(div);
-
-    // Cart TODO's
-    // Get cart
-    // insert cart contents into modal body
+    block.append(title);
   } else {
     // create and append button to block
     const button = document.createElement('button');
