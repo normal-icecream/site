@@ -33,7 +33,6 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   const url = new URL(baseUrl);
   if (sandboxParam) url.searchParams.set('env', 'sandbox');
   if (prodParam) url.searchParams.set('env', 'prod');
-  console.log("url:", url.toString());
 
   const response = await fetch(url.toString(), options);
 

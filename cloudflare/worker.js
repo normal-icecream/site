@@ -15,7 +15,6 @@ export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
     const originHeader = request.headers.get('Origin');
-    console.log("originHeader:", originHeader);
 
     // Check if originHeader is null or undefined
     if (!originHeader) {
@@ -47,16 +46,56 @@ export default {
     }
 
     const url = new URL(request.url);
+    
+    // Determine environment
     const forceSandbox = url.searchParams.get('env') === 'sandbox';
-    const isSandboxEnvironment = SANDBOX_ROUTES.some((element) => originHeader.endsWith(element));
     const forceProd = url.searchParams.get('env') === 'prod';
+    const isSandboxEnvironment = SANDBOX_ROUTES.some((element) => originHeader.endsWith(element));
+
+    // Route to sandbox or prod env based on origin url UNLESS request speficies which env to hit explicitly
     const useProduction = forceProd || (!forceSandbox && !isSandboxEnvironment);
 
+    // Select correct API key in cloudflare dashboard based on useProduction flag
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
+    // Select correct square path to hit based on useProduction flag
     const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
-
     // Extract the pathname from the request URL and modify it to match the Square API
     const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
+
+    let requestBody = {};
+    if (request.body) {
+      const bodyText = await request.text();
+      console.log("Original body text:", bodyText);
+    
+      try {
+        requestBody = JSON.parse(bodyText); // Parse bodyText into an object
+      } catch (error) {
+        return new Response("Invalid JSON in request body", { status: 400 });
+      }
+    }
+
+    // Idempotency Key
+    const idempotencyKeyHeader = request.headers.get("Idempotency-Key");
+    // Add the idempotency key header for POST or PUT requests
+    if (request.method === 'POST' || request.method === 'PUT') {
+      const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
+      const test = JSON.parse(requestBody)
+      test.idempotency_key = idempotencyKey;
+      requestBody = test;
+      
+      // Cache the key for idempotency logic
+      const cacheKey = `${idempotencyKey}-${url.pathname}`;
+      const storedResponse = await env.IDEMPOTENCY_STORE.get(cacheKey, { type: "json" });
+      if (storedResponse) {
+        return new Response(JSON.stringify(storedResponse.body), {
+          status: storedResponse.status,
+          headers: {
+            ...storedResponse.headers,
+            'Access-Control-Allow-Origin': originHeader,
+          },
+        });
+      }
+    }
 
     // Create a new request object to forward the modified request to the Square API
     const modifiedRequest = new Request(squareUrl, {
@@ -66,12 +105,30 @@ export default {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      // Include the request body for non-GET/HEAD methods
-      body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : null,
+      body: request.method !== 'GET' && request.method !== 'HEAD' ? JSON.stringify(requestBody) : null,
     });
 
     // Send the modified request to the Square API
     const response = await fetch(modifiedRequest);
+
+    // Store response in KV for idempotency
+    if (request.method === 'POST' || request.method === 'PUT') {
+      // const cacheKey = `${idempotencyKeyHeader}-${url.pathname}`;
+      const cacheKey = `${idempotencyKeyHeader || crypto.randomUUID()}-${url.pathname}`;
+      const clonedResponse = response.clone();
+      const responseBody = await clonedResponse.json();
+      const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
+
+      await env.IDEMPOTENCY_STORE.put(
+        cacheKey,
+        JSON.stringify({
+          status: clonedResponse.status,
+          body: responseBody,
+          headers: responseHeaders,
+        }),
+        { expirationTtl: 3600 } // 1 hour expiration
+      );
+    }
 
     // Add CORS headers to the response to enable cross-origin requests
     const corsHeaders = {

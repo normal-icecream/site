@@ -2,9 +2,11 @@ name = "square-worker"
 main = "./cloudflare/worker.js"
 compatibility_date = "2024-12-18"
 
-[vars]
-ENVIRONMENT = "production"
-
 [observability]
 enabled = true
 head_sampling_rate = 1 # optional. default = 1.
+
+[[kv_namespaces]]
+binding = "IDEMPOTENCY_STORE"
+id = "2d9bdc1c576442aabe941b6cfb99ab6e"
+preview_id = "6ba2be1c3b854ec3bd6726874bfd49b7"

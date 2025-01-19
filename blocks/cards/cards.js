@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { upsertItemToCart, removeFromCart } from '../../utils/cart/cart.js';
+import { upsertItemToCart, removeFromCart, getCartItemQuantity } from '../../utils/cart/cart.js';
+import { getEnvironment } from '../../api/environmentConfig.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -107,6 +108,7 @@ export default function decorate(block) {
   const variants = [...block.classList];
   // reorganize cards in ordered list
   const ul = document.createElement('ul');
+  // const env = getEnvironment();
 
   // decorate each card
   [...block.children].forEach((row) => {
@@ -122,9 +124,10 @@ export default function decorate(block) {
     const squareLink = squareButton.querySelector('a')
     ?.getAttribute('href')
     .split('/');
-    const squareProductId = squareLink[squareLink.length - 1];
+    const squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
+    // const cardId = env === 'sandbox' ? getSandboxId(squareProductId) : squareProductId;
+    // console.log("cardId:", cardId);
     // Get item quantity from localstorage
-
     squareButton.remove();
 
     // decorate image
@@ -183,7 +186,7 @@ export default function decorate(block) {
       const total = document.createElement('input');
       total.type = 'number';
       total.min = 0;
-      total.value = 0; // TODO: pull from cart totals
+      total.value = getCartItemQuantity(squareProductId);
       total.step = 1;
       total.readOnly = true;
       total.addEventListener('change', () => {

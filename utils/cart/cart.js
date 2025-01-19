@@ -1,6 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
 import { getCatalogItem, getCatalogList, upsertCatalogItem } from "../../api/square/catalog.js";
-import { hitProduction, hitSandbox } from "../../api/environmentConfig.js";
+import { getEnvironment, hitProduction, hitSandbox } from "../../api/environmentConfig.js";
 
 const allowedCartPages = Object.freeze([
     'store',
@@ -8,44 +8,16 @@ const allowedCartPages = Object.freeze([
     'merch'
 ]);
 
-// carts: {
-//     'store': {
-//         'line_items': [
-//                 {
-//                     'catalog_object_id':'A1',
-//                     'fp': 'A1-wholemilkId', 
-//                     'quantity': 1,
-//                     'modifiers': [
-//                         { 'id': 'wholemilkId' },
-//                     ]
-//                 },
-//                 {
-//                     'id':'A1',
-//                     'fp': 'A1-oatMilkId', 
-//                     'quantity': 1,
-//                     'modifiers': [
-//                         { 'id': 'oatMilkId' },
-//                     ]
-//                 },
-//         ],
-//     },
-//     'shipping': {
-//         'last_updated': '',
-//         'line_items': [],
-//     },
-//     'merch': {
-//         'last_updated': '',
-//         'line_items': [],
-//     },
-//     'lastcart': ''
-// }
+function getLocalStorageCarts() {
+    const carts = JSON.parse(localStorage.getItem('carts'));
+    return carts;
+}
 
-// function CartCatalogObject(id, quantity, modifiers) {
-//     this.catalog_object_id = id;
-//     this.quantity = quantity;
-//     this.fp = id + '-' + modifiers.id; // obvi needs to be smarter
-//     this.modifiers = modifiers;
-// }
+function getLocalStorageCart() {
+    const carts = JSON.parse(localStorage.getItem('carts'));
+    const cartKey = getLastCart();
+    return carts[cartKey];
+}
 
 function getEmptyCartMessage() {
     // TODO - add styling
@@ -54,79 +26,127 @@ function getEmptyCartMessage() {
     return noCartDiv;
 }
 
-function getCartCard(cartItems) {
-    // Fetch catalog from Square
-    const cartCardWrapper = document.createElement('div');
-    cartCardWrapper.className = 'cart card-wrapper';
+// function getCartCard(cartItems) {
+//     // Fetch catalog from Square
+//     const cartCardWrapper = document.createElement('div');
+//     cartCardWrapper.className = 'cart card-wrapper';
 
-    cartItems.forEach(item => {
-        const cartCard = document.createElement('div');
-        cartCard.className = 'cart card';
-        cartCard.textContent = item.title;
-        cartCardWrapper.append(cartCard);
+//     cartItems.forEach(item => {
+//         const cartCard = document.createElement('div');
+//         cartCard.className = 'cart card';
+//         cartCard.textContent = item.title;
+//         cartCardWrapper.append(cartCard);
 
-        const buttonWrapper = document.createElement('div');
-        buttonWrapper.className = 'cart card-button-wrapper';
+//         const buttonWrapper = document.createElement('div');
+//         buttonWrapper.className = 'cart card-button-wrapper';
         
-        const decrement = document.createElement('button');
-        decrement.className = 'cart card-decrement';
-        decrement.textContent = '-';
-        decrement.addEventListener('click', () => removeFromCart(item));
-        buttonWrapper.append(decrement);
+//         const decrement = document.createElement('button');
+//         decrement.className = 'cart card-decrement';
+//         decrement.textContent = '-';
+//         decrement.addEventListener('click', () => removeFromCart(item));
+//         buttonWrapper.append(decrement);
         
-        const increment = document.createElement('button');
-        increment.className = 'cart card-increment';
-        increment.textContent = '+';
-        increment.addEventListener('click', () => addToCart(item));
-        buttonWrapper.append(increment);
+//         const increment = document.createElement('button');
+//         increment.className = 'cart card-increment';
+//         increment.textContent = '+';
+//         increment.addEventListener('click', () => addToCart(item));
+//         buttonWrapper.append(increment);
 
-        cartCardWrapper.append(buttonWrapper);
-    })
+//         cartCardWrapper.append(buttonWrapper);
+//     })
 
-    return cartCardWrapper;
-}
-
-// function createCatalogItem(id, quantity, modifiers) {
-
+//     return cartCardWrapper;
 // }
 
-export async function upsertItemToCart(prodSquareItemId) {
-    // Need to make sure thism request ALWAYS hits prod
-    const prodItem = await hitProduction(getCatalogItem, prodSquareItemId);
-    console.log("prodItem:", prodItem);
+export function getSandboxId(prodId) {
+    const prodToSandboxMap = JSON.parse(localStorage.getItem('prodToSandboxMap')) || [];
+    const item = prodToSandboxMap.find((item) => item.prodId === prodId);
 
-    const prodCatalog = await hitProduction(getCatalogList);
-    console.log("prodCatalog:", prodCatalog);
-
-    const sandboxCatalogItems = await hitSandbox(getCatalogList);
-    console.log("sandboxCatalogItems:", sandboxCatalogItems);
-
-    if (prodItem && sandboxCatalogItems) {
-        const filteredSandboxItems = sandboxCatalogItems.filter((item) => item.type === 'ITEM');
-        const prodItemIsInSandboxAccount = filteredSandboxItems.find((item) => item.item_data.name === prodItem.item_data.name)
-        console.log("prodItemIsInSandboxAccount:", prodItemIsInSandboxAccount);
-
-        if (!prodItemIsInSandboxAccount) {
-            const item = await hitSandbox(upsertCatalogItem, prodItem);
-            console.log("item:", item);
-        }
+    if (item) {
+        return item.sandboxId;
+    } else {
+        return null;
     }
+}
 
-    // If on Localhost or .page URL > get prodItemId > Check to see if there is an equavalent prodItem in sandbox > if there is, use that ID for all requests, if not add one to sandbox and use that one's Id to make requests going forward.
-
-    // If .live or .club URL ? get prodId and use that for all requests
-
-    // Double check that worker is working properly to route requests based on URL.
+function setSandboxId(prodId, sandboxId) {
+    const prodToSandboxMap = JSON.parse(localStorage.getItem('prodToSandboxMap')) || [];
     
+    const match = prodToSandboxMap.find(item => item.prodId === prodId);
+    if (!match) {
+      prodToSandboxMap.push({ prodId, sandboxId });
+    }
+    localStorage.setItem('prodToSandboxMap', JSON.stringify(prodToSandboxMap))
+}
 
-    // const carts = JSON.parse(localStorage.getItem('carts'));
-    // console.log("carts:", carts);
-    // const lastCart = getLastCart();
-    // console.log("lastCart:", lastCart);
+export async function getSandboxOrProdItem(squareProdItemId) {
+    const env = getEnvironment();
+    let cardItem = {};
 
-    // If object doesn't already exist in line_items for cart then add to line_items
-    // If it does exist, update item
-    // If a mod or variation has been added then create new item in list with unique & easily queriable fp
+    // Need to make sure thism request ALWAYS hits prod
+    const prodItem = await hitProduction(getCatalogItem, squareProdItemId);
+        
+    if (env === 'sandbox') {
+        const sandboxCatalogItems = await hitSandbox(getCatalogList);
+        const filteredSandboxItems = sandboxCatalogItems?.filter((item) => item.type === 'ITEM');
+        const sandboxDupeOfProdItem = filteredSandboxItems?.find((item) => item.item_data.name === prodItem.item_data.name);
+    
+        if (!sandboxDupeOfProdItem) {
+            const sandboxItem = await upsertCatalogItem(prodItem);
+            cardItem = sandboxItem;
+            setSandboxId(squareProdItemId, sandboxItem.id);
+        } else {
+            cardItem = sandboxDupeOfProdItem;
+            setSandboxId(squareProdItemId, sandboxDupeOfProdItem.id);
+        }
+    } else {
+        cardItem = prodItem
+    }
+    return cardItem;
+}
+
+export async function upsertItemToCart(squareProdItemId) {
+    const env = getEnvironment();
+    const carts = JSON.parse(localStorage.getItem('carts'));
+    const cartKey = getLastCart();
+    const cart = carts[cartKey]?.line_items || [];
+    const cartId = env === 'sandbox' ? getSandboxId(squareProdItemId) : squareProdItemId;
+    const itemIsAlreadyInCart = cart.some((item) => env === 'sandbox' 
+        ? item.id === getSandboxId(squareProdItemId) 
+        : item.id === squareProdItemId);
+
+    const quantity = 1; // Default quantity for a new item
+    if (itemIsAlreadyInCart) {
+        const cartItem = cart.find((item) => item.id === cartId);
+        cartItem.quantity += quantity;
+    } else {
+        // TODO is there better logic here???
+        // TODO - I think that get card item may not need to return the entire item. Maybe just the ID and quantity????
+        let squareItem = await getSandboxOrProdItem(squareProdItemId);
+        const cartItem = cart.find((item) => item.id === squareItem.id);
+
+    if (cartItem) {
+        // increment
+        cartItem.quantity += quantity;
+    } else {
+        // add item to cart
+        cart?.push({
+            id: squareItem.id,
+            quantity: quantity,
+        });
+    }
+  }
+  localStorage.setItem('carts', JSON.stringify(carts));
+}
+
+export function getCartItemQuantity(prodId) {
+    const env = getEnvironment();
+    const cart = getLocalStorageCart();
+    const id = env === 'sandbox' ? getSandboxId(prodId) : prodId;
+    const itemQuantity = cart?.line_items.find((item) => item.id === id)?.quantity;
+    const quantity = itemQuantity ? itemQuantity : 0;
+
+    return quantity;
 }
 
 export function removeFromCart(itemId) {
