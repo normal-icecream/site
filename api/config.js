@@ -20,12 +20,6 @@ export const API_ENDPOINTS = {
        * @returns {string} - The URL for the square catalog object API.
       */
       item: (objectId) => `${API_BASE_URLS.SQUARE}/v2/catalog/object/${objectId}?include_related_objects=true`, // GET
-
-      /** URL for fetching the list of square catalog objects. */
-      list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
-
-      /** URL for upserting a square catalog object. */
-      upsertItem: `${API_BASE_URLS.SQUARE}/v2/catalog/object`, // POST
     },
     // ORDERS: {
     // Add endpoint URL here

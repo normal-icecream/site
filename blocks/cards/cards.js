@@ -1,6 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { upsertItemToCart, removeFromCart, getCartItemQuantity } from '../../utils/cart/cart.js';
-import { getEnvironment } from '../../api/environmentConfig.js';
+import { addItemToCart, removeItemFromCart, getCartItemQuantity } from '../../pages/cart/cart.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -28,8 +27,7 @@ function decrement(input, id) {
   if (total > min) {
     input.value = total - 1;
     input.dispatchEvent(new Event('change'));
-    // TODO: update cart totals
-    removeFromCart(id);
+    removeItemFromCart(id);
   }
 }
 
@@ -43,8 +41,7 @@ function increment(input, id) {
   if (!max || total < max) {
     input.value = total + 1;
     input.dispatchEvent(new Event('change'));
-    // TODO: update cart totals
-    upsertItemToCart(id);
+    addItemToCart(id);
   }
 }
 
@@ -212,7 +209,7 @@ export default function decorate(block) {
         button.append(symbol);
 
         if (action === 'subtract') {
-          button.disabled = true;
+          button.disabled = getCartItemQuantity(squareProductId) > 0 ? false : true;
           cart.prepend(button);
           // Fetch catalog item by Id to display in new modal variations and mods to choose from.
           button.addEventListener('click', () => decrement(total, squareProductId));

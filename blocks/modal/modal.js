@@ -1,4 +1,4 @@
-import { getCart, getLastCart } from '../../utils/cart/cart.js'
+import { getCart, getLastCart } from '../../pages/cart/cart.js'
 
 export function toggleModal(block) {
   const modalWrapper = block.closest('.modal-wrapper');
