@@ -54,18 +54,25 @@ export default {
 
     // Route to sandbox or prod env based on origin url UNLESS request speficies which env to hit explicitly
     const useProduction = forceProd || (!forceSandbox && !isSandboxEnvironment);
-
     // Select correct API key in cloudflare dashboard based on useProduction flag
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     // Select correct square path to hit based on useProduction flag
     const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+
     // Extract the pathname from the request URL and modify it to match the Square API
     const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
 
+    const filteredParams = Array.from(url.searchParams.entries()).filter((([key]) => !key.startsWith('env')));
+    // Rebuild the query parameters without the ones starting with "env"
+    url.search = new URLSearchParams(filteredParams).toString();
+
+    const queryString = filteredParams.map(([key, value], i) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+
+    const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
+    
     let requestBody = {};
     if (request.body) {
       const bodyText = await request.text();
-      console.log("Original body text:", bodyText);
     
       try {
         requestBody = JSON.parse(bodyText); // Parse bodyText into an object
@@ -79,9 +86,9 @@ export default {
     // Add the idempotency key header for POST or PUT requests
     if (request.method === 'POST' || request.method === 'PUT') {
       const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
-      const test = JSON.parse(requestBody)
-      test.idempotency_key = idempotencyKey;
-      requestBody = test;
+      const body = JSON.parse(requestBody)
+      body.idempotency_key = idempotencyKey;
+      requestBody = body;
       
       // Cache the key for idempotency logic
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
@@ -98,7 +105,7 @@ export default {
     }
 
     // Create a new request object to forward the modified request to the Square API
-    const modifiedRequest = new Request(squareUrl, {
+    const modifiedRequest = new Request(fullSquareUrl, {
       method: request.method,
       headers: {
         // Attach the appropriate API key for authentication
@@ -113,7 +120,6 @@ export default {
 
     // Store response in KV for idempotency
     if (request.method === 'POST' || request.method === 'PUT') {
-      // const cacheKey = `${idempotencyKeyHeader}-${url.pathname}`;
       const cacheKey = `${idempotencyKeyHeader || crypto.randomUUID()}-${url.pathname}`;
       const clonedResponse = response.clone();
       const responseBody = await clonedResponse.json();
