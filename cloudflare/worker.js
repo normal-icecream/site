@@ -6,11 +6,6 @@ const ALLOWED_ORIGINS = [
   '--site--normal-icecream.aem.live', // Production domain/
 ];
 
-const SANDBOX_ROUTES = [
-  'localhost:3000', // Local development
-  '--site--normal-icecream.aem.page', // Preview domain/
-];
-
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
