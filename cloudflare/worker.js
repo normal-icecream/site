@@ -46,14 +46,10 @@ export default {
     }
 
     const url = new URL(request.url);
-    
+
     // Determine environment
     const forceSandbox = url.searchParams.get('env') === 'sandbox';
-    const forceProd = url.searchParams.get('env') === 'prod';
-    const isSandboxEnvironment = SANDBOX_ROUTES.some((element) => originHeader.endsWith(element));
-
-    // Route to sandbox or prod env based on origin url UNLESS request speficies which env to hit explicitly
-    const useProduction = forceProd || (!forceSandbox && !isSandboxEnvironment);
+    const useProduction = forceSandbox ? false : true;
     // Select correct API key in cloudflare dashboard based on useProduction flag
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     // Select correct square path to hit based on useProduction flag
