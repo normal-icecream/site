@@ -10,11 +10,6 @@
     background-color: var(--white);
 }
 
-.modal > div > div p.img-wrapper picture img {
-    height: 500px;
-    width: auto;
-}
-
 .modal .modal-close-btn {
     height: auto;
     position: absolute;
@@ -34,16 +29,3 @@
     box-shadow: none;
 }
 
-.modal-btn {
-    height: 50px;
-    width: 300px;
-    background-color: var(--blue);
-    color: var(--white);
-    border-radius: 6px;
-    font-family: var(--heading-font-family);
-    font-size: var(--heading-size-s);
-    border: none;
-    cursor: pointer;
-    margin: 20px 0;
-    transition: background-color 0.3s ease;
-}

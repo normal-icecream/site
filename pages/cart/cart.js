@@ -3,7 +3,7 @@ import { getCatalogItem } from "../../api/square/catalog.js";
 import { hitProduction } from "../../api/environmentConfig.js";
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
-const allowedCartPages = Object.freeze([
+export const allowedCartPages = Object.freeze([
     'store',
     'shipping',
     'merch'
@@ -16,10 +16,57 @@ function getLocalStorageCart() {
 }
 
 function getEmptyCartMessage() {
-    // TODO - add styling
     const noCartDiv = document.createElement('div');
     noCartDiv.textContent = 'nothing is in your cart! go pick something!';
     return noCartDiv;
+}
+
+function getCartCard(cartItems) {
+    console.log("cartItems:", cartItems);
+    // Fetch catalog from Square
+    const cartCardWrapper = document.createElement('div');
+    cartCardWrapper.className = 'cart card-wrapper';
+
+    cartItems.line_items.forEach(item => {
+        const cartCard = document.createElement('div');
+        cartCard.className = 'cart card';
+        cartCard.textContent = item.title;
+        cartCardWrapper.append(cartCard);
+
+        const quantity = document.createElement('div');
+        quantity.className = 'cart cart-quantity';
+        quantity.textContent = item.quantity;
+        cartCardWrapper.append(quantity);
+
+        const name = document.createElement('div');
+        name.className = 'cart cart-name';
+        name.textContent = item.name;
+        cartCardWrapper.append(name);
+
+        const description = document.createElement('div');
+        description.className = 'cart cart-description';
+        description.textContent = item.description;
+        cartCardWrapper.append(description);
+
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'cart card-button-wrapper';
+        
+        const decrement = document.createElement('button');
+        decrement.className = 'cart card-decrement';
+        decrement.textContent = '-';
+        decrement.addEventListener('click', () => removeItemFromCart(item.id));
+        buttonWrapper.append(decrement);
+        
+        const increment = document.createElement('button');
+        increment.className = 'cart card-increment';
+        increment.textContent = '+';
+        increment.addEventListener('click', () => addItemToCart(item.id));
+        buttonWrapper.append(increment);
+
+        cartCardWrapper.append(buttonWrapper);
+    })
+
+    return cartCardWrapper;
 }
 
 export async function addItemToCart(id) {
@@ -33,7 +80,7 @@ export async function addItemToCart(id) {
         cartItem.quantity += quantity;
     } else {
         const prodItem = await hitProduction(getCatalogItem, id);
-        cart.line_items.push({
+        cart?.line_items.push({
             id: prodItem.id,
             quantity: quantity,
             price: prodItem.item_data.variations[0].item_variation_data.price_money.amount,
@@ -80,12 +127,8 @@ export function getLastCart() {
     return normalCart ? normalCart['lastcart'] : '';
 }
 
-export function getCart(cartKey) {
-    // Load styles for form
+export function getCart() {
     loadCSS(`${window.hlx.codeBasePath}/pages/cart/cart.css`);
-
-    const isCartPage = cartKey.length > 0 && cartKey !== 'about';
-    if (isCartPage) setLastCart(cartKey);
 
     let cart = [];
     const cartData = JSON.parse(localStorage.getItem('carts'));
@@ -106,7 +149,7 @@ export function getCart(cartKey) {
     } else {
         if (cartData['lastcart'].length > 0) {
             const currentCartData = cartData[cartData['lastcart']];
-            if (currentCartData.length > 0) {
+            if (currentCartData.line_items.length > 0) {
                 cart = getCartCard(currentCartData);
             } else {
                 cart = getEmptyCartMessage();

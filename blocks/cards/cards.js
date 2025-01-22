@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { addItemToCart, removeItemFromCart, getCartItemQuantity } from '../../pages/cart/cart.js';
+import { createModal, toggleModal } from '../../utils/modal/modal.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -101,11 +102,8 @@ function clampBodies(wrapper) {
 }
 
 export default function decorate(block) {
-  // console.log("block:", block.children);
   const variants = [...block.classList];
-  // reorganize cards in ordered list
   const ul = document.createElement('ul');
-  // const env = getEnvironment();
 
   // decorate each card
   [...block.children].forEach((row) => {
@@ -122,9 +120,6 @@ export default function decorate(block) {
     ?.getAttribute('href')
     .split('/');
     const squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
-    // const cardId = env === 'sandbox' ? getSandboxId(squareProductId) : squareProductId;
-    // console.log("cardId:", cardId);
-    // Get item quantity from localstorage
     squareButton.remove();
 
     // decorate image
@@ -220,6 +215,13 @@ export default function decorate(block) {
       });
       li.append(cart);
     } else {
+      const modal = document.createElement('div');
+      const modalContent = document.createElement('div');
+      modalContent.textContent = `${squareProductId}`;
+      // TODO make the title here dynamic not hard coded
+      createModal(modal, 'all about novelties', modalContent);
+      li.append(modal);
+
       // build customize button
       const button = document.createElement('button');
       button.className = 'button customize';
@@ -229,6 +231,8 @@ export default function decorate(block) {
       button.textContent = 'customize';
       button.addEventListener('click', () => {
         // TODO: open customize menu
+        // const modalBlock = document.querySelector('.modal.customize');
+        toggleModal(modal);
       });
       li.append(button);
     }

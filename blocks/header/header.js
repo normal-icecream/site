@@ -1,7 +1,8 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { swapIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { toggleModal } from '../modal/modal.js';
+import { createModal, toggleModal } from '../../utils/modal/modal.js';
+import { getCart, getLastCart, allowedCartPages, setLastCart } from '../../pages/cart/cart.js';
 
 // media query match that indicates desktop width
 const isDesktop = window.matchMedia('(width >= 900px)');
@@ -92,6 +93,11 @@ export default async function decorate(block) {
     const clone = ul.cloneNode(true);
     wrapper.append(clone);
     [...clone.children].forEach((li, i) => {
+      const isCartPage = allowedCartPages.some((cartPage) => li.textContent === cartPage);
+      li.addEventListener('click', () => {
+        if (isCartPage) setLastCart(li.textContent);
+      })
+
       const subsection = li.querySelector('ul');
       if (subsection) {
         li.className = 'subsection';
@@ -124,6 +130,11 @@ export default async function decorate(block) {
   // decorate cart
   const cart = nav.querySelector('.nav-cart');
   if (cart) {
+    const modal = document.createElement('div');
+    modal.classList.add('cart');
+    createModal(modal, 'cart', getCart(getLastCart()));
+    block.append(modal);
+
     // build button
     const icon = cart.querySelector('.icon');
     const wrapper = icon.closest('p');
@@ -131,8 +142,7 @@ export default async function decorate(block) {
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
     button.addEventListener('click', () => {
-      const modalBlock = document.querySelector('.modal.cart');
-      toggleModal(modalBlock);
+      toggleModal(modal);
     });
     wrapper.replaceWith(button);
     // build total placeholder

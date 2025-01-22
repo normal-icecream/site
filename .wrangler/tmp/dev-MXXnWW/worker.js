@@ -52,7 +52,6 @@ var worker_default = {
     let requestBody = {};
     if (request.body) {
       const bodyText = await request.text();
-      console.log("Original body text:", bodyText);
       try {
         requestBody = JSON.parse(bodyText);
       } catch (error) {
