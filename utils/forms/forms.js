@@ -643,6 +643,12 @@ export default function buildForm(fields, handleSubmit) {
   // Loop through each field definition and dynamically build its corresponding form input
   fields.forEach((field) => {
     const formField = buildField(field);
+
+    // Attach event listeners dynamically
+    if (field.oninput) {
+      formField.addEventListener('input', field.oninput);
+    }
+
     form.append(formField);
   });
 

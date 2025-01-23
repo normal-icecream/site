@@ -115,7 +115,7 @@ function getCartCard(cartItems) {
     const createOrderButton = document.createElement('button');
     createOrderButton.className = 'create-order-button';
     createOrderButton.addEventListener('click', () => {
-        
+
     })
 
     return cartCardWrapper;
@@ -177,6 +177,10 @@ export function setLastCart(pageName) {
 export function getLastCart() {
     const normalCart = JSON.parse(localStorage.getItem('carts'));
     return normalCart ? normalCart['lastcart'] : '';
+}
+
+export function getCartForm() {
+
 }
 
 export function getCart() {

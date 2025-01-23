@@ -216,6 +216,7 @@ export default function decorate(block) {
       li.append(cart);
     } else {
       const modal = document.createElement('div');
+      modal.className = 'customize';
       const modalContent = document.createElement('div');
       modalContent.textContent = `${squareProductId}`;
       // TODO make the title here dynamic not hard coded
