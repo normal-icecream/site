@@ -1,5 +1,4 @@
 import { loadCSS } from '../../scripts/aem.js';
-import { getCatalogItem, getCatalogList } from "../../api/square/catalog.js";
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
 export const allowedCartPages = Object.freeze([
@@ -7,6 +6,16 @@ export const allowedCartPages = Object.freeze([
     'shipping',
     'merch'
 ]);
+
+function getLocalStorageCatalogItem(id) {
+    const list = JSON.parse(localStorage.getItem('catalogList'));
+    const item = list.find((item) => item.id === id);
+    if (item) {
+        return item
+    } else {
+        return {};
+    }
+}
 
 function getLocalStorageCart() {
     const carts = JSON.parse(localStorage.getItem('carts'));
@@ -69,7 +78,7 @@ function getCartCard(cartItems) {
     return cartCardWrapper;
 }
 
-export async function addItemToCart(id) {
+export function addItemToCart(id) {
     const carts = JSON.parse(localStorage.getItem('carts'));
     const cartKey = getLastCart();
     const cart = carts[cartKey];
@@ -79,7 +88,7 @@ export async function addItemToCart(id) {
     if (cartItem) {
         cartItem.quantity += quantity;
     } else {
-        const prodItem = await getCatalogItem(id);
+        const prodItem = getLocalStorageCatalogItem(id);
         cart?.line_items.push({
             id: prodItem.id,
             quantity: quantity,

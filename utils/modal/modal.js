@@ -32,10 +32,9 @@ export function createModal(element, title = '', content = '') {
 function refreshCartContent(element) {
   const cartContent = element.querySelector('.card-wrapper');
   if (cartContent) cartContent.remove();
-
   const emptyCartMessage = element.querySelector('.empty-cart-message');
   if (emptyCartMessage) emptyCartMessage.remove();
-
+  
   const currentCart = getCart();
   element.append(currentCart);
 }
