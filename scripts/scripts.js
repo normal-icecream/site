@@ -12,7 +12,7 @@ import {
   sampleRUM,
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
-import { getCatalogList } from '../api/square/catalog.js';
+import { getCatalogList, getCatalogModifierList } from '../api/square/catalog.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -187,6 +187,12 @@ async function loadDelayed() {
   if (!hasCatalog) {
     const list = await getCatalogList();
     if (list) localStorage.setItem('catalogList', JSON.stringify(list));
+  }
+
+  const hasCatalogModifiers = localStorage.getItem('catalogModifiers');
+  if (!hasCatalogModifiers) {
+    const modifierList = await getCatalogModifierList();
+    if (modifierList) localStorage.setItem('catalogModifiers', JSON.stringify(modifierList));
   }
 }
 

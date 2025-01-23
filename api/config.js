@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
 
       /** URL for fetching the list of square catalog objects. */
       list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
+      modifierList: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=MODIFIER_LIST`, // GET
     },
     // ORDERS: {
     // Add endpoint URL here

@@ -32,6 +32,14 @@ function getEmptyCartMessage() {
     return noCartDiv;
 }
 
+function getCartTotals(cartItems) {
+    const total = cartItems.line_items.reduce((total, item) => {
+        return total + item.price * item.quantity;
+    }, 0);
+
+    return formatCurrency(total);
+}
+
 function getCartCard(cartItems) {
     console.log("cartItems:", cartItems);
     // Fetch catalog from Square
@@ -86,8 +94,28 @@ function getCartCard(cartItems) {
             refreshCartContent(modal);
         });
         buttonWrapper.append(increment);
-
         cartCardWrapper.append(buttonWrapper);
+    });
+
+    const cartTotal = getCartTotals(cartItems);
+    cartCardWrapper.append(cartTotal);
+
+    const cartTax = document.createElement('div');
+    cartTax.textContent ='NEED TO CALC CART TAX';
+    cartCardWrapper.append(cartTax);
+
+    const shippingCost = document.createElement('div');
+    shippingCost.textContent ='NEED TO CALC SHIPPING COST';
+    cartCardWrapper.append(shippingCost);
+
+    const grandTotal = document.createElement('div');
+    grandTotal.textContent ='NEED TO GRAND TOTAL';
+    cartCardWrapper.append(grandTotal);
+
+    const createOrderButton = document.createElement('button');
+    createOrderButton.className = 'create-order-button';
+    createOrderButton.addEventListener('click', () => {
+        
     })
 
     return cartCardWrapper;
