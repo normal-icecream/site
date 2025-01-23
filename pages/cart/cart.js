@@ -16,6 +16,7 @@ function getLocalStorageCart() {
 
 function getEmptyCartMessage() {
     const noCartDiv = document.createElement('div');
+    noCartDiv.className = 'empty-cart-message';
     noCartDiv.textContent = 'nothing is in your cart! go pick something!';
     return noCartDiv;
 }
