@@ -1,4 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
+import { refreshCartContent } from '../../utils/modal/modal.js';
+import { formatCurrency } from '../../helpers/helpers.js';
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
 export const allowedCartPages = Object.freeze([
@@ -52,6 +54,11 @@ function getCartCard(cartItems) {
         name.textContent = item.name;
         cartCardWrapper.append(name);
 
+        const price = document.createElement('div');
+        price.classprice = 'cart cart-price';
+        price.textContent = formatCurrency(item.price);
+        cartCardWrapper.append(price);
+
         const description = document.createElement('div');
         description.className = 'cart cart-description';
         description.textContent = item.description;
@@ -63,13 +70,21 @@ function getCartCard(cartItems) {
         const decrement = document.createElement('button');
         decrement.className = 'cart card-decrement';
         decrement.textContent = '-';
-        decrement.addEventListener('click', () => removeItemFromCart(item.id));
+        decrement.addEventListener('click', () => {
+            const modal = document.querySelector('.modal.cart');
+            removeItemFromCart(item.id);
+            refreshCartContent(modal);
+        });
         buttonWrapper.append(decrement);
         
         const increment = document.createElement('button');
         increment.className = 'cart card-increment';
         increment.textContent = '+';
-        increment.addEventListener('click', () => addItemToCart(item.id));
+        increment.addEventListener('click', () => {
+            const modal = document.querySelector('.modal.cart');
+            addItemToCart(item.id);
+            refreshCartContent(modal);
+        });
         buttonWrapper.append(increment);
 
         cartCardWrapper.append(buttonWrapper);

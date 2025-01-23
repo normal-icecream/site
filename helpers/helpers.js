@@ -48,3 +48,14 @@ export function toKebabCase(string) {
     .join('')
     .toLowerCase();
 }
+
+export function formatCurrency(amountInCents) {
+  const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+  });
+
+  // Convert cents to dollars by dividing by 100
+  return formatter.format(amountInCents / 100);
+}
