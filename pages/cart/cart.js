@@ -126,24 +126,12 @@ export function getLastCart() {
     return normalCart ? normalCart['lastcart'] : '';
 }
 
-export async function getCart() {
+export function getCart() {
     loadCSS(`${window.hlx.codeBasePath}/pages/cart/cart.css`);
 
     let cart = [];
     const cartData = JSON.parse(localStorage.getItem('carts'));
     if (!cartData) {
-
-        // TODO - Need to add better logic to handle this list. Or maybe we just need to add a refresh at midnight every night or something
-        const hasCatalog = localStorage.getItem('catalogList');
-        if (!hasCatalog) {
-            const list = await getCatalogList();
-            if (list) {
-                localStorage.setItem('catalogList', JSON.stringify(list))
-            } else {
-                localStorage.setItem('catalogList', JSON.stringify([]))
-            }
-        }
-
         localStorage.setItem('carts', JSON.stringify({
             'store': {
                 'line_items': [],

@@ -12,6 +12,7 @@ import {
   sampleRUM,
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
+import { getCatalogList } from '../api/square/catalog.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -176,16 +177,23 @@ async function loadLazy(doc) {
  * Loads everything that happens a lot later,
  * without impacting the user experience.
  */
-function loadDelayed() {
+async function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
+
+  // TODO - Need to add better logic to handle this list. Or maybe we just need to add a refresh at midnight every night or something
+  const hasCatalog = localStorage.getItem('catalogList');
+  if (!hasCatalog) {
+    const list = await getCatalogList();
+    if (list) localStorage.setItem('catalogList', JSON.stringify(list));
+  }
 }
 
 async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
-  loadDelayed();
+  await loadDelayed();
 }
 
 loadPage();
