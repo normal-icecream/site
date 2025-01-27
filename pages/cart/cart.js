@@ -1,6 +1,7 @@
 import { loadCSS } from '../../scripts/aem.js';
 import { refreshCartContent } from '../../utils/modal/modal.js';
 import { formatCurrency } from '../../helpers/helpers.js';
+import { getEnvironment } from '../../api/environmentConfig.js';
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
 export const allowedCartPages = Object.freeze([
@@ -19,9 +20,9 @@ function getLocalStorageCatalogItem(id) {
     }
 }
 
-function getLocalStorageCart() {
+export function getLocalStorageCart() {
     const carts = JSON.parse(localStorage.getItem('carts'));
-    const cartKey = getLastCart();
+    const cartKey = getLastCartKey();
     return carts[cartKey];
 }
 
@@ -34,14 +35,13 @@ function getEmptyCartMessage() {
 
 function getCartTotals(cartItems) {
     const total = cartItems.line_items.reduce((total, item) => {
-        return total + item.price * item.quantity;
+        return total + item.base_price_money.amount * item.quantity;
     }, 0);
 
     return formatCurrency(total);
 }
 
 function getCartCard(cartItems) {
-    console.log("cartItems:", cartItems);
     // Fetch catalog from Square
     const cartCardWrapper = document.createElement('div');
     cartCardWrapper.className = 'cart card-wrapper';
@@ -64,7 +64,7 @@ function getCartCard(cartItems) {
 
         const price = document.createElement('div');
         price.classprice = 'cart cart-price';
-        price.textContent = formatCurrency(item.price);
+        price.textContent = formatCurrency(item.base_price_money.amount);
         cartCardWrapper.append(price);
 
         const description = document.createElement('div');
@@ -80,7 +80,7 @@ function getCartCard(cartItems) {
         decrement.textContent = '-';
         decrement.addEventListener('click', () => {
             const modal = document.querySelector('.modal.cart');
-            removeItemFromCart(item.id);
+            removeItemFromCart(item.catalog_object_id);
             refreshCartContent(modal);
         });
         buttonWrapper.append(decrement);
@@ -90,7 +90,7 @@ function getCartCard(cartItems) {
         increment.textContent = '+';
         increment.addEventListener('click', () => {
             const modal = document.querySelector('.modal.cart');
-            addItemToCart(item.id);
+            addItemToCart(item.catalog_object_id);
             refreshCartContent(modal);
         });
         buttonWrapper.append(increment);
@@ -112,20 +112,14 @@ function getCartCard(cartItems) {
     grandTotal.textContent ='NEED TO GRAND TOTAL';
     cartCardWrapper.append(grandTotal);
 
-    const createOrderButton = document.createElement('button');
-    createOrderButton.className = 'create-order-button';
-    createOrderButton.addEventListener('click', () => {
-
-    })
-
     return cartCardWrapper;
 }
 
 export function addItemToCart(id) {
     const carts = JSON.parse(localStorage.getItem('carts'));
-    const cartKey = getLastCart();
+    const cartKey = getLastCartKey();
     const cart = carts[cartKey];
-    const cartItem = cart?.line_items.find((item) => item.id === id);
+    const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
     
     const quantity = 1; // Default quantity for a new item
     if (cartItem) {
@@ -133,11 +127,15 @@ export function addItemToCart(id) {
     } else {
         const prodItem = getLocalStorageCatalogItem(id);
         cart?.line_items.push({
-            id: prodItem.id,
+            catalog_object_id: prodItem.id,
             quantity: quantity,
-            price: prodItem.item_data.variations[0].item_variation_data.price_money.amount,
+            base_price_money: {
+                amount: prodItem.item_data.variations[0].item_variation_data.price_money.amount,
+                currency: 'USD'
+            },
             description: prodItem.item_data.description,
-            name: prodItem.item_data.name
+            name: prodItem.item_data.name,
+            item_type: prodItem.type,
         });
     }
     localStorage.setItem(`carts`, JSON.stringify(carts));
@@ -145,14 +143,14 @@ export function addItemToCart(id) {
 
 export function removeItemFromCart(id) {
     const carts = JSON.parse(localStorage.getItem('carts'));
-    const cartKey = getLastCart();
+    const cartKey = getLastCartKey();
     const cart = carts[cartKey];
-    const cartItem = cart?.line_items.find((item) => item.id === id);
+    const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
 
     if (cartItem.quantity > 1) {
         cartItem.quantity--;
     } else {
-        const cartIndex = cart.line_items.findIndex((item) => item.id === id);
+        const cartIndex = cart.line_items.findIndex((item) => item.catalog_object_id === id);
         cart.line_items.splice(cartIndex, 1);
     }
     localStorage.setItem(`carts`, JSON.stringify(carts));
@@ -160,27 +158,23 @@ export function removeItemFromCart(id) {
 
 export function getCartItemQuantity(prodId) {
     const cart = getLocalStorageCart();
-    const itemQuantity = cart?.line_items.find((item) => item.id === prodId)?.quantity;
+    const itemQuantity = cart?.line_items.find((item) => item.catalog_object_id === prodId)?.quantity;
     const quantity = itemQuantity ? itemQuantity : 0;
 
     return quantity;
 }
 
 export function setLastCart(pageName) {
-    const normalCart = JSON.parse(localStorage.getItem('carts'));
-    if (normalCart && allowedCartPages.includes(pageName)) {
-        normalCart['lastcart'] = pageName;
-        localStorage.setItem('carts', JSON.stringify(normalCart));
+    const cart = JSON.parse(localStorage.getItem('carts'));
+    if (cart && allowedCartPages.includes(pageName)) {
+        cart['lastcart'] = pageName;
+        localStorage.setItem('carts', JSON.stringify(cart));
     }
 }
 
-export function getLastCart() {
-    const normalCart = JSON.parse(localStorage.getItem('carts'));
-    return normalCart ? normalCart['lastcart'] : '';
-}
-
-export function getCartForm() {
-
+export function getLastCartKey() {
+    const cart = JSON.parse(localStorage.getItem('carts'));
+    return cart ? cart['lastcart'] : '';
 }
 
 export function getCart() {

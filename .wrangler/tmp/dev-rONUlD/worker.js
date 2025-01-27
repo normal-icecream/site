@@ -36,15 +36,6 @@ var worker_default = {
       });
     }
     const url = new URL(request.url);
-    const forceSandbox = url.searchParams.get("env") === "sandbox";
-    const useProduction = forceSandbox ? false : true;
-    const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
-    const baseUrl = useProduction ? "https://connect.squareup.com" : "https://connect.squareupsandbox.com";
-    const squareUrl = `${baseUrl}${url.pathname.replace("/api/square", "")}`;
-    const filteredParams = Array.from(url.searchParams.entries()).filter(([key]) => !key.startsWith("env"));
-    url.search = new URLSearchParams(filteredParams).toString();
-    const queryString = filteredParams.map(([key, value], i) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
-    const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
     let requestBody = {};
     if (request.body) {
       const bodyText = await request.text();
@@ -54,12 +45,23 @@ var worker_default = {
         return new Response("Invalid JSON in request body", { status: 400 });
       }
     }
+    const reParsed = JSON.parse(requestBody);
+    console.log("reParsed:", reParsed.order);
+    const forceSandbox = url.searchParams.get("env") === "sandbox";
+    const useProduction = forceSandbox ? false : true;
+    const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
+    const baseUrl = useProduction ? "https://connect.squareup.com" : "https://connect.squareupsandbox.com";
+    const squareUrl = `${baseUrl}${url.pathname.replace("/api/square", "")}`;
+    const filteredParams = Array.from(url.searchParams.entries()).filter(([key]) => !key.startsWith("env") && !key.startsWith("location"));
+    url.search = new URLSearchParams(filteredParams).toString();
+    const queryString = filteredParams.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
+    const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
     const idempotencyKeyHeader = request.headers.get("Idempotency-Key");
     if (request.method === "POST" || request.method === "PUT") {
       const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
       const body = JSON.parse(requestBody);
       body.idempotency_key = idempotencyKey;
-      requestBody = body;
+      requestBody = JSON.stringify(body);
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const storedResponse = await env.IDEMPOTENCY_STORE.get(cacheKey, { type: "json" });
       if (storedResponse) {
@@ -129,7 +131,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// .wrangler/tmp/bundle-CrO1Zy/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-SmVIEa/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default
 ];
@@ -160,7 +162,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-CrO1Zy/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-SmVIEa/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

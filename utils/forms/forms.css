@@ -2,7 +2,6 @@
     display: flex;
     flex-flow: column;
     text-transform: lowercase;
-    background-color:tomato
 }
 
 .form div {

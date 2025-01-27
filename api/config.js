@@ -25,9 +25,9 @@ export const API_ENDPOINTS = {
       list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
       modifierList: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=MODIFIER_LIST`, // GET
     },
-    // ORDERS: {
-    // Add endpoint URL here
-    // },
+    ORDER: {
+      create: (queryParams) => `${API_BASE_URLS.SQUARE}/v2/orders${queryParams}`, // GET
+    },
     // PAYMENTS: {
     // Add endpoint URL here
     // },

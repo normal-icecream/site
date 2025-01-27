@@ -2,7 +2,7 @@ import { getMetadata } from '../../scripts/aem.js';
 import { swapIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { createModal, toggleModal } from '../../utils/modal/modal.js';
-import { getCart, getLastCart, allowedCartPages, setLastCart } from '../../pages/cart/cart.js';
+import { getCart, getLastCartKey, allowedCartPages, setLastCart } from '../../pages/cart/cart.js';
 
 // media query match that indicates desktop width
 const isDesktop = window.matchMedia('(width >= 900px)');
@@ -132,7 +132,7 @@ export default async function decorate(block) {
   if (cart) {
     const modal = document.createElement('div');
     modal.classList.add('cart');
-    createModal(modal, 'cart', getCart(getLastCart()));
+    createModal(modal, 'cart', getCart(getLastCartKey()));
     block.append(modal);
 
     // build button

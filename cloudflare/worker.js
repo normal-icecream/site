@@ -6,6 +6,38 @@ const ALLOWED_ORIGINS = [
   '--site--normal-icecream.aem.live', // Production domain/
 ];
 
+const SANDBOX_URLS = [
+  'localhost:3000', // Local development
+  '--site--normal-icecream.aem.page', // Preview domain/
+]
+
+const LOCATIONS = [
+  {
+      "id": "KNEG5DW42BE2E",
+      "name": "CATERING"
+  },
+  {
+      "id": "WPBKJEG0HRQ9F",
+      "name": "SHIPPING"
+  },
+  {
+      "id": "6EXJXZ644ND0E",
+      "name": "STORE"
+  },
+  {
+      "id": "3HQZPV73H8BHM",
+      "name": "TRUCK"
+  },
+  {
+      "id": "Y689GQNGQJYWP",
+      "name": "WHOLESALE"
+  },
+  {
+    "id": "RXJXAWG01MBF5",
+    "name": "SANDBOX",
+  }
+]
+
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
@@ -41,45 +73,72 @@ export default {
     }
 
     const url = new URL(request.url);
-
-    // Determine environment
-    const forceSandbox = url.searchParams.get('env') === 'sandbox';
-    const useProduction = forceSandbox ? false : true;
-    // Select correct API key in cloudflare dashboard based on useProduction flag
-    const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
-    // Select correct square path to hit based on useProduction flag
-    const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
-
-    // Extract the pathname from the request URL and modify it to match the Square API
-    const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
-
-    const filteredParams = Array.from(url.searchParams.entries()).filter((([key]) => !key.startsWith('env')));
-    // Rebuild the query parameters without the ones starting with "env"
-    url.search = new URLSearchParams(filteredParams).toString();
-
-    const queryString = filteredParams.map(([key, value], i) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
-
-    const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
     
     let requestBody = {};
     if (request.body) {
       const bodyText = await request.text();
-    
       try {
         requestBody = JSON.parse(bodyText); // Parse bodyText into an object
       } catch (error) {
         return new Response("Invalid JSON in request body", { status: 400 });
       }
+    }  // Select correct square path to hit based on useProduction flag
+
+    const isOrderRequest = url.pathname.includes('orders');
+    const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
+    if (isOrderRequest && request.method === 'POST') {
+      if(isSandboxUrl) {
+        const locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
+        // console.log("locationKey:", locationKey);
+        const body = JSON.parse(requestBody);
+        body.order.location_id = locationKey;
+        requestBody = JSON.stringify(body);
+
+      } else {
+        const locationParam = url.searchParams.get('location');
+        if (locationParam) {
+          // console.log(locationParam)
+          const locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+
+          const body = JSON.parse(requestBody);
+          body.order.location_id = locationKey;
+          requestBody = JSON.stringify(body);
+        } 
+        else {
+          return new Response('Bad Request: Location query param is missing', {
+            status: 400,
+            headers: { 'Content-Type': 'text/plain' },
+          });
+        }
+        // check for locations qp and grab the corresponding location
+      }
     }
+
+    const forceSandbox = url.searchParams.get("env") === "sandbox";
+    const useProduction = forceSandbox ? false : true;
+    const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
+    
+    const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+
+    // Extract the pathname from the request URL and modify it to match the Square API
+    const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
+
+    const filteredParams = Array.from(url.searchParams.entries()).filter((([key]) => !key.startsWith('env') && !key.startsWith('location')));
+    // Rebuild the query parameters without the ones starting with "env"
+    url.search = new URLSearchParams(filteredParams).toString();
+
+    const queryString = filteredParams.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+
+    const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
 
     // Idempotency Key
     const idempotencyKeyHeader = request.headers.get("Idempotency-Key");
     // Add the idempotency key header for POST or PUT requests
     if (request.method === 'POST' || request.method === 'PUT') {
       const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
-      const body = JSON.parse(requestBody)
+      const body = JSON.parse(requestBody);
       body.idempotency_key = idempotencyKey;
-      requestBody = body;
+      requestBody = JSON.stringify(body);
       
       // Cache the key for idempotency logic
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
@@ -101,9 +160,9 @@ export default {
       headers: {
         // Attach the appropriate API key for authentication
         Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json"
       },
-      body: request.method !== 'GET' && request.method !== 'HEAD' ? JSON.stringify(requestBody) : null,
+      body: request.method !== "GET" && request.method !== "HEAD" ? requestBody : null
     });
 
     // Send the modified request to the Square API
