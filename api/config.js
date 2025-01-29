@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
       /** URL for fetching the list of square catalog objects. */
       list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
       modifierList: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=MODIFIER_LIST`, // GET
+      taxes: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=TAX`, // GET
+      discounts: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=DISCOUNT`, // GET
     },
     ORDER: {
       create: (queryParams) => `${API_BASE_URLS.SQUARE}/v2/orders${queryParams}`, // POST

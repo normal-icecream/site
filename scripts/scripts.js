@@ -12,7 +12,7 @@ import {
   sampleRUM,
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
-import { getCatalogList, getCatalogModifierList } from '../api/square/catalog.js';
+import { getCatalogList, getCatalogModifierList, getCatalogTaxList, getCatalogDiscountList } from '../api/square/catalog.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -182,18 +182,23 @@ async function loadDelayed() {
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
 
-  // TODO - Need to add better logic to handle this list. Or maybe we just need to add a refresh at midnight every night or something
-  const hasCatalog = localStorage.getItem('catalogList');
-  if (!hasCatalog) {
-    const list = await getCatalogList();
-    if (list) localStorage.setItem('catalogList', JSON.stringify(list));
+  if (!window.catalog) {
+    window.catalog = window.catalog || {};
   }
 
-  const hasCatalogModifiers = localStorage.getItem('catalogModifiers');
-  if (!hasCatalogModifiers) {
-    const modifierList = await getCatalogModifierList();
-    if (modifierList) localStorage.setItem('catalogModifiers', JSON.stringify(modifierList));
-  }
+  const list = await getCatalogList();
+  if (list) window.catalog.list = list;
+
+  const modifierList = await getCatalogModifierList();
+  if (modifierList) window.catalog.modifiers = modifierList;
+  
+  const taxList = await getCatalogTaxList();
+  if (taxList) window.catalog.taxes = taxList;
+
+  const discounts = await getCatalogDiscountList();
+  if (discounts) window.catalog.discounts = discounts;
+
+  console.log('window.catalog', window.catalog);
 }
 
 async function loadPage() {

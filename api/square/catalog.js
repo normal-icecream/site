@@ -45,20 +45,58 @@ export async function getCatalogList() {
 }
 
 /**
- * Fetches the list of catalog items from the Square API.
- * @returns {Promise<Array>} - A promise that resolves to an array of catalog item objects.
+ * Fetches the list of catalog modifiers from the Square API.
+ * @returns {Promise<Array>} - A promise that resolves to an array of catalog modifier objects.
  * @throws {Error} - Throws an error if the API call fails.
 */
 export async function getCatalogModifierList() {
   try {
-    // Use the API client to fetch the catalog list from the Square API
-    const catalogList = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.modifierList, 'GET');
+    // Use the API client to fetch the catalog modifier list from the Square API
+    const catalogModifierList = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.modifierList, 'GET');
 
     // return list
-    return catalogList.objects;
+    return catalogModifierList.objects;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching catalog list:', error);
     throw new Error(`Failed to fetch catalog list: ${error.message}`);
+  }
+}
+
+/**
+ * Fetches catalog tax information from the Square API.
+ * @returns {Promise<Array>} - A promise that resolves to a tax object.
+ * @throws {Error} - Throws an error if the API call fails.
+*/
+export async function getCatalogTaxList() {
+  try {
+    // Use the API client to fetch the catalog modifier list from the Square API
+    const catalogTax = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.taxes, 'GET');
+
+    // return list
+    return catalogTax.objects;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching catalog list:', error);
+    throw new Error(`Failed to fetch catalog list: ${error.message}`);
+  }
+}
+
+/**
+ * Fetches catalog discounts from the Square API.
+ * @returns {Promise<Array>} - A promise that resolves to a list of discount objects.
+ * @throws {Error} - Throws an error if the API call fails.
+*/
+export async function getCatalogDiscountList() {
+  try {
+    // Use the API client to fetch the catalog modifier list from the Square API
+    const catalogDiscounts = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.discounts, 'GET');
+
+    // return list
+    return catalogDiscounts.objects;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching catalog discount list:', error);
+    throw new Error(`Failed to fetch catalog discount list: ${error.message}`);
   }
 }

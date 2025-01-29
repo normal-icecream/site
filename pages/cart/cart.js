@@ -10,16 +10,6 @@ export const allowedCartPages = Object.freeze([
     'merch'
 ]);
 
-function getLocalStorageCatalogItem(id) {
-    const list = JSON.parse(localStorage.getItem('catalogList'));
-    const item = list.find((item) => item.id === id);
-    if (item) {
-        return item
-    } else {
-        return {};
-    }
-}
-
 export function getLocalStorageCart() {
     const carts = JSON.parse(localStorage.getItem('carts'));
     const cartKey = getLastCartKey();
@@ -125,7 +115,7 @@ export function addItemToCart(id) {
     if (cartItem) {
         cartItem.quantity += quantity;
     } else {
-        const prodItem = getLocalStorageCatalogItem(id);
+        const prodItem = window.catalog.list.find(item => item.id === id);
         cart?.line_items.push({
             catalog_object_id: prodItem.id,
             quantity: quantity,

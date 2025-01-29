@@ -206,6 +206,11 @@ export function orderForm(cartData) {
     }));
   }
   
+  const catalogList = window.catalog.taxes;
+  console.log("catalogList:", catalogList);
+  const taxes = catalogList.filter((item) => item.type === 'TAX');
+  console.log("taxes:", taxes);
+
   const populateFields = (fields) => {
     const formFieldsFromLocalStorage = JSON.parse(localStorage.getItem('orderFormData'));
     // const formFieldsFromLocalStorage = (localStorage.getItem('orderFormData', JSON.stringify(orderFormData)));
