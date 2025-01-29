@@ -3,11 +3,30 @@ import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 
-class SquareSandboxOrderData {
-  constructor({ line_items, state, discounts }) {
-      this.line_items = line_items;
-      this.state = state || 'OPEN';
+class SquareTaxData {
+  constructor(data) {
+    this.name = data.tax_data.name;
+    this.percentage = data.tax_data.percentage;
+    this.scope = 'ORDER'
+    this.type = data.tax_data.inclusion_type;
+  }
+
+  build() {
+    return {
+      name: this.name,
+      percentage: this.percentage,
+      scope: this.scope,
+      type: this.type,
+    }
+  }
+}
+
+class SquareOrderData {
+  constructor(orderData, taxData) {
+      this.line_items = orderData.line_items;
+      this.state = orderData.state || 'OPEN';
       // this.discounts = discounts ? discounts.map(discount => new Discount(discount)) : [];
+      this.taxes = new SquareTaxData(taxData).build();
   }
 
   build() {
@@ -19,22 +38,23 @@ class SquareSandboxOrderData {
   }
 }
 
-// class SquareOrderData {
-//   constructor({ line_items, state, customer_id, discounts }) {
-//       this.location_id = location_id;
-//       this.line_items = line_items;
-//       // this.discounts = discounts ? discounts.map(discount => new Discount(discount)) : [];
-//   }
+class SquareSandboxOrderData {
+  constructor(orderData) {
+  // constructor({ line_items, state, discounts }) {
+      this.line_items = orderData.line_items;
+      this.state = orderData.state || 'OPEN';
+      // this.discounts = discounts ? discounts.map(discount => new Discount(discount)) : [];
+      this.taxes = new SquareTaxData(orderData)
+  }
 
-//   build() {
-//       return {
-//           location_id: this.location_id,
-//           line_items: this.line_items,
-//           state: this.state,
-//           // discounts: this.discounts,
-//       };
-//   }
-// }
+  build() {
+      return {
+          line_items: this.line_items,
+          state: this.state,
+          // discounts: this.discounts,
+      };
+  }
+}
 
 class SquareOrderWrapper {
   constructor(data) {
@@ -208,7 +228,7 @@ export function orderForm(cartData) {
   
   const catalogList = window.catalog.taxes;
   console.log("catalogList:", catalogList);
-  const taxes = catalogList.filter((item) => item.type === 'TAX');
+  const taxes = catalogList.filter((item) => item.type === 'TAX')[0];
   console.log("taxes:", taxes);
 
   const populateFields = (fields) => {
@@ -242,18 +262,27 @@ export function orderForm(cartData) {
     let newOrder;
     // eslint-disable-next-line no-console
     if (env === 'sandbox') {
+      // TODO - remove this
       cartData.line_items.forEach((item) => {
         delete item.catalog_object_id;
       });
        
-      const orderData = new SquareSandboxOrderData(cartData);
+      // const taxData = new SquareTaxData(taxes);
+      const orderData = new SquareOrderData(cartData, taxes);
+      console.log("orderData:", orderData);
+      // TODO - filter out id's on line items
+
       const orderWrapper = new SquareOrderWrapper(orderData);
       
-      newOrder = await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox');
-      console.log("newOrder:", newOrder);
+      // console.log("taxData:", taxData);
+      // orderWrapper.object.taxes = [taxData];
+      
+      console.log("orderWrapper:", orderWrapper);
+      // newOrder = await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox');
+      // console.log("newOrder:", newOrder);
       
     } else {
-      // const orderData = new SquareOrderData(cartData);
+      const orderData = new SquareOrderData(cartData);
       // const order = await createOrder(orderData);
       // console.log("order:", order);
       
