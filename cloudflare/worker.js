@@ -38,6 +38,9 @@ const LOCATIONS = [
   }
 ]
 
+const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
+const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
+
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
@@ -86,10 +89,10 @@ export default {
 
     const isOrderRequest = url.pathname.includes('orders');
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
+    let locationKey;
     if (isOrderRequest && request.method === 'POST') {
       if(isSandboxUrl) {
         const locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
-        // console.log("locationKey:", locationKey);
         const body = JSON.parse(requestBody);
         body.order.location_id = locationKey;
         requestBody = JSON.stringify(body);
@@ -97,8 +100,7 @@ export default {
       } else {
         const locationParam = url.searchParams.get('location');
         if (locationParam) {
-          // console.log(locationParam)
-          const locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+          locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
 
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
@@ -133,25 +135,12 @@ export default {
 
     // Idempotency Key
     const idempotencyKeyHeader = request.headers.get("Idempotency-Key");
+    const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
     // Add the idempotency key header for POST or PUT requests
     if (request.method === 'POST' || request.method === 'PUT') {
-      const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
       const body = JSON.parse(requestBody);
       body.idempotency_key = idempotencyKey;
       requestBody = JSON.stringify(body);
-      
-      // Cache the key for idempotency logic
-      const cacheKey = `${idempotencyKey}-${url.pathname}`;
-      const storedResponse = await env.IDEMPOTENCY_STORE.get(cacheKey, { type: "json" });
-      if (storedResponse) {
-        return new Response(JSON.stringify(storedResponse.body), {
-          status: storedResponse.status,
-          headers: {
-            ...storedResponse.headers,
-            'Access-Control-Allow-Origin': originHeader,
-          },
-        });
-      }
     }
 
     // Create a new request object to forward the modified request to the Square API
@@ -167,14 +156,15 @@ export default {
 
     // Send the modified request to the Square API
     const response = await fetch(modifiedRequest);
-
+    
     // Store response in KV for idempotency
     if (request.method === 'POST' || request.method === 'PUT') {
-      const cacheKey = `${idempotencyKeyHeader || crypto.randomUUID()}-${url.pathname}`;
+      // const cacheKey = `${idempotencyKeyHeader || crypto.randomUUID()}-${url.pathname}`;
+      const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const clonedResponse = response.clone();
       const responseBody = await clonedResponse.json();
       const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
-
+      
       await env.IDEMPOTENCY_STORE.put(
         cacheKey,
         JSON.stringify({
@@ -193,11 +183,24 @@ export default {
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 
-    // Create a new response object to include the CORS headers
-    const modifiedResponse = new Response(response.body, response);
+    const additionalFields = {};
+    if (isOrderRequest) {
+      additionalFields.applicationId = isSandboxUrl ? SANDBOX_APPLICATION_ID : PROD_APPLICATION_ID;
+    }
+
+    const modifiedResponse = new Response(
+      JSON.stringify({
+        ...(await response.json()),
+        idempotency_key: idempotencyKey, // Include the idempotency key,
+        ...additionalFields,
+      }),
+      response
+    );
+    
     Object.entries(corsHeaders).forEach(([key, value]) => {
       modifiedResponse.headers.set(key, value);
     });
+    
 
     // Return the final response to the client
     return modifiedResponse;

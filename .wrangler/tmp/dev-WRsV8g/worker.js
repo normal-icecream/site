@@ -42,6 +42,8 @@ var LOCATIONS = [
     "name": "SANDBOX"
   }
 ];
+var PROD_APPLICATION_ID = "sq0idp-7jw3abEgrV94NrJOaRXFTw";
+var SANDBOX_APPLICATION_ID = "sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA";
 var worker_default = {
   async fetch(request, env) {
     const originHeader = request.headers.get("Origin");
@@ -79,16 +81,17 @@ var worker_default = {
     }
     const isOrderRequest = url.pathname.includes("orders");
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
+    let locationKey;
     if (isOrderRequest && request.method === "POST") {
       if (isSandboxUrl) {
-        const locationKey = LOCATIONS.find((location) => location.name === "SANDBOX").id;
+        const locationKey2 = LOCATIONS.find((location) => location.name === "SANDBOX").id;
         const body = JSON.parse(requestBody);
-        body.order.location_id = locationKey;
+        body.order.location_id = locationKey2;
         requestBody = JSON.stringify(body);
       } else {
         const locationParam = url.searchParams.get("location");
         if (locationParam) {
-          const locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+          locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
           requestBody = JSON.stringify(body);
@@ -110,22 +113,11 @@ var worker_default = {
     const queryString = filteredParams.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
     const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
     const idempotencyKeyHeader = request.headers.get("Idempotency-Key");
+    const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
     if (request.method === "POST" || request.method === "PUT") {
-      const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
       const body = JSON.parse(requestBody);
       body.idempotency_key = idempotencyKey;
       requestBody = JSON.stringify(body);
-      const cacheKey = `${idempotencyKey}-${url.pathname}`;
-      const storedResponse = await env.IDEMPOTENCY_STORE.get(cacheKey, { type: "json" });
-      if (storedResponse) {
-        return new Response(JSON.stringify(storedResponse.body), {
-          status: storedResponse.status,
-          headers: {
-            ...storedResponse.headers,
-            "Access-Control-Allow-Origin": originHeader
-          }
-        });
-      }
     }
     const modifiedRequest = new Request(fullSquareUrl, {
       method: request.method,
@@ -138,7 +130,7 @@ var worker_default = {
     });
     const response = await fetch(modifiedRequest);
     if (request.method === "POST" || request.method === "PUT") {
-      const cacheKey = `${idempotencyKeyHeader || crypto.randomUUID()}-${url.pathname}`;
+      const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const clonedResponse = response.clone();
       const responseBody = await clonedResponse.json();
       const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
@@ -158,7 +150,19 @@ var worker_default = {
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization"
     };
-    const modifiedResponse = new Response(response.body, response);
+    const additionalFields = {};
+    if (isOrderRequest) {
+      additionalFields.applicationId = isSandboxUrl ? SANDBOX_APPLICATION_ID : PROD_APPLICATION_ID;
+    }
+    const modifiedResponse = new Response(
+      JSON.stringify({
+        ...await response.json(),
+        idempotency_key: idempotencyKey,
+        // Include the idempotency key,
+        ...additionalFields
+      }),
+      response
+    );
     Object.entries(corsHeaders).forEach(([key, value]) => {
       modifiedResponse.headers.set(key, value);
     });
@@ -184,7 +188,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// .wrangler/tmp/bundle-VRXhWK/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-QN2eGA/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default
 ];
@@ -215,7 +219,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-VRXhWK/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-QN2eGA/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -135,6 +135,11 @@ export default async function decorate(block) {
     createModal(modal, 'cart', getCart(getLastCartKey()));
     block.append(modal);
 
+    const paymentModal = document.createElement('div');
+    paymentModal.classList.add('payments');
+    createModal(paymentModal);
+    block.append(paymentModal);
+
     // build button
     const icon = cart.querySelector('.icon');
     const wrapper = icon.closest('p');

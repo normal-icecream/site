@@ -26,11 +26,11 @@ export const API_ENDPOINTS = {
       modifierList: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=MODIFIER_LIST`, // GET
     },
     ORDER: {
-      create: (queryParams) => `${API_BASE_URLS.SQUARE}/v2/orders${queryParams}`, // GET
+      create: (queryParams) => `${API_BASE_URLS.SQUARE}/v2/orders${queryParams}`, // POST
     },
-    // PAYMENTS: {
-    // Add endpoint URL here
-    // },
+    PAYMENTS: {
+      create: `${API_BASE_URLS.SQUARE}/v2/payments`, // POST
+    },
   },
   // ADD any other API here
 };

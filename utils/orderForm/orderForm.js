@@ -1,6 +1,7 @@
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
+import { toggleModal } from '../modal/modal.js';
 
 class SquareSandboxOrderData {
   constructor({ line_items, state, discounts }) {
@@ -96,6 +97,22 @@ const fields = [
     name: 'discountCode',
     placeholder: 'your discount code',
   },
+  {
+    type: 'date',
+    label: 'pickup Date',
+    name: 'pickupdate',
+    // min: '2024-10-01',
+    // max: '2024-12-31',
+    // required: true,
+  },
+  {
+    type: 'time',
+    label: 'pickup Time',
+    name: 'pickuptime',
+    // min: '09:00', // Earliest allowable time
+    // max: '17:00', // Latest allowable time
+    // required: true,
+  },
   // {
   //   type: 'checkbox',
   //   label: 'get it shipped?',
@@ -106,7 +123,7 @@ const fields = [
   {
     type: 'input',
     label: 'Your Address',
-    name: 'address',
+    name: 'address1',
     required: true,
     placeholder: 'your address',
   },
@@ -178,12 +195,14 @@ export function orderForm(cartData) {
       discountCode: '',
       date: '',
       time: '',
-      address: '',
+      address1: '',
       address2: '',
       city: '',
       state: '',
       zipcode: '',
-      getItShipped: '',
+      // TODO - use this get it shipped to determine if address should be added to payment request data
+      getItShipped: true, // TODO - needs to be false by default
+      // getItShipped: false,
     }));
   }
   
@@ -208,37 +227,51 @@ export function orderForm(cartData) {
     })
   }
   
-  async function createSquareOrder(formData) {
+  async function createSquareOrder() {
     const env = getEnvironment();
 
+    cartData.line_items.forEach((item) => {
+      item.quantity = String(item.quantity);
+    });
+
+    let newOrder;
     // eslint-disable-next-line no-console
     if (env === 'sandbox') {
-      // console.log("cartData:", cartData);
       cartData.line_items.forEach((item) => {
-        // console.log("item:", item);
-        item.quantity = String(item.quantity);
         delete item.catalog_object_id;
       });
-      
-      console.log("cartData:", cartData);
        
       const orderData = new SquareSandboxOrderData(cartData);
-      console.log("orderData:", orderData);
       const orderWrapper = new SquareOrderWrapper(orderData);
-      console.log("orderWrapper:", orderWrapper);
-
-      // TODO - need to set this up to read shipping selection from the merch context. 
-      const locationQueryParam = '?location=sandbox';
-
-      const order = await hitSandbox(createOrder, JSON.stringify(orderWrapper), locationQueryParam);
-      console.log("order:", order);
+      
+      newOrder = await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox');
+      console.log("newOrder:", newOrder);
+      
     } else {
       // const orderData = new SquareOrderData(cartData);
       // const order = await createOrder(orderData);
       // console.log("order:", order);
+      
+      // TODO - need to set this up to read shipping selection from the merch context. 
+      // const locationQueryParam = '?location=sandbox';
+      
+      // newOrder = await createOrder(JSON.stringify(orderWrapper), '?location=sandbox');
+      // console.log("newOrder:", newOrder);
+    }
+
+    if (newOrder) {
+      const cartModal = document.querySelector('.modal.cart');
+      console.log("cartModal:", cartModal);
+      toggleModal(cartModal);
+      
+      const paymentsModal = document.querySelector('.modal.payments');
+      toggleModal(paymentsModal, newOrder);
+    } else {
+      // throw user an error
+      console.log('error with creating an order');
     }
   }
-
+  
   // const orderData = JSON.parse(localStorage.getItem('orderFormData'));
   // console.log("orderData:", orderData);
   // console.log("fields:", fields);
@@ -246,6 +279,6 @@ export function orderForm(cartData) {
   // const populatedFields = populateFields(includeShipping ? shippingFields : fields);
   // TODO - need to add flag/logic to display shipping fields if applicable or if chosen by the user where applicable.
   const form = buildForm(populatedFields, createSquareOrder)
-  form.className = 'cart-order-form';
+  form.className = 'form cart-order-form';
   return form;
 }
