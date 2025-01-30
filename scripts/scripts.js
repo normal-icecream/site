@@ -13,6 +13,7 @@ import {
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { getCatalogList, getCatalogModifierList, getCatalogTaxList, getCatalogDiscountList } from '../api/square/catalog.js';
+import { getLocationsList } from '../api/square/locations.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -197,6 +198,15 @@ async function loadDelayed() {
 
   const discounts = await getCatalogDiscountList();
   if (discounts) window.catalog.discounts = discounts;
+
+  const locations = await getLocationsList();
+  const formattedList = locations.map((location) => {
+    return {
+      id: location.id,
+      name: location.name
+    }
+  })
+  if (locations) window.catalog.locations = formattedList;
 
   console.log('window.catalog', window.catalog);
 }

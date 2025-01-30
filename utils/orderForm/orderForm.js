@@ -3,6 +3,73 @@ import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 
+class SquareDiscountAmount {
+  constructor(data) {
+    console.log("data:", data);
+    this.amount = data.amount;
+    this.currency = data.currency;
+  }
+
+  build() {
+    return { 
+      amount: this.amount,
+      currency: this.currency
+    }
+  }
+}
+
+class SquareDiscountAmountData {
+  constructor(data) {
+    this.name = data.discount_data.name;
+    this.amount_money = new SquareDiscountAmount(data.discount_data.amount_money).build();
+    this.scope = 'ORDER'
+    this.type = data.discount_data.discount_type;
+  }
+
+  build() {
+    return {
+      name: this.name,
+      amount_money: this.amount_money,
+      scope: this.scope,
+      type: this.type,
+    }
+  }
+}
+
+class SquareDiscountPercentageData {
+  constructor(data) {
+    this.name = data.discount_data.name;
+    this.percentage = data.discount_data.percentage;
+    this.scope = 'ORDER'
+    this.type = data.discount_data.discount_type;
+  }
+
+  build() {
+    return {
+      name: this.name,
+      percentage: this.percentage,
+      scope: this.scope,
+      type: this.type,
+    }
+  }
+}
+
+// created_at : "2019-12-30T19:32:33.851Z"
+// discount_data : {
+//     application_method : "MANUALLY_APPLIED"
+//     discount_type : "FIXED_PERCENTAGE"
+//     modify_tax_basis : "MODIFY_TAX_BASIS"
+//     name : "fam+friend"
+//     percentage : "15.0"
+//   }
+// id : "XTV2HWGVBOMXBPDOUVYC6LN5"
+// is_deleted : false
+// present_at_all_locations : false
+// present_at_location_ids : (2) ['6EXJXZ644ND0E', '3HQZPV73H8BHM']
+// type : "DISCOUNT"
+// updated_at : "2024-05-15T19:40:28.329Z"
+// version : 1715802028329
+
 class SquareTaxData {
   constructor(data) {
     this.name = data.tax_data.name;
@@ -26,31 +93,14 @@ class SquareOrderData {
       this.line_items = orderData.line_items;
       this.state = orderData.state || 'OPEN';
       // this.discounts = discounts ? discounts.map(discount => new Discount(discount)) : [];
-      this.taxes = new SquareTaxData(taxData).build();
+      this.taxes = [new SquareTaxData(taxData).build()];
   }
 
   build() {
       return {
           line_items: this.line_items,
           state: this.state,
-          // discounts: this.discounts,
-      };
-  }
-}
-
-class SquareSandboxOrderData {
-  constructor(orderData) {
-  // constructor({ line_items, state, discounts }) {
-      this.line_items = orderData.line_items;
-      this.state = orderData.state || 'OPEN';
-      // this.discounts = discounts ? discounts.map(discount => new Discount(discount)) : [];
-      this.taxes = new SquareTaxData(orderData)
-  }
-
-  build() {
-      return {
-          line_items: this.line_items,
-          state: this.state,
+          taxes: this.taxes,
           // discounts: this.discounts,
       };
   }
@@ -116,6 +166,7 @@ const fields = [
     label: 'Discount Code',
     name: 'discountCode',
     placeholder: 'your discount code',
+    validation: ['discount'],
   },
   {
     type: 'date',
@@ -225,11 +276,6 @@ export function orderForm(cartData) {
       // getItShipped: false,
     }));
   }
-  
-  const catalogList = window.catalog.taxes;
-  console.log("catalogList:", catalogList);
-  const taxes = catalogList.filter((item) => item.type === 'TAX')[0];
-  console.log("taxes:", taxes);
 
   const populateFields = (fields) => {
     const formFieldsFromLocalStorage = JSON.parse(localStorage.getItem('orderFormData'));
@@ -259,43 +305,46 @@ export function orderForm(cartData) {
       item.quantity = String(item.quantity);
     });
 
-    let newOrder;
-    // eslint-disable-next-line no-console
+
+
+    const orderData = new SquareOrderData(cartData, window.catalog.taxes[0]).build();
+
+    const discounts = [];
+    if (orderFormData.discountCode) {
+      const discount = window.catalog.discounts.find((discount) => discount.discount_data.name === orderFormData.discountCode);
+      
+      if (discount) {
+        if(discount.discount_data.percentage) {
+          console.log('hitting percentage')
+          discounts.push(new SquareDiscountPercentageData(discount).build());
+        } 
+        if (discount.discount_data.amount_money) {
+          console.log('hitting amount')
+          discounts.push(new SquareDiscountAmountData(discount).build())
+        }
+      }
+    }
+    orderData.discounts = discounts;
+
     if (env === 'sandbox') {
-      // TODO - remove this
       cartData.line_items.forEach((item) => {
         delete item.catalog_object_id;
       });
-       
-      // const taxData = new SquareTaxData(taxes);
-      const orderData = new SquareOrderData(cartData, taxes);
-      console.log("orderData:", orderData);
-      // TODO - filter out id's on line items
-
-      const orderWrapper = new SquareOrderWrapper(orderData);
-      
-      // console.log("taxData:", taxData);
-      // orderWrapper.object.taxes = [taxData];
-      
-      console.log("orderWrapper:", orderWrapper);
-      // newOrder = await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox');
-      // console.log("newOrder:", newOrder);
-      
-    } else {
-      const orderData = new SquareOrderData(cartData);
-      // const order = await createOrder(orderData);
-      // console.log("order:", order);
-      
-      // TODO - need to set this up to read shipping selection from the merch context. 
-      // const locationQueryParam = '?location=sandbox';
-      
-      // newOrder = await createOrder(JSON.stringify(orderWrapper), '?location=sandbox');
-      // console.log("newOrder:", newOrder);
     }
 
+    const orderWrapper = new SquareOrderWrapper(orderData).build(); 
+    console.log("orderWrapper:", orderWrapper);
+
+    // TODO - should I hit calculate order API????
+    // TODO - Add qp logic
+
+    const newOrder = env === 'sandbox' 
+    ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox') 
+    : await createOrder(JSON.stringify(orderWrapper), '?location=sandbox');
+    console.log("newOrder:", newOrder);
+    
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');
-      console.log("cartModal:", cartModal);
       toggleModal(cartModal);
       
       const paymentsModal = document.querySelector('.modal.payments');
@@ -306,9 +355,6 @@ export function orderForm(cartData) {
     }
   }
   
-  // const orderData = JSON.parse(localStorage.getItem('orderFormData'));
-  // console.log("orderData:", orderData);
-  // console.log("fields:", fields);
   const populatedFields = populateFields(fields);
   // const populatedFields = populateFields(includeShipping ? shippingFields : fields);
   // TODO - need to add flag/logic to display shipping fields if applicable or if chosen by the user where applicable.

@@ -1,5 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
 import { toKebabCase } from '../../helpers/helpers.js';
+import { getLastCartKey } from '../../pages/cart/cart.js';
 
 /**
  * Creates a label element for a form field, indicating if the field is required.
@@ -170,6 +171,27 @@ function validateInput(input) {
     // Rule: No numbers allowed
     if (rule === 'no-nums' && /\d/.test(input.value)) {
       errorMessages.push('Numbers are not allowed.');
+    }
+
+    if (rule === 'discount') {
+      const discountsList = window.catalog.discounts;
+      const currentStore = getLastCartKey().toUpperCase();
+      const location = window.catalog.locations.find((location) => location.name === currentStore);
+
+      const discountsByLocation = discountsList.filter((discount) => {
+        if (discount.present_at_all_locations) {
+          return discount;
+        } else {
+          const discountLocations = discount.present_at_location_ids;
+          const appliesToThisLocation = discountLocations.some((locationId) => locationId === location.id)
+          if (appliesToThisLocation) return discount;
+        }
+      })
+      const isValidDiscount = discountsByLocation.some((discount) => discount.discount_data.name === input.value);
+
+      if (!isValidDiscount) {
+        errorMessages.push('invalid discount code.');
+      }
     }
 
     // Rule: US phone number validation

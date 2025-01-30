@@ -33,6 +33,9 @@ export const API_ENDPOINTS = {
     PAYMENTS: {
       create: `${API_BASE_URLS.SQUARE}/v2/payments`, // POST
     },
+    LOCATIONS: {
+      list: `${API_BASE_URLS.SQUARE}/v2/locations`, // POST
+    },
   },
   // ADD any other API here
 };
