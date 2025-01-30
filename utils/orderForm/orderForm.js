@@ -2,6 +2,7 @@ import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
+import { getLastCartKey } from '../../pages/cart/cart.js';
 
 class SquareDiscountAmount {
   constructor(data) {
@@ -54,22 +55,6 @@ class SquareDiscountPercentageData {
   }
 }
 
-// created_at : "2019-12-30T19:32:33.851Z"
-// discount_data : {
-//     application_method : "MANUALLY_APPLIED"
-//     discount_type : "FIXED_PERCENTAGE"
-//     modify_tax_basis : "MODIFY_TAX_BASIS"
-//     name : "fam+friend"
-//     percentage : "15.0"
-//   }
-// id : "XTV2HWGVBOMXBPDOUVYC6LN5"
-// is_deleted : false
-// present_at_all_locations : false
-// present_at_location_ids : (2) ['6EXJXZ644ND0E', '3HQZPV73H8BHM']
-// type : "DISCOUNT"
-// updated_at : "2024-05-15T19:40:28.329Z"
-// version : 1715802028329
-
 class SquareTaxData {
   constructor(data) {
     this.name = data.tax_data.name;
@@ -118,24 +103,24 @@ class SquareOrderWrapper {
   }
 }
 
-// const alwaysVisibleFields = [
-//   'name',
-//   'phone',
-//   'email',
-//   'discountCode',
-// ];
+const alwaysVisibleFields = [
+  'name',
+  'phone',
+  'email',
+  'discountCode',
+];
 
-// const shippingFields = [
-//   'address',
-//   'address2',
-//   'city',
-//   'state',
-//   'zipcode',
-// ];
+const shippingFields = [
+  'address1',
+  'address2',
+  'city',
+  'state',
+  'zipcode',
+];
 
-// const optionalFields = [
-//   'getItShipped',
-// ];
+const optionalFields = [
+  'getItShipped',
+];
 
 const fields = [
   {
@@ -174,7 +159,7 @@ const fields = [
     name: 'pickupdate',
     // min: '2024-10-01',
     // max: '2024-12-31',
-    // required: true,
+    required: true,
   },
   {
     type: 'time',
@@ -182,15 +167,24 @@ const fields = [
     name: 'pickuptime',
     // min: '09:00', // Earliest allowable time
     // max: '17:00', // Latest allowable time
-    // required: true,
+    required: true,
   },
-  // {
-  //   type: 'checkbox',
-  //   label: 'get it shipped?',
-  //   name: 'getItShipped',
-  //   value: 'getItShipped',
-  //   required: true,
-  // },
+  {
+    type: 'checkbox',
+    label: 'want to pay with a gift card?',
+    name: 'giftCard',
+    value: 'giftCard',
+    val: 'giftCard',
+    required: true,
+  },
+  {
+    type: 'checkbox',
+    label: 'get it shipped?',
+    name: 'getItShipped',
+    value: 'get-it-shipped',
+    val: 'get-it-shipped',
+    required: false,
+  },
   {
     type: 'input',
     label: 'Your Address',
@@ -227,33 +221,34 @@ const fields = [
   },
 ];
 
-// function getVisibleFields(fields, isShipped) {
-//   console.log("fields:", fields);
-//   const cartKey = getLastCartKey();
+function getVisibleFields(fields, isShipped) {
+  console.log("fields:", fields);
+  const cartKey = getLastCartKey();
 
-  // return fields.filter((field) => {
-  //   // Always display fields in the alwaysVisibleFields group
-  //   if (alwaysVisibleFields.includes(field.name)) {
-  //     return true;
-  //   }
+  return Object.keys(fields).filter((field) => {
+    console.log("field:", field);
+    // Always display fields in the alwaysVisibleFields group
+    if (alwaysVisibleFields.includes(field.name)) {
+      return true;
+    }
 
-  //   // Conditionally display shipping fields
-  //   if (shippingFields.includes(field.name)) {
-  //     if (cartKey === 'shipping' || (cartKey === 'merch' && isShipped)) {
-  //       return true;
-  //     }
-  //     return false;
-  //   }
+    // // Conditionally display shipping fields
+    // if (shippingFields.includes(field.name)) {
+    //   if (cartKey === 'shipping' || (cartKey === 'merch' && isShipped)) {
+    //     return true;
+    //   }
+    //   return false;
+    // }
 
-  //   // Conditionally display the "get it shipped" checkbox
-  //   if (optionalFields.includes(field.name)) {
-  //     return cartKey === 'merch';
-  //   }
+    // // Conditionally display the "get it shipped" checkbox
+    // if (optionalFields.includes(field.name)) {
+    //   return cartKey === 'merch';
+    // }
 
-  //   // Hide other fields by default
-  //   return false;
-  // });
-// }
+    // // Hide other fields by default
+    return false;
+  });
+}
 
 
 export function orderForm(cartData) {
@@ -278,21 +273,21 @@ export function orderForm(cartData) {
   }
 
   const populateFields = (fields) => {
-    const formFieldsFromLocalStorage = JSON.parse(localStorage.getItem('orderFormData'));
-    // const formFieldsFromLocalStorage = (localStorage.getItem('orderFormData', JSON.stringify(orderFormData)));
-    // const visibleFields = getVisibleFields(formFieldsFromLocalStorage, formFieldsFromLocalStorage.getItShipped);
-    // console.log("visibleFields:", visibleFields);
+    const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
+    // const orderFormData = (localStorage.getItem('orderFormData', JSON.stringify(orderFormData)));
+    const visibleFields = getVisibleFields(orderFormData);
+    console.log("visibleFields:", visibleFields);
 
     return fields.map((field) => {
-      const value = formFieldsFromLocalStorage[field.name] || '';
+      const value = orderFormData[field.name] || '';
       
       return {
         ...field,
         value,
         oninput: (event) => {
           const newVal = event.target.value;
-          formFieldsFromLocalStorage[field.name] = newVal;
-          localStorage.setItem('orderFormData', JSON.stringify(formFieldsFromLocalStorage));
+          orderFormData[field.name] = newVal;
+          localStorage.setItem('orderFormData', JSON.stringify(orderFormData));
         }
       }
     })

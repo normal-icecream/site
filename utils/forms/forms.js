@@ -277,13 +277,14 @@ function validateForm(form) {
  * @returns {HTMLElement} A configured `<input>` element with event listeners.
  */
 function buildInput(field) {
+  console.log("field:", field);
   const input = document.createElement('input');
 
   // Set standard attributes, with defaults where applicable
   input.type = field.type || 'text';
   input.name = field.name || '';
   input.placeholder = field.placeholder || '';
-  input.value = field.value ?? '';
+  input.value = (field.value || field.val) ?? '';
   input.min = field.min ?? '';
 
   // Apply additional optional attributes
@@ -405,6 +406,7 @@ function buildRadio(field) {
  * and its associated label text.
  */
 function buildCheckbox(field) {
+  console.log("field:", field);
   // Create the checkbox input element using a helper function
   const input = buildInput(field);
 
@@ -550,6 +552,7 @@ function buildField(field) {
  * @throws {Error} If `handleSubmit` is not a function.
  */
 function validateBuildFormInputs(fields, handleSubmit) {
+  console.log("fields:", fields);
   // Check if `fields` is a non-empty array
   if (!Array.isArray(fields) || fields.length === 0) {
     throw new Error('The "fields" parameter must be a non-empty array of field definitions.');
@@ -570,7 +573,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
       throw new Error(`Field at index ${index} of type "${field.type}" must include a "placeholder" property.`);
     }
     if (field.type === 'checkbox') {
-      if ((!field.value || typeof field.value !== 'string')) {
+      if ((!field.val || typeof field.val !== 'string')) {
         throw new Error(`Missing valid "value" property from config at index ${index}.`);
       }
     }
@@ -616,7 +619,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
             throw new Error('"Type" is missing from option');
           }
 
-          if (!option.value) {
+          if (!option.val) {
             throw new Error('"Value" is missing from option');
           }
 
@@ -641,6 +644,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
 export default function buildForm(fields, handleSubmit) {
+  console.log("buildForm - fields:", fields);
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
 
@@ -690,6 +694,7 @@ export default function buildForm(fields, handleSubmit) {
         if (field.type === 'radio' && field.checked) {
           data[field.name] = field.value;
         } else if (field.type === 'checkbox') {
+          console.log("field:", field);
           if (data[field.name] === undefined) {
             data[field.name] = field.checked ? (field.value !== 'on' && field.value) || true : false;
           } else {
