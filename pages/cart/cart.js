@@ -16,6 +16,18 @@ export function getLocalStorageCart() {
     return carts[cartKey];
 }
 
+export function getCartLocation() {
+    const cartkey = getLastCartKey();
+    const getItShipped = JSON.parse(localStorage.getItem('orderFormData'))['getItShipped'];
+    let currentLocation = '';
+    if (cartkey === 'merch') {
+      currentLocation = getItShipped ? 'shipping' : 'store';
+    } else {
+      currentLocation = cartkey;
+    }
+    return currentLocation;
+}
+
 function getEmptyCartMessage() {
     const noCartDiv = document.createElement('div');
     noCartDiv.className = 'empty-cart-message';

@@ -2,7 +2,7 @@ import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
-import { getLastCartKey } from '../../pages/cart/cart.js';
+import { getLastCartKey, getCartLocation } from '../../pages/cart/cart.js';
 import { refreshCartContent } from '../../utils/modal/modal.js';
 
 class SquareDiscountAmount {
@@ -219,6 +219,7 @@ const fields = [
 
 
 export function orderForm(cartData) {
+  const env = getEnvironment();
   const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
   if (!orderFormData) {
     localStorage.setItem('orderFormData', JSON.stringify({
@@ -318,8 +319,6 @@ export function orderForm(cartData) {
   }
   
   async function createSquareOrder() {
-    const env = getEnvironment();
-
     cartData.line_items.forEach((item) => {
       item.quantity = String(item.quantity);
     });
@@ -350,12 +349,14 @@ export function orderForm(cartData) {
     const orderWrapper = new SquareOrderWrapper(orderData).build(); 
     console.log("orderWrapper:", orderWrapper);
 
-    // TODO - should I hit calculate order API????
-    // TODO - Add qp logic
+    const cartLocation = getCartLocation();
 
+    // TODO - should I hit calculate order API????
+
+    // TODO - make sure that this location qp is sending/switching properly in prod env's
     const newOrder = env === 'sandbox' 
     ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox') 
-    : await createOrder(JSON.stringify(orderWrapper), '?location=sandbox');
+    : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
     console.log("newOrder:", newOrder);
     
     if (newOrder) {

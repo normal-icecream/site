@@ -1,6 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
 import { toKebabCase } from '../../helpers/helpers.js';
-import { getLastCartKey } from '../../pages/cart/cart.js';
+import { getCartLocation } from '../../pages/cart/cart.js';
 
 /**
  * Creates a label element for a form field, indicating if the field is required.
@@ -175,8 +175,9 @@ function validateInput(input) {
 
     if (rule === 'discount') {
       const discountsList = window.catalog.discounts;
-      const currentStore = getLastCartKey().toUpperCase();
-      const location = window.catalog.locations.find((location) => location.name === currentStore);
+      const cartLocation = getCartLocation();
+
+      const location = window.catalog.locations.find((location) => location.name === cartLocation.toUpperCase());
 
       const discountsByLocation = discountsList.filter((discount) => {
         if (discount.present_at_all_locations) {
