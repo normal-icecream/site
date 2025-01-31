@@ -22,7 +22,8 @@ export const API_ENDPOINTS = {
       item: (objectId) => `${API_BASE_URLS.SQUARE}/v2/catalog/object/${objectId}?include_related_objects=true`, // GET
 
       /** URL for fetching the list of square catalog objects. */
-      list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
+      // list: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=ITEM`, // GET
+      list: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=ITEM`, // GET
       modifierList: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=MODIFIER_LIST`, // GET
       taxes: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=TAX`, // GET
       discounts: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=DISCOUNT`, // GET

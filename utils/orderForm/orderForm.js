@@ -3,6 +3,7 @@ import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { getLastCartKey } from '../../pages/cart/cart.js';
+import { refreshCartContent } from '../../utils/modal/modal.js';
 
 class SquareDiscountAmount {
   constructor(data) {
@@ -18,7 +19,6 @@ class SquareDiscountAmount {
     }
   }
 }
-
 class SquareDiscountAmountData {
   constructor(data) {
     this.name = data.discount_data.name;
@@ -36,7 +36,6 @@ class SquareDiscountAmountData {
     }
   }
 }
-
 class SquareDiscountPercentageData {
   constructor(data) {
     this.name = data.discount_data.name;
@@ -72,7 +71,6 @@ class SquareTaxData {
     }
   }
 }
-
 class SquareOrderData {
   constructor(orderData, taxData) {
       this.line_items = orderData.line_items;
@@ -90,7 +88,6 @@ class SquareOrderData {
       };
   }
 }
-
 class SquareOrderWrapper {
   constructor(data) {
     this.order = data;
@@ -110,7 +107,7 @@ const alwaysVisibleFields = [
   'discountCode',
 ];
 
-const shippingFields = [
+const addressFields = [
   'address1',
   'address2',
   'city',
@@ -118,8 +115,9 @@ const shippingFields = [
   'zipcode',
 ];
 
-const optionalFields = [
-  'getItShipped',
+const pickupFields = [
+  'pickupdate',
+  'pickuptime',
 ];
 
 const fields = [
@@ -169,19 +167,17 @@ const fields = [
     // max: '17:00', // Latest allowable time
     required: true,
   },
-  {
-    type: 'checkbox',
-    label: 'want to pay with a gift card?',
-    name: 'giftCard',
-    value: 'giftCard',
-    val: 'giftCard',
-    required: true,
-  },
+  // {
+  //   type: 'checkbox',
+  //   label: 'want to pay with a gift card?',
+  //   name: 'giftCard',
+  //   val: 'giftCard',
+  //   required: true,
+  // },
   {
     type: 'checkbox',
     label: 'get it shipped?',
     name: 'getItShipped',
-    value: 'get-it-shipped',
     val: 'get-it-shipped',
     required: false,
   },
@@ -221,35 +217,6 @@ const fields = [
   },
 ];
 
-function getVisibleFields(fields, isShipped) {
-  console.log("fields:", fields);
-  const cartKey = getLastCartKey();
-
-  return Object.keys(fields).filter((field) => {
-    console.log("field:", field);
-    // Always display fields in the alwaysVisibleFields group
-    if (alwaysVisibleFields.includes(field.name)) {
-      return true;
-    }
-
-    // // Conditionally display shipping fields
-    // if (shippingFields.includes(field.name)) {
-    //   if (cartKey === 'shipping' || (cartKey === 'merch' && isShipped)) {
-    //     return true;
-    //   }
-    //   return false;
-    // }
-
-    // // Conditionally display the "get it shipped" checkbox
-    // if (optionalFields.includes(field.name)) {
-    //   return cartKey === 'merch';
-    // }
-
-    // // Hide other fields by default
-    return false;
-  });
-}
-
 
 export function orderForm(cartData) {
   const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
@@ -266,28 +233,85 @@ export function orderForm(cartData) {
       city: '',
       state: '',
       zipcode: '',
-      // TODO - use this get it shipped to determine if address should be added to payment request data
-      getItShipped: true, // TODO - needs to be false by default
-      // getItShipped: false,
+      getItShipped: false,
     }));
   }
 
   const populateFields = (fields) => {
+    const modal = document.querySelector('.modal.cart');
     const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
-    // const orderFormData = (localStorage.getItem('orderFormData', JSON.stringify(orderFormData)));
-    const visibleFields = getVisibleFields(orderFormData);
-    console.log("visibleFields:", visibleFields);
+    const cartKey = getLastCartKey();
+    
+    const fieldsToDisplay = [];
+    
+    const visibleFields = [];
+    alwaysVisibleFields.forEach((field) => {
+      const visibleField = fields.find((f) => f.name === field);
+      if (visibleField) visibleFields.push(visibleField);
+    });
+    visibleFields.forEach((field) => fieldsToDisplay.push(field))
+    
+    const storeFields = [];
+    const shippingFields = [];
+    addressFields.forEach((field) => {
+      const shippingField = fields.find((f) => f.name === field);
+      if (shippingField) shippingFields.push(shippingField);
+    });
+    
+    if (cartKey === 'store') {
+      pickupFields.forEach((field) => {
+        const pickupField = fields.find((f) => f.name === field);
+        if (pickupField) storeFields.push(pickupField);
+      });
+      storeFields.forEach((field) => fieldsToDisplay.push(field));
+    } else if (cartKey === 'shipping') {
+      shippingFields.forEach((field) => fieldsToDisplay.push(field));
+    } else if (cartKey === 'merch') {
+      const shouldShipField = fields.find((f) => f.name === 'getItShipped');
+      fieldsToDisplay.push(shouldShipField);
 
-    return fields.map((field) => {
+      const shouldShip = JSON.parse(localStorage.getItem('orderFormData'))['getItShipped'];
+
+      if (shouldShip) {
+        pickupFields.forEach((field) => {
+          const pickupFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
+          //  remove items then refresh cart
+          if (pickupFieldIndex !== -1) {
+            fieldsToDisplay.splice(pickupFieldIndex, 1); // Remove the field from "fieldsToDisplay"
+          }
+        });
+
+        shippingFields.forEach((field) => fieldsToDisplay.push(field));
+      } else {
+        pickupFields.forEach((field) => {
+          const pickupField = fields.find((f) => f.name === field);
+          if (pickupField) fieldsToDisplay.push(pickupField);
+        });
+        
+        shippingFields.forEach((field) => {
+          const shippingFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
+          //  remove items then refresh cart
+          if (shippingFieldIndex !== -1) {
+            fieldsToDisplay.splice(shippingFieldIndex, 1); // Remove the field from "fieldsToDisplay"
+          }
+        });
+      }
+    }
+    
+    return fieldsToDisplay.map((field) => {
       const value = orderFormData[field.name] || '';
-      
       return {
         ...field,
         value,
+        checked: field.type === 'checkbox' ? Boolean(orderFormData[field.name]) : undefined,
         oninput: (event) => {
-          const newVal = event.target.value;
-          orderFormData[field.name] = newVal;
+          if (event.target.type === 'checkbox') {
+            orderFormData[field.name] = event.target.checked;
+          } else {
+            orderFormData[field.name] = event.target.value;
+          }
           localStorage.setItem('orderFormData', JSON.stringify(orderFormData));
+          refreshCartContent(modal);
         }
       }
     })
@@ -300,8 +324,6 @@ export function orderForm(cartData) {
       item.quantity = String(item.quantity);
     });
 
-
-
     const orderData = new SquareOrderData(cartData, window.catalog.taxes[0]).build();
 
     const discounts = [];
@@ -310,11 +332,9 @@ export function orderForm(cartData) {
       
       if (discount) {
         if(discount.discount_data.percentage) {
-          console.log('hitting percentage')
           discounts.push(new SquareDiscountPercentageData(discount).build());
         } 
         if (discount.discount_data.amount_money) {
-          console.log('hitting amount')
           discounts.push(new SquareDiscountAmountData(discount).build())
         }
       }

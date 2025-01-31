@@ -115,7 +115,7 @@ export function addItemToCart(id) {
     if (cartItem) {
         cartItem.quantity += quantity;
     } else {
-        const prodItem = window.catalog.list.find(item => item.id === id);
+        const prodItem = window.catalog.list.find((item) => item.id === id);
         cart?.line_items.push({
             catalog_object_id: prodItem.id,
             quantity: quantity,

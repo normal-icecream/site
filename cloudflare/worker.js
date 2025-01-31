@@ -143,6 +143,53 @@ export default {
       requestBody = JSON.stringify(body);
     }
 
+    async function fetchAllPages(baseUrl, collectedItems = []) {
+      let nextCursor = null;
+      let currentUrl = baseUrl; // Start with the base URL
+    
+      do {
+        const response = await fetch(currentUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          }
+        });
+    
+        const jsonResponse = await response.json();
+        if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
+    
+        nextCursor = jsonResponse.cursor;
+    
+        if (nextCursor) {
+          // Create a URL object to manipulate query parameters safely
+          const urlObj = new URL(currentUrl);
+          if (urlObj.searchParams.has('cursor')) {
+            // Replace the existing cursor value
+            urlObj.searchParams.set('cursor', nextCursor);
+          } else {
+            // Append the new cursor if it doesn't exist
+            urlObj.searchParams.append('cursor', nextCursor);
+          }
+          currentUrl = urlObj.toString();
+        }
+      } while (nextCursor); // Keep looping until there’s no cursor
+      return collectedItems; // Return all collected items
+    }
+
+    // If it's a GET request for listing Square catalog items
+    if (request.method === 'GET' && url.pathname.includes('catalog/list')) {
+      const objects = await fetchAllPages(fullSquareUrl);
+
+      return new Response(JSON.stringify({objects}), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': originHeader,
+        },
+      });
+    }
+
     // Create a new request object to forward the modified request to the Square API
     const modifiedRequest = new Request(fullSquareUrl, {
       method: request.method,
