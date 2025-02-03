@@ -41,6 +41,62 @@ const LOCATIONS = [
 const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
 const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
 
+async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
+  let nextCursor = null;
+  let currentUrl = baseUrl; // Start with the base URL
+
+  do {
+    const response = await fetch(currentUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    const jsonResponse = await response.json();
+    if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
+
+    nextCursor = jsonResponse.cursor;
+
+    if (nextCursor) {
+      // Create a URL object to manipulate query parameters safely
+      const urlObj = new URL(currentUrl);
+      if (urlObj.searchParams.has('cursor')) {
+        // Replace the existing cursor value
+        urlObj.searchParams.set('cursor', nextCursor);
+      } else {
+        // Append the new cursor if it doesn't exist
+        urlObj.searchParams.append('cursor', nextCursor);
+      }
+      currentUrl = urlObj.toString();
+    }
+  } while (nextCursor); // Keep looping until there’s no cursor
+  return collectedItems; // Return all collected items
+}
+
+async function fetchCatalog(env, apiKey) {
+  let catalogData;
+
+  try {
+    catalogData = await env.CATALOG_JSON.get("catalog", { type: "json" });
+  } catch (kvError) {
+    console.error("Error fetching from KV Store:", kvError);
+  }
+
+  const squareFetchCatalogListUrl = "https://connect.squareup.com/v2/catalog/list";
+
+  if (!catalogData) {
+    catalogData = await fetchAllPages(squareFetchCatalogListUrl, apiKey);
+    if (catalogData) {
+      await env.CATALOG_JSON.put("catalog", JSON.stringify(catalogData));
+      return JSON.stringify(catalogData);
+    }
+  } else {
+    return JSON.stringify(catalogData);
+  }
+}
+
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
@@ -76,7 +132,7 @@ export default {
     }
 
     const url = new URL(request.url);
-    
+
     let requestBody = {};
     if (request.body) {
       const bodyText = await request.text();
@@ -119,7 +175,6 @@ export default {
     const forceSandbox = url.searchParams.get("env") === "sandbox";
     const useProduction = forceSandbox ? false : true;
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
-    
     const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
     // Extract the pathname from the request URL and modify it to match the Square API
@@ -143,44 +198,46 @@ export default {
       requestBody = JSON.stringify(body);
     }
 
-    async function fetchAllPages(baseUrl, collectedItems = []) {
-      let nextCursor = null;
-      let currentUrl = baseUrl; // Start with the base URL
+    const isCatalogJsonRequest = url.pathname.includes('catalog.json');
+    if (isCatalogJsonRequest) {
+      try {
+        const objects = await fetchCatalog(env, apiKey);
+        
+        // Check if data is valid before responding
+        if (!objects || objects.length === 0) {
+          return new Response(JSON.stringify({ error: "Failed to fetch catalog data." }), {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": originHeader,
+            },
+          });
+        }
     
-      do {
-        const response = await fetch(currentUrl, {
-          method: 'GET',
+        return new Response(JSON.stringify({ objects }), {
+          status: 200,
           headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": originHeader,
+          },
         });
     
-        const jsonResponse = await response.json();
-        if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
+      } catch (error) {
+        console.error("Error in fetchCatalog:", error);
     
-        nextCursor = jsonResponse.cursor;
-    
-        if (nextCursor) {
-          // Create a URL object to manipulate query parameters safely
-          const urlObj = new URL(currentUrl);
-          if (urlObj.searchParams.has('cursor')) {
-            // Replace the existing cursor value
-            urlObj.searchParams.set('cursor', nextCursor);
-          } else {
-            // Append the new cursor if it doesn't exist
-            urlObj.searchParams.append('cursor', nextCursor);
-          }
-          currentUrl = urlObj.toString();
-        }
-      } while (nextCursor); // Keep looping until there’s no cursor
-      return collectedItems; // Return all collected items
+        return new Response(JSON.stringify({ error: "Internal Server Error." }), {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": originHeader,
+          },
+        });
+      }
     }
 
     // If it's a GET request for listing Square catalog items
     if (request.method === 'GET' && url.pathname.includes('catalog/list')) {
-      const objects = await fetchAllPages(fullSquareUrl);
-
+      const objects = await fetchAllPages(fullSquareUrl, apiKey);
       return new Response(JSON.stringify({objects}), {
         status: 200,
         headers: {

@@ -323,11 +323,17 @@ export function orderForm(cartData) {
       item.quantity = String(item.quantity);
     });
 
-    const orderData = new SquareOrderData(cartData, window.catalog.taxes[0]).build();
+    // TODO - fetch taxes when we are making an order. Not needed before that.
+      // const taxList = await getCatalogTaxList();
+      // if (taxList) window.catalog.taxes = taxList;
+
+    // const taxes = window.catalog.find((item) => item.type === 'TAX');
+    console.log("taxes:", taxes);
+    // const orderData = new SquareOrderData(cartData, window.catalog.taxes[0]).build();
 
     const discounts = [];
     if (orderFormData.discountCode) {
-      const discount = window.catalog.discounts.find((discount) => discount.discount_data.name === orderFormData.discountCode);
+      const discount = window.catalog.find((discount) => discount.discount_data.name === orderFormData.discountCode);
       
       if (discount) {
         if(discount.discount_data.percentage) {

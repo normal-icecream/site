@@ -12,7 +12,7 @@ import {
   sampleRUM,
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
-import { getCatalogList, getCatalogModifierList, getCatalogTaxList, getCatalogDiscountList } from '../api/square/catalog.js';
+import { getCatalogListJson } from '../api/square/catalog.js';
 import { getLocationsList } from '../api/square/locations.js';
 
 /**
@@ -174,6 +174,54 @@ async function loadLazy(doc) {
   swapIcons(main);
 }
 
+
+async function fetchCatalog() {
+  if (!window.catalog) {
+    const json = await getCatalogListJson();
+    const formattedJson = JSON.parse(json);
+    if (formattedJson) {
+      const catalog = {
+        byId: {},
+        items: [],
+        categories: [],
+        discounts: {},
+      };
+      formattedJson.forEach((e) => {
+        if (!catalog.byId[e.id]) {
+          catalog.byId[e.id] = e;
+        }
+        if (e.type === 'ITEM') {
+          catalog.items.push(e);
+          if (e.item_data.variations) {
+            e.item_data.variations.forEach((v) => {
+              catalog.byId[v.id] = v;
+            });
+          }
+        }
+        if (e.type === 'MODIFIER_LIST') {
+          if (e.modifier_list_data.modifiers) {
+            e.modifier_list_data.modifiers.forEach((m) => {
+              m.modifier_data.modifier_list_id = e.id;
+              catalog.byId[m.id] = m;
+            });
+          }
+        }
+        if (e.type === 'DISCOUNT') {
+          if (e.discount_data.name) {
+            catalog.discounts[e.discount_data.name.toLowerCase()] = { id: e.id };
+          }
+        }
+        if (e.type === 'CATEGORY') {
+          catalog.categories.push(e);
+        }
+      });
+      window.catalog = catalog;
+    }
+  }
+  console.log("window:", window.catalog);
+  return window.catalog;
+}
+
 /**
  * Loads everything that happens a lot later,
  * without impacting the user experience.
@@ -182,33 +230,8 @@ async function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
-
-  if (!window.catalog) {
-    window.catalog = window.catalog || {};
-  }
-
-  const list = await getCatalogList();
-  if (list) window.catalog.list = list;
-
-  const modifierList = await getCatalogModifierList();
-  if (modifierList) window.catalog.modifiers = modifierList;
-  
-  const taxList = await getCatalogTaxList();
-  if (taxList) window.catalog.taxes = taxList;
-
-  const discounts = await getCatalogDiscountList();
-  if (discounts) window.catalog.discounts = discounts;
-
-  const locations = await getLocationsList();
-  const formattedList = locations.map((location) => {
-    return {
-      id: location.id,
-      name: location.name
-    }
-  })
-  if (locations) window.catalog.locations = formattedList;
-
-  console.log('window.catalog', window.catalog);
+  fetchCatalog();
+  getLocationsList();
 }
 
 async function loadPage() {
