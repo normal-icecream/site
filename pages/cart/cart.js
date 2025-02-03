@@ -2,6 +2,7 @@ import { loadCSS } from '../../scripts/aem.js';
 import { refreshCartContent } from '../../utils/modal/modal.js';
 import { formatCurrency } from '../../helpers/helpers.js';
 import { getEnvironment } from '../../api/environmentConfig.js';
+import { fetchCatalog } from '../../scripts/scripts.js';
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
 export const allowedCartPages = Object.freeze([
@@ -117,7 +118,7 @@ function getCartCard(cartItems) {
     return cartCardWrapper;
 }
 
-export function addItemToCart(id) {
+export async function addItemToCart(id) {
     const carts = JSON.parse(localStorage.getItem('carts'));
     const cartKey = getLastCartKey();
     const cart = carts[cartKey];
@@ -127,7 +128,7 @@ export function addItemToCart(id) {
     if (cartItem) {
         cartItem.quantity += quantity;
     } else {
-        const prodItem = window.catalog.list.find((item) => item.id === id);
+        const prodItem = window.catalog.byId[id];
         cart?.line_items.push({
             catalog_object_id: prodItem.id,
             quantity: quantity,

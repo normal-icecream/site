@@ -175,7 +175,7 @@ async function loadLazy(doc) {
 }
 
 
-async function fetchCatalog() {
+export async function fetchCatalog() {
   if (!window.catalog) {
     const json = await getCatalogListJson();
     const formattedJson = JSON.parse(json);
@@ -218,7 +218,7 @@ async function fetchCatalog() {
       window.catalog = catalog;
     }
   }
-  console.log("window:", window.catalog);
+  console.log("window - in loadDelay:", window.catalog);
   return window.catalog;
 }
 

@@ -19,12 +19,7 @@ export function createModal(element, title, content = '') {
 
   if (title) element.append(createModalTitle(title));
 
-  if (element.classList.contains('cart')) {
-    element.append(getCart());
-  } 
-  else {
-    element.append(content);
-  }
+  element.append(content);
 
   const closeModalButton = document.createElement('button');
   closeModalButton.textContent = 'X';
