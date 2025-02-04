@@ -75,26 +75,46 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   return collectedItems; // Return all collected items
 }
 
+async function refreshCatalog(env, apiKey) {
+  try {
+    const latestCatalog = await fetchAllPages("https://connect.squareup.com/v2/catalog/list", apiKey);
+
+    if (latestCatalog) {
+      await env.CATALOG_JSON.put("catalog", JSON.stringify(latestCatalog));
+    } else {
+      console.warn("Failed to fetch new catalog data.");
+    }
+  } catch (error) {
+    console.error("Error refreshing catalog:", error);
+  }
+}
+
 async function fetchCatalog(env, apiKey) {
   let catalogData;
 
   try {
+    // Fetch catalog from KV store
     catalogData = await env.CATALOG_JSON.get("catalog", { type: "json" });
   } catch (kvError) {
     console.error("Error fetching from KV Store:", kvError);
   }
 
-  const squareFetchCatalogListUrl = "https://connect.squareup.com/v2/catalog/list";
-
-  if (!catalogData) {
-    catalogData = await fetchAllPages(squareFetchCatalogListUrl, apiKey);
-    if (catalogData) {
-      await env.CATALOG_JSON.put("catalog", JSON.stringify(catalogData));
-      return JSON.stringify(catalogData);
-    }
-  } else {
-    return JSON.stringify(catalogData);
+  // If catalogData exists, return it as a JSON string immediately
+  if (catalogData) {
+    refreshCatalog(env, apiKey); // Trigger refresh in the background
+    return JSON.stringify(catalogData); // Return it safely
   }
+
+  // If no cached data, fetch new data from Square before responding
+  const newCatalogData = await fetchAllPages("https://connect.squareup.com/v2/catalog/list", apiKey);
+
+  if (newCatalogData) {
+    await env.CATALOG_JSON.put("catalog", JSON.stringify(newCatalogData));
+    return JSON.stringify(newCatalogData);
+  }
+
+  // Return an empty JSON response if everything fails
+  return JSON.stringify({ error: "Failed to fetch catalog data" });
 }
 
 export default {
@@ -200,39 +220,14 @@ export default {
 
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
-      try {
-        const objects = await fetchCatalog(env, apiKey);
-        
-        // Check if data is valid before responding
-        if (!objects || objects.length === 0) {
-          return new Response(JSON.stringify({ error: "Failed to fetch catalog data." }), {
-            status: 500,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": originHeader,
-            },
-          });
-        }
-    
-        return new Response(JSON.stringify({ objects }), {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": originHeader,
-          },
-        });
-    
-      } catch (error) {
-        console.error("Error in fetchCatalog:", error);
-    
-        return new Response(JSON.stringify({ error: "Internal Server Error." }), {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": originHeader,
-          },
-        });
-      }
+      const objects = await fetchCatalog(env, apiKey);
+      return new Response(JSON.stringify({objects}), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': originHeader,
+        },
+      });
     }
 
     // If it's a GET request for listing Square catalog items
@@ -263,7 +258,6 @@ export default {
     
     // Store response in KV for idempotency
     if (request.method === 'POST' || request.method === 'PUT') {
-      // const cacheKey = `${idempotencyKeyHeader || crypto.randomUUID()}-${url.pathname}`;
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const clonedResponse = response.clone();
       const responseBody = await clonedResponse.json();
@@ -304,7 +298,6 @@ export default {
     Object.entries(corsHeaders).forEach(([key, value]) => {
       modifiedResponse.headers.set(key, value);
     });
-    
 
     // Return the final response to the client
     return modifiedResponse;

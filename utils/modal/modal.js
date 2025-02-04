@@ -40,6 +40,11 @@ export function refreshPaymentsContent(element, orderData) {
 
 // Function to refresh the cart content
 export function refreshCustomizeContent(element) {
+  console.log("element:", element);
+  const prodItem = window.catalog.byId[element?.dataset.id];
+  console.log("prodItem:", prodItem);
+
+
   // console.log("element:", element);
   // const id = 
   // const wrapper = document.createElement('div');

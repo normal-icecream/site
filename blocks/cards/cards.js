@@ -173,6 +173,7 @@ export default function decorate(block) {
     if (!variants.includes('customize')) {
       // decorate cart actions
       const cart = document.createElement('form');
+
       cart.className = 'cards-card-cart';
 
       // build total field
@@ -218,6 +219,7 @@ export default function decorate(block) {
     } else {
       const modal = document.createElement('div');
       modal.className = 'customize';
+      modal.dataset.id = squareProductId;
       const modalContent = document.createElement('div');
       modalContent.textContent = `${squareProductId}`;
       // TODO make the title here dynamic not hard coded

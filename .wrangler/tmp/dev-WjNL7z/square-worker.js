@@ -72,6 +72,19 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   return collectedItems;
 }
 __name(fetchAllPages, "fetchAllPages");
+async function refreshCatalog(env, apiKey) {
+  try {
+    const latestCatalog = await fetchAllPages("https://connect.squareup.com/v2/catalog/list", apiKey);
+    if (latestCatalog) {
+      await env.CATALOG_JSON.put("catalog", JSON.stringify(latestCatalog));
+    } else {
+      console.warn("Failed to fetch new catalog data.");
+    }
+  } catch (error) {
+    console.error("Error refreshing catalog:", error);
+  }
+}
+__name(refreshCatalog, "refreshCatalog");
 async function fetchCatalog(env, apiKey) {
   let catalogData;
   try {
@@ -79,16 +92,16 @@ async function fetchCatalog(env, apiKey) {
   } catch (kvError) {
     console.error("Error fetching from KV Store:", kvError);
   }
-  const squareFetchCatalogListUrl = "https://connect.squareup.com/v2/catalog/list";
-  if (!catalogData) {
-    catalogData = await fetchAllPages(squareFetchCatalogListUrl, apiKey);
-    if (catalogData) {
-      await env.CATALOG_JSON.put("catalog", JSON.stringify(catalogData));
-      return JSON.stringify(catalogData);
-    }
-  } else {
+  if (catalogData) {
+    refreshCatalog(env, apiKey);
     return JSON.stringify(catalogData);
   }
+  const newCatalogData = await fetchAllPages("https://connect.squareup.com/v2/catalog/list", apiKey);
+  if (newCatalogData) {
+    await env.CATALOG_JSON.put("catalog", JSON.stringify(newCatalogData));
+    return JSON.stringify(newCatalogData);
+  }
+  return JSON.stringify({ error: "Failed to fetch catalog data" });
 }
 __name(fetchCatalog, "fetchCatalog");
 var square_worker_default = {
@@ -168,34 +181,14 @@ var square_worker_default = {
     }
     const isCatalogJsonRequest = url.pathname.includes("catalog.json");
     if (isCatalogJsonRequest) {
-      try {
-        const objects = await fetchCatalog(env, apiKey);
-        if (!objects || objects.length === 0) {
-          return new Response(JSON.stringify({ error: "Failed to fetch catalog data." }), {
-            status: 500,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": originHeader
-            }
-          });
+      const objects = await fetchCatalog(env, apiKey);
+      return new Response(JSON.stringify({ objects }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": originHeader
         }
-        return new Response(JSON.stringify({ objects }), {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": originHeader
-          }
-        });
-      } catch (error) {
-        console.error("Error in fetchCatalog:", error);
-        return new Response(JSON.stringify({ error: "Internal Server Error." }), {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": originHeader
-          }
-        });
-      }
+      });
     }
     if (request.method === "GET" && url.pathname.includes("catalog/list")) {
       const objects = await fetchAllPages(fullSquareUrl, apiKey);
@@ -276,7 +269,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// .wrangler/tmp/bundle-TBffAx/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-GHytvu/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default
 ];
@@ -307,7 +300,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-TBffAx/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-GHytvu/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
