@@ -3,27 +3,54 @@ import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { getLastCartKey, getCartLocation } from '../../pages/cart/cart.js';
-import { refreshCartContent } from '../../utils/modal/modal.js';
-import { getCatalogTaxList } from '../../api/square/catalog.js';
+// import { refreshCartContent } from '../../utils/modal/modal.js';
 
-class SquareDiscountAmount {
+class SquareBasePriceMoney {
   constructor(data) {
-    console.log("data:", data);
-    this.amount = data.amount;
+    this.amount = Math.round(Number(data.amount));
     this.currency = data.currency;
   }
-
   build() {
-    return { 
+    return {
       amount: this.amount,
       currency: this.currency
     }
   }
 }
+export class SquareVariation {
+  constructor(data) {
+    this.catalog_object_id = data.id;
+  }
+
+  build() {
+    return {
+      catalog_object_id: this.catalog_object_id,
+    }
+  }
+}
+
+export class SquareModifier {
+  constructor(data) {
+    this.base_price_money = new SquareBasePriceMoney(data.base_price_money).build();
+    this.catalog_object_id = data.catalog_object_id;
+    this.name = data.name;
+    this.quantity = String(data.quantity);
+  }
+
+  build() {
+    return {
+      base_price_money: this.base_price_money,
+      catalog_object_id: this.catalog_object_id,
+      name: this.name,
+      quantity: this.quantity,
+    }
+  }
+}
+
 class SquareDiscountAmountData {
   constructor(data) {
     this.name = data.discount_data.name;
-    this.amount_money = new SquareDiscountAmount(data.discount_data.amount_money).build();
+    this.amount_money = new SquareBasePriceMoney(data.discount_data.amount_money).build();
     this.scope = 'ORDER'
     this.type = data.discount_data.discount_type;
   }
@@ -72,11 +99,31 @@ class SquareTaxData {
     }
   }
 }
+
+export class SquareOrderLineItem {
+  constructor(data) {
+    this.catalog_object_id = data.catalog_object_id,
+    this.quantity = data.quantity,
+    this.base_price_money = new SquareBasePriceMoney(data.base_price_money).build();
+    this.name = data.name;
+    this.item_type = data.item_type;
+  }
+
+  build() {
+    return {
+      catalog_object_id: this.catalog_object_id,
+      quantity: this.quantity,
+      base_price_money: this.base_price_money,
+      name: this.name,
+      item_type: this.item_type,
+    }
+  }
+}
+
 class SquareOrderData {
   constructor(orderData, taxData) {
       this.line_items = orderData.line_items;
       this.state = orderData.state || 'OPEN';
-      // this.discounts = discounts ? discounts.map(discount => new Discount(discount)) : [];
       this.taxes = [new SquareTaxData(taxData).build()];
   }
 
@@ -85,7 +132,6 @@ class SquareOrderData {
           line_items: this.line_items,
           state: this.state,
           taxes: this.taxes,
-          // discounts: this.discounts,
       };
   }
 }
@@ -323,18 +369,14 @@ export function orderForm(cartData) {
       item.quantity = String(item.quantity);
     });
 
-    // TODO - fetch taxes when we are making an order. Not needed before that.
-      const taxList = await getCatalogTaxList();
-      console.log("taxList:", taxList);
+    const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
 
-    // const taxes = window.catalog.find((item) => item.type === 'TAX');
-    // console.log("taxes:", taxes);
-    // const orderData = new SquareOrderData(cartData, window.catalog.taxes[0]).build();
+    const currentOrderFormData = JSON.parse(localStorage.getItem('orderFormData'));
+    if (currentOrderFormData.discountCode && currentOrderFormData.discountCode.trim() !== "") {
+      const discounts = [];
+      const discountData = window.catalog.discounts[currentOrderFormData.discountCode].id;
+      const discount = window.catalog.byId[discountData];
 
-    const discounts = [];
-    if (orderFormData.discountCode) {
-      const discount = window.catalog.find((discount) => discount.discount_data.name === orderFormData.discountCode);
-      
       if (discount) {
         if(discount.discount_data.percentage) {
           discounts.push(new SquareDiscountPercentageData(discount).build());
@@ -342,9 +384,9 @@ export function orderForm(cartData) {
         if (discount.discount_data.amount_money) {
           discounts.push(new SquareDiscountAmountData(discount).build())
         }
+        orderData.discounts = discounts;
       }
     }
-    orderData.discounts = discounts;
 
     if (env === 'sandbox') {
       cartData.line_items.forEach((item) => {
@@ -353,8 +395,6 @@ export function orderForm(cartData) {
     }
 
     const orderWrapper = new SquareOrderWrapper(orderData).build(); 
-    console.log("orderWrapper:", orderWrapper);
-
     const cartLocation = getCartLocation();
 
     // TODO - should I hit calculate order API????
@@ -378,8 +418,6 @@ export function orderForm(cartData) {
   }
   
   const populatedFields = populateFields(fields);
-  // const populatedFields = populateFields(includeShipping ? shippingFields : fields);
-  // TODO - need to add flag/logic to display shipping fields if applicable or if chosen by the user where applicable.
   const form = buildForm(populatedFields, createSquareOrder, modal)
   form.className = 'form cart-order-form';
   return form;

@@ -29,6 +29,7 @@ export async function getCatalogTaxList() {
   try {
     // Use the API client to fetch the catalog modifier list from the Square API
     const catalogTax = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.taxes, 'GET');
+    window.taxList = catalogTax.objects;
 
     // return list
     return catalogTax.objects;

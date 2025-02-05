@@ -13,7 +13,7 @@ import {
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { getCatalogListJson } from '../api/square/catalog.js';
-import { getLocationsList } from '../api/square/locations.js';
+import { getCatalogTaxList } from '../api/square/catalog.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -231,7 +231,7 @@ async function loadDelayed() {
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
   fetchCatalog();
-  getLocationsList();
+  getCatalogTaxList();
 }
 
 async function loadPage() {

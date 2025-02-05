@@ -1,5 +1,6 @@
 import { addItemToCart } from "../../pages/cart/cart.js";
 import buildForm from "../forms/forms.js";
+import { SquareModifier, SquareVariation } from "../orderForm/orderForm.js";
 
 export function formatMoney(num) {
     return Number(num / 100).toFixed(2);
@@ -202,20 +203,30 @@ function createCustomizeForm(data, itemId, limits) {
             const selectedItems = [];
             form.querySelectorAll('.customize-group').forEach((formGroup) => {
                 formGroup.querySelectorAll('.customize-item').forEach((input) => {
+                    console.log("input:", input);
                     const quantity = parseInt(input.querySelector('input[type="number"]').value, 10);
+                    console.log("quantity:", quantity);
                     if (quantity > 0) {
                         const modOptions = data.flatMap((mods) => mods.options);
                         const modData = modOptions.find((mod) => mod.id === input.dataset.id);
 
-                        const modifier = {
-                            base_price_money: {
-                                amount: modData.price,
-                                currency: modData.currency,
-                            },
-                            catalog_object_id: input.dataset.id,
-                            name: modData.name,
-                            quantity,
+                        const modifierData = {
+                          base_price_money: {
+                            amount: modData.price,
+                            currency: modData.currency,
+                          },
+                          catalog_object_id: input.dataset.id,
+                          name: modData.name,
+                          // TODO - This is broken. The api version we are using doesn't allow more than one quantity and also doesn't allow you to provide multiple of the same modifiers with the same id. 
+                          quantity,
                         }
+
+                        // Array.from({ length: quantity }, () => {
+                        //   const modifier = new SquareModifier(modifierData).build()
+                        //   selectedItems.push(modifier);
+                        // });
+
+                        const modifier = new SquareModifier(modifierData).build();
                         selectedItems.push(modifier);
                     }
                 });
@@ -231,7 +242,7 @@ export function getCustomize(element) {
     const item = window.catalog.byId[element?.dataset.id];
     const data = item.item_data;
     const { name, variations, modifier_list_info: modifiers } = data;
-    const customizeLabel = writeLabelText(name, variations[0].item_variation_data.name);
+    // const customizeLabel = writeLabelText(name, variations[0].item_variation_data.name);
 
     if (modifiers) {
       const modifierGroups = [];
@@ -292,7 +303,7 @@ export function getCustomize(element) {
 
         function handleSubmit(formData) {
             const modifiers = [];
-            formData.forEach((item) => modifiers.push({ catalog_object_id: item.id }));
+            formData.forEach((item) => modifiers.push(new SquareVariation({id: item.id}).build()));
             addItemToCart(item.id, modifiers);
         }
 

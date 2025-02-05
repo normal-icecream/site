@@ -3,6 +3,7 @@ import { refreshCartContent } from '../../utils/modal/modal.js';
 import { formatCurrency } from '../../helpers/helpers.js';
 import { getEnvironment } from '../../api/environmentConfig.js';
 import { fetchCatalog } from '../../scripts/scripts.js';
+import { SquareOrderLineItem } from '../../utils/orderForm/orderForm.js';
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
 export const allowedCartPages = Object.freeze([
@@ -130,7 +131,7 @@ export async function addItemToCart(id, modifiers = []) {
         cartItem.quantity += quantity;
     } else {
         const squareItem = window.catalog.byId[id];
-        const lineItem = {
+        const lineItemData = {
             catalog_object_id: squareItem.id,
             quantity: quantity,
             base_price_money: {
@@ -141,6 +142,8 @@ export async function addItemToCart(id, modifiers = []) {
             name: squareItem.item_data.name,
             item_type: squareItem.type,
         }
+        const lineItem = new SquareOrderLineItem(lineItemData);
+
         if (modifiers.length > 0) lineItem.modifiers = modifiers;
 
         cart.line_items.push(lineItem);
