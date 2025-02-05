@@ -198,8 +198,8 @@ const fields = [
     type: 'date',
     label: 'Select Date',
     name: 'date',
-    min: '2024-10-01',
-    max: '2024-12-31',
+    // min: '2024-10-01',
+    // max: '2024-12-31',
     required: true,
   },
   {
@@ -229,6 +229,6 @@ export default function decorate(block) {
     console.log('formData from form: ', formData);
   }
 
-  const form = buildForm(fields, handleSubmit);
+  const form = buildForm(fields, handleSubmit, block);
   block.append(form);
 }

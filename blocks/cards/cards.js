@@ -221,7 +221,6 @@ export default function decorate(block) {
       modal.className = 'customize';
       modal.dataset.id = squareProductId;
       const modalContent = document.createElement('div');
-      modalContent.textContent = `${squareProductId}`;
       // TODO make the title here dynamic not hard coded
       createModal(modal, 'all about novelties', modalContent);
       li.append(modal);

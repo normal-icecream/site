@@ -1,5 +1,6 @@
 import { getCart, getLastCartKey, getLocalStorageCart } from '../../pages/cart/cart.js';
 import { loadCSS } from '../../scripts/aem.js';
+import { getCustomize } from '../customize/customize.js';
 import { orderForm } from '../orderForm/orderForm.js'
 import { getCardPaymentForm } from '../payments/payments.js';
 
@@ -31,25 +32,13 @@ export function createModal(element, title, content = '') {
 }
 
 // Function to refresh the cart content
-export function refreshPaymentsContent(element, orderData) {
-  const paymentForm = element.querySelector('.card-payment-form');
-  if (paymentForm) paymentForm.remove();
-
-  getCardPaymentForm(element, orderData);
-}
-
-// Function to refresh the cart content
 export function refreshCustomizeContent(element) {
-  console.log("element:", element);
-  const prodItem = window.catalog.byId[element?.dataset.id];
-  console.log("prodItem:", prodItem);
+  const customizeWrapper = element.querySelector('.customize');
+  if (customizeWrapper) customizeWrapper.remove();
+  
+  const customizeContent = getCustomize(element);
 
-
-  // console.log("element:", element);
-  // const id = 
-  // const wrapper = document.createElement('div');
-  // const cartContent = element.querySelector('.card-wrapper');
-  // if (cartContent) cartContent.remove();
+  element.append(customizeContent);
 }
 
 // Function to refresh the cart content

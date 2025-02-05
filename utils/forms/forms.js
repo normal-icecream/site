@@ -384,9 +384,11 @@ function buildRadio(field) {
 
     // Set required attribute if specified
     if (field.required) radio.required = true;
-
-    // Prepend the radio input to its label
-    radioLabel.prepend(radio);
+    if (option.id) radio.id = option.id;
+    if (radioLabel) {
+      // Prepend the radio input to its label
+      radioLabel.prepend(radio);
+    }
 
     // Trigger input validation when the user types into the field
     radio.addEventListener('input', () => {
@@ -641,7 +643,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
  * @param {Function} handleSubmit - A callback function to handle the form data on submission.
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
-export default function buildForm(fields, handleSubmit) {
+export default function buildForm(fields, handleSubmit, scopedElement) {
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
 
@@ -650,6 +652,7 @@ export default function buildForm(fields, handleSubmit) {
 
   // Create the <form> element
   const form = document.createElement('form');
+  form.className = 'form';
 
   // Disable browser's default validation UI in favor of custom validation logic and styling
   form.noValidate = true;
@@ -683,30 +686,48 @@ export default function buildForm(fields, handleSubmit) {
     isValid = validateForm(form); // Perform custom validation on the form
 
     if (isValid) {
-      const data = {}; // Initialize an object to store form data
-      const formFields = document.querySelectorAll('input, select, textarea');
-
-      // Process each form field to gather its value
-      formFields.forEach((field) => {
-        if (field.type === 'radio' && field.checked) {
-          data[field.name] = field.value;
-        } else if (field.type === 'checkbox') {
-          if (data[field.name] === undefined) {
-            data[field.name] = field.checked ? (field.value !== 'on' && field.value) || true : false;
-          } else {
-            // If multiple checkboxes share the same name, store their values in an array
-            if (!Array.isArray(data[field.name])) {
-              data[field.name] = data[field.name] ? [data[field.name]] : [];
-            }
-            if (field.checked) {
-              data[field.name].push(field.value);
-            }
+      const data = []; // Initialize an object to store form data
+      const formFields = Array.from(scopedElement.querySelectorAll('input, select, textarea'));
+      
+      // Filter out unchecked radio inputs
+      const filteredFormFields = formFields.filter(field => {
+          if (field.type === 'radio') {
+            return field.checked; // Keep only checked radios
           }
-        } else {
-          // For other input types, store their value directly
-          data[field.name] = field.value;
-        }
+          return true; // Keep all other field types
       });
+
+      filteredFormFields.forEach((field) => {
+        if (field.type === 'radio') {
+          const radioData = {
+            field: field.name,
+            value: field.value
+          }
+
+          if (field.id) radioData.id = field.id;
+          data.push(radioData);
+        } else if (field.type === 'checkbox') {
+            const existingEntry = data.find(entry => entry.name === field.name);
+
+            if (!existingEntry) {
+                data.push({
+                  field: field.name,
+                  value: field.checked ? (field.value !== 'on' ? field.value : true) : false
+                });
+            } else if (field.checked) {
+                // Convert to array if there are multiple checkboxes with the same name
+                if (!Array.isArray(existingEntry.value)) {
+                    existingEntry.value = [existingEntry.value];
+                }
+                existingEntry.value.push(field.value);
+            }
+        } else {
+            data.push({
+              field: field.name,
+              value: field.value
+            });
+        }
+      })
 
       // Pass the collected form data to the provided handleSubmit callback
       handleSubmit(data);

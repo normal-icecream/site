@@ -118,28 +118,32 @@ function getCartCard(cartItems) {
     return cartCardWrapper;
 }
 
-export async function addItemToCart(id) {
+export async function addItemToCart(id, modifiers = []) {
     const carts = JSON.parse(localStorage.getItem('carts'));
     const cartKey = getLastCartKey();
     const cart = carts[cartKey];
     const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
     
+    // TODO - need to add logic to handle modifiers, where if a user has already added to cart an add about the novelties for example and wants to create a new one, the current logic will just increment the quantity of the item with the same id in localstorage and will not create a new instance of the new all about the novelties pack. What is should do is add a new one even if there is already one in localstorage.
     const quantity = 1; // Default quantity for a new item
     if (cartItem) {
         cartItem.quantity += quantity;
     } else {
-        const prodItem = window.catalog.byId[id];
-        cart?.line_items.push({
-            catalog_object_id: prodItem.id,
+        const squareItem = window.catalog.byId[id];
+        const lineItem = {
+            catalog_object_id: squareItem.id,
             quantity: quantity,
             base_price_money: {
-                amount: prodItem.item_data.variations[0].item_variation_data.price_money.amount,
+                amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
                 currency: 'USD'
             },
-            description: prodItem.item_data.description,
-            name: prodItem.item_data.name,
-            item_type: prodItem.type,
-        });
+            description: squareItem.item_data.description,
+            name: squareItem.item_data.name,
+            item_type: squareItem.type,
+        }
+        if (modifiers.length > 0) lineItem.modifiers = modifiers;
+
+        cart.line_items.push(lineItem);
     }
     localStorage.setItem(`carts`, JSON.stringify(carts));
 }

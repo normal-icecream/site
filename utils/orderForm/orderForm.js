@@ -4,6 +4,7 @@ import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { getLastCartKey, getCartLocation } from '../../pages/cart/cart.js';
 import { refreshCartContent } from '../../utils/modal/modal.js';
+import { getCatalogTaxList } from '../../api/square/catalog.js';
 
 class SquareDiscountAmount {
   constructor(data) {
@@ -220,6 +221,7 @@ const fields = [
 
 export function orderForm(cartData) {
   const env = getEnvironment();
+  const modal = document.querySelector('.modal.cart');
   const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
   if (!orderFormData) {
     localStorage.setItem('orderFormData', JSON.stringify({
@@ -239,7 +241,6 @@ export function orderForm(cartData) {
   }
 
   const populateFields = (fields) => {
-    const modal = document.querySelector('.modal.cart');
     const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
     const cartKey = getLastCartKey();
     
@@ -312,7 +313,6 @@ export function orderForm(cartData) {
             orderFormData[field.name] = event.target.value;
           }
           localStorage.setItem('orderFormData', JSON.stringify(orderFormData));
-          refreshCartContent(modal);
         }
       }
     })
@@ -324,11 +324,11 @@ export function orderForm(cartData) {
     });
 
     // TODO - fetch taxes when we are making an order. Not needed before that.
-      // const taxList = await getCatalogTaxList();
-      // if (taxList) window.catalog.taxes = taxList;
+      const taxList = await getCatalogTaxList();
+      console.log("taxList:", taxList);
 
     // const taxes = window.catalog.find((item) => item.type === 'TAX');
-    console.log("taxes:", taxes);
+    // console.log("taxes:", taxes);
     // const orderData = new SquareOrderData(cartData, window.catalog.taxes[0]).build();
 
     const discounts = [];
@@ -380,7 +380,7 @@ export function orderForm(cartData) {
   const populatedFields = populateFields(fields);
   // const populatedFields = populateFields(includeShipping ? shippingFields : fields);
   // TODO - need to add flag/logic to display shipping fields if applicable or if chosen by the user where applicable.
-  const form = buildForm(populatedFields, createSquareOrder)
+  const form = buildForm(populatedFields, createSquareOrder, modal)
   form.className = 'form cart-order-form';
   return form;
 }
