@@ -403,7 +403,6 @@ export function orderForm(cartData) {
     const newOrder = env === 'sandbox' 
     ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox') 
     : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
-    console.log("newOrder:", newOrder);
     
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');
