@@ -4,6 +4,21 @@ import { getCustomize } from '../customize/customize.js';
 import { orderForm } from '../orderForm/orderForm.js';
 import { getCardPaymentForm } from '../payments/payments.js';
 
+// Function to toggle the modal
+export function toggleModal(element, data = null) {
+  const isExpanded = element.getAttribute('aria-expanded') === 'true';
+
+  if (!isExpanded) {
+    // If it's a cart modal and is being opened, refresh its content
+    if (element.classList.contains('cart')) refreshCartContent(element);
+    if (element.classList.contains('customize')) refreshCustomizeContent(element);
+    if (element.classList.contains('payments')) refreshPaymentsContent(element, data);
+  }
+
+  element.setAttribute('aria-expanded', !isExpanded);
+  element.style.display = isExpanded ? 'none' : 'block';
+}
+
 function createModalTitle(title) {
   const modalTitle = document.createElement('h2');
   modalTitle.textContent = title;
@@ -79,19 +94,4 @@ export function refreshCartContent(element) {
     const form = orderForm(cartLocalStorageData, hasShipping);
     element.append(form);
   }
-}
-
-// Function to toggle the modal
-export function toggleModal(element, data = null) {
-  const isExpanded = element.getAttribute('aria-expanded') === 'true';
-
-  if (!isExpanded) {
-    // If it's a cart modal and is being opened, refresh its content
-    if (element.classList.contains('cart')) refreshCartContent(element);
-    if (element.classList.contains('customize')) refreshCustomizeContent(element);
-    if (element.classList.contains('payments')) refreshPaymentsContent(element, data);
-  }
-
-  element.setAttribute('aria-expanded', !isExpanded);
-  element.style.display = isExpanded ? 'none' : 'block';
 }

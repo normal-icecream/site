@@ -130,7 +130,6 @@ export function resetOrderForm() {
     orderData.getItShipped = false;
   }
 
-  console.log('orderData:', orderData);
   localStorage.setItem('orderFormData', JSON.stringify(orderData));
 }
 
@@ -156,7 +155,7 @@ export function orderForm(cartData) {
   }
 
   const populateFields = (fields) => {
-    const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
+    const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
     const cartKey = getLastCartKey();
 
     const fieldsToDisplay = [];
@@ -218,18 +217,18 @@ export function orderForm(cartData) {
     }
 
     return fieldsToDisplay.map((field) => {
-      const value = orderFormData[field.name] || '';
+      const value = orderFormFields[field.name] || '';
       return {
         ...field,
         value,
-        checked: field.type === 'checkbox' ? Boolean(orderFormData[field.name]) : undefined,
+        checked: field.type === 'checkbox' ? Boolean(orderFormFields[field.name]) : undefined,
         oninput: (event) => {
           if (event.target.type === 'checkbox') {
-            orderFormData[field.name] = event.target.checked;
+            orderFormFields[field.name] = event.target.checked;
           } else {
-            orderFormData[field.name] = event.target.value;
+            orderFormFields[field.name] = event.target.value;
           }
-          localStorage.setItem('orderFormData', JSON.stringify(orderFormData));
+          localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
         },
       };
     });
@@ -302,6 +301,7 @@ export function orderForm(cartData) {
       const paymentsModal = document.querySelector('.modal.payments');
       toggleModal(paymentsModal, newOrder);
     } else {
+      // eslint-disable-next-line no-console
       // throw user an error
       console.log('error with creating an order');
     }

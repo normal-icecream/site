@@ -177,6 +177,7 @@ function createCustomizeForm(data, itemId, limits) {
     }
     const errorMessages = [];
 
+    /* eslint-disable no-restricted-syntax */
     for (const [groupName, selectedCount] of groupSelections.entries()) {
       const maxAllowedSelections = limits[groupName];
 
@@ -205,6 +206,7 @@ function createCustomizeForm(data, itemId, limits) {
 
     return isFormValid;
   }
+  /* eslint-enable no-restricted-syntax */
 
   form.appendChild(submitButton);
   form.addEventListener('submit', (event) => {
@@ -309,6 +311,7 @@ export function getCustomize(element) {
     });
     fields.push(field);
 
+    // eslint-disable-next-line no-inner-declarations
     function handleSubmit(formData) {
       const mods = [];
       formData.forEach((i) => mods.push(new SquareVariation({ id: i.id }).build()));

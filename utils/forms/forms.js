@@ -694,9 +694,16 @@ export default function buildForm(fields, handleSubmit, scopedElement) {
           const existingEntry = data.find((entry) => entry.name === field.name);
 
           if (!existingEntry) {
+            let value;
+            if (field.checked){
+              value = field.value !== 'on' ? field.value : true
+            } else {
+              value = false
+            }
             data.push({
               field: field.name,
-              value: field.checked ? (field.value !== 'on' ? field.value : true) : false,
+              value
+              // value: field.checked ? (field.value !== 'on' ? field.value : true) : false,
             });
           } else if (field.checked) {
             // Convert to array if there are multiple checkboxes with the same name

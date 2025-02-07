@@ -99,8 +99,8 @@ export class SquareTaxData {
 
 export class SquareOrderLineItem {
   constructor(data) {
-    this.catalog_object_id = data.catalog_object_id,
-    this.quantity = data.quantity,
+    this.catalog_object_id = data.catalog_object_id;
+    this.quantity = data.quantity;
     this.base_price_money = new SquareBasePriceMoney(data.base_price_money).build();
     this.name = data.name;
     this.item_type = data.item_type;

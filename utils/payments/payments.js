@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createPayment } from '../../api/square/payments.js';
 import { loadScript } from '../../scripts/aem.js';
@@ -58,7 +59,6 @@ class SquarePayment {
   }
 
   initializeAddresses(formData) {
-    console.log('formData:', formData);
     if (formData.getItShipped) {
       this.shipping_address = new SquarePaymentAddress(formData).build();
       this.billing_address = new SquarePaymentAddress(formData).build();
@@ -105,13 +105,7 @@ async function createSquarePayment(token, orderData, element) {
       resetOrderForm();
     }
   } catch (error) {
-    let errorMessage = `Create payment failed with status: ${payment.status}`;
-    if (payment.errors) {
-      errorMessage += ` and errors: ${JSON.stringify(
-        payment.errors,
-      )}`;
-    }
-
+    let errorMessage = `Create payment failed.`;
     throw new Error(errorMessage);
   }
 }
@@ -151,6 +145,27 @@ export async function getCardPaymentForm(element, orderData) {
   await loadScript(paymentsSdkUrl);
 
   const payments = window.Square.payments(orderData.applicationId, orderData.order.location_id);
+  const form = buildForm(fields, handleSubmit, element);
+
+  const creditCardForm = document.createElement('div');
+  creditCardForm.className = 'payments card-payment-form';
+  creditCardForm.id = 'card';
+
+  const giftCardForm = document.createElement('div');
+  giftCardForm.className = 'payments gift-card-payment-form';
+  giftCardForm.id = 'gift-card';
+  giftCardForm.style.display = 'none';
+
+  form.append(creditCardForm);
+  form.append(giftCardForm);
+  
+  element.append(form);
+
+  const card = await payments.card();
+  await card.attach('#card');
+
+  const giftCard = await payments.giftCard();
+  await giftCard.attach('#gift-card');
 
   async function handleSubmit(formData) {
     const errorMessage = element.querySelector('.payment-failure');
@@ -201,25 +216,4 @@ export async function getCardPaymentForm(element, orderData) {
       }
     }
   }
-
-  const form = buildForm(fields, handleSubmit, element);
-
-  const creditCardForm = document.createElement('div');
-  creditCardForm.className = 'payments card-payment-form';
-  creditCardForm.id = 'card';
-
-  const giftCardForm = document.createElement('div');
-  giftCardForm.className = 'payments gift-card-payment-form';
-  giftCardForm.id = 'gift-card';
-  giftCardForm.style.display = 'none';
-
-  form.append(creditCardForm);
-  form.append(giftCardForm);
-  element.append(form);
-
-  const card = await payments.card();
-  await card.attach('#card');
-
-  const giftCard = await payments.giftCard();
-  await giftCard.attach('#gift-card');
 }
