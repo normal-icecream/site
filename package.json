@@ -5,6 +5,7 @@
   "description": "Test environment for Normal Ice Cream",
   "scripts": {
     "lint:js": "eslint  . --fix",
+    "start": "concurrently \"aem up\" \"npx wrangler dev --remote\"",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css"
   },
@@ -19,11 +20,12 @@
   "homepage": "https://main--site--normal-icecream.hlx.live/",
   "devDependencies": {
     "@babel/eslint-parser": "7.24.7",
+    "concurrently": "^9.1.2",
     "eslint": "8.57.0",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-plugin-import": "2.29.1",
     "stylelint": "16.6.1",
     "stylelint-config-standard": "36.0.0",
-    "wrangler": "^3.101.0"
+    "wrangler": "^3.107.3"
   }
 }
