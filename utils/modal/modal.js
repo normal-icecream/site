@@ -19,22 +19,6 @@ export function refreshPaymentsContent(element, orderData) {
 }
 
 // Function to refresh the cart content
-export function refreshCustomizeContent(element) {
-  const customizeWrapper = element.querySelector('.customize');
-  if (customizeWrapper) customizeWrapper.remove();
-
-  const form = element.querySelector('.form');
-  if (form) form.remove();
-
-  const customizeForm = element.querySelector('.customize-form');
-  if (customizeForm) customizeForm.remove();
-
-  const customizeContent = getCustomize(element);
-
-  element.append(customizeContent);
-}
-
-// Function to refresh the cart content
 export function refreshCartContent(element) {
   const cartContent = element.querySelector('.card-wrapper');
   if (cartContent) cartContent.remove();
@@ -61,13 +45,14 @@ export function refreshCartContent(element) {
 }
 
 // Function to toggle the modal
-export function toggleModal(element, data = null) {
+export function toggleModal(element, refresh, data = null) {
+  console.log("refresh:", refresh);
   const isExpanded = element.getAttribute('aria-expanded') === 'true';
 
   if (!isExpanded) {
     // If it's a cart modal and is being opened, refresh its content
     if (element.classList.contains('cart')) refreshCartContent(element);
-    if (element.classList.contains('customize')) refreshCustomizeContent(element);
+    if (element.classList.contains('customize')) refresh(element);
     if (element.classList.contains('payments')) refreshPaymentsContent(element, data);
   }
 

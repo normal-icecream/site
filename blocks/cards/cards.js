@@ -1,6 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { addItemToCart, removeItemFromCart, getCartItemQuantity } from '../../pages/cart/cart.js';
 import { createModal, toggleModal } from '../../utils/modal/modal.js';
+import { refreshCustomizeContent } from '../../utils/customize/customize.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -231,11 +232,7 @@ export default function decorate(block) {
       // TODO: write more dynamic button label
       button.setAttribute('aria-label', 'customize item');
       button.textContent = 'customize';
-      button.addEventListener('click', () => {
-        // TODO: open customize menu
-        // const modalBlock = document.querySelector('.modal.customize');
-        toggleModal(modal);
-      });
+      button.addEventListener('click', () => toggleModal(modal, refreshCustomizeContent));
       li.append(button);
     }
 

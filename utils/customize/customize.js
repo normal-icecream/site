@@ -4,6 +4,21 @@ import { toggleModal } from '../modal/modal.js';
 import { SquareModifier, SquareVariation } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
 
+// Function to refresh the cart content
+export function refreshCustomizeContent(element) {
+  const customizeWrapper = element.querySelector('.customize');
+  if (customizeWrapper) customizeWrapper.remove();
+
+  const form = element.querySelector('.form');
+  if (form) form.remove();
+
+  const customizeForm = element.querySelector('.customize-form');
+  if (customizeForm) customizeForm.remove();
+
+  const customizeContent = getCustomize(element);
+  element.append(customizeContent);
+}
+
 export function formatMoney(num) {
   return Number(num / 100).toFixed(2);
 }
@@ -240,8 +255,8 @@ function createCustomizeForm(data, itemId, limits) {
       addItemToCart(itemId, selectedItems);
 
       resetCustomizeForm();
-      const cartModal = document.querySelector('.modal.customize');
-      toggleModal(cartModal);
+      const customizeModal = document.querySelector('.modal.customize');
+      toggleModal(customizeModal, refreshCustomizeContent);
     }
   });
 
