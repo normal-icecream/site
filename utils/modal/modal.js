@@ -8,7 +8,6 @@ function createModalTitle(title) {
 
 // Function to toggle the modal
 export function toggleModal(element, refresh, data = null) {
-  console.log("refresh:", refresh);
   const isExpanded = element.getAttribute('aria-expanded') === 'true';
 
   if (!isExpanded) refresh(element, data);

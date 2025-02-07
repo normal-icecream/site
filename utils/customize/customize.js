@@ -253,7 +253,6 @@ function createCustomizeForm(data, itemId, limits) {
         });
       });
       addItemToCart(itemId, selectedItems);
-
       resetCustomizeForm();
       const customizeModal = document.querySelector('.modal.customize');
       toggleModal(customizeModal, refreshCustomizeContent);
