@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // List of URLs that are allowed to make requests to Square based on environment
 // TODO - add .club as an allowed origin
 const ALLOWED_ORIGINS = [
@@ -42,11 +43,11 @@ const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
 const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
 
 async function fetchAllPages(baseUrl, apiKey) {
-  let collectedItems = [];
+  const collectedItems = [];
   let nextCursor = null;
   let currentUrl = baseUrl;
 
-  while (true) {
+  while (nextCursor) {
     try {
       // Fetch data
       const response = await fetch(currentUrl, {
@@ -73,7 +74,7 @@ async function fetchAllPages(baseUrl, apiKey) {
       urlObj.searchParams.set('cursor', nextCursor);
       currentUrl = urlObj.toString();
     } catch (error) {
-      console.error("Error fetching paginated data:", error);
+      console.error('Error fetching paginated data:', error);
       break; // Stop looping if an error occurs
     }
   }
@@ -181,7 +182,8 @@ export default {
       } else {
         const locationParam = url.searchParams.get('location');
         if (locationParam) {
-          locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+          const location = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+          locationKey = location.id;
 
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
