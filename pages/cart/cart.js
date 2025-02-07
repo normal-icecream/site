@@ -1,4 +1,5 @@
-// import { refreshCartContent } from '../../utils/modal/modal.js';
+/* eslint-disable import/no-cycle */
+
 import { formatCurrency } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';

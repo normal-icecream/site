@@ -1,3 +1,5 @@
+/* eslint-disable import/no-cycle */
+
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';

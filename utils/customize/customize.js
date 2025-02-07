@@ -1,3 +1,5 @@
+/* eslint-disable import/no-cycle */
+
 import { addItemToCart } from '../../pages/cart/cart.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
@@ -109,6 +111,7 @@ export function refreshCustomizeContent(element) {
   const customizeForm = element.querySelector('.customize-form');
   if (customizeForm) customizeForm.remove();
 
+  // eslint-disable-next-line no-use-before-define
   const customizeContent = getCustomize(element);
   element.append(customizeContent);
 }
