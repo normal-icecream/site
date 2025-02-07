@@ -75,6 +75,21 @@ export async function addItemToCart(id, modifiers = []) {
   localStorage.setItem('carts', JSON.stringify(carts));
 }
 
+export function removeItemFromCart(id) {
+  const carts = JSON.parse(localStorage.getItem('carts'));
+  const cartKey = getLastCartKey();
+  const cart = carts[cartKey];
+  const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
+
+  if (cartItem.quantity > 1) {
+    cartItem.quantity -= 1;
+  } else {
+    const cartIndex = cart.line_items.findIndex((item) => item.catalog_object_id === id);
+    cart.line_items.splice(cartIndex, 1);
+  }
+  localStorage.setItem('carts', JSON.stringify(carts));
+}
+
 function getCartCard(cartItems) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
@@ -147,21 +162,6 @@ function getCartCard(cartItems) {
   cartCardWrapper.append(grandTotal);
 
   return cartCardWrapper;
-}
-
-export function removeItemFromCart(id) {
-  const carts = JSON.parse(localStorage.getItem('carts'));
-  const cartKey = getLastCartKey();
-  const cart = carts[cartKey];
-  const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
-
-  if (cartItem.quantity > 1) {
-    cartItem.quantity -= 1;
-  } else {
-    const cartIndex = cart.line_items.findIndex((item) => item.catalog_object_id === id);
-    cart.line_items.splice(cartIndex, 1);
-  }
-  localStorage.setItem('carts', JSON.stringify(carts));
 }
 
 export function getCartItemQuantity(prodId) {
