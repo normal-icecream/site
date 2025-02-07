@@ -9,11 +9,12 @@ class SquareBasePriceMoney {
     this.amount = Math.round(Number(data.amount));
     this.currency = data.currency;
   }
+
   build() {
     return {
       amount: this.amount,
-      currency: this.currency
-    }
+      currency: this.currency,
+    };
   }
 }
 export class SquareVariation {
@@ -24,7 +25,7 @@ export class SquareVariation {
   build() {
     return {
       catalog_object_id: this.catalog_object_id,
-    }
+    };
   }
 }
 
@@ -42,7 +43,7 @@ export class SquareModifier {
       catalog_object_id: this.catalog_object_id,
       name: this.name,
       quantity: this.quantity,
-    }
+    };
   }
 }
 
@@ -50,7 +51,7 @@ class SquareDiscountAmountData {
   constructor(data) {
     this.name = data.discount_data.name;
     this.amount_money = new SquareBasePriceMoney(data.discount_data.amount_money).build();
-    this.scope = 'ORDER'
+    this.scope = 'ORDER';
     this.type = data.discount_data.discount_type;
   }
 
@@ -60,14 +61,14 @@ class SquareDiscountAmountData {
       amount_money: this.amount_money,
       scope: this.scope,
       type: this.type,
-    }
+    };
   }
 }
 class SquareDiscountPercentageData {
   constructor(data) {
     this.name = data.discount_data.name;
     this.percentage = data.discount_data.percentage;
-    this.scope = 'ORDER'
+    this.scope = 'ORDER';
     this.type = data.discount_data.discount_type;
   }
 
@@ -77,7 +78,7 @@ class SquareDiscountPercentageData {
       percentage: this.percentage,
       scope: this.scope,
       type: this.type,
-    }
+    };
   }
 }
 
@@ -85,7 +86,7 @@ class SquareTaxData {
   constructor(data) {
     this.name = data.tax_data.name;
     this.percentage = data.tax_data.percentage;
-    this.scope = 'ORDER'
+    this.scope = 'ORDER';
     this.type = data.tax_data.inclusion_type;
   }
 
@@ -95,7 +96,7 @@ class SquareTaxData {
       percentage: this.percentage,
       scope: this.scope,
       type: this.type,
-    }
+    };
   }
 }
 
@@ -115,23 +116,23 @@ export class SquareOrderLineItem {
       base_price_money: this.base_price_money,
       name: this.name,
       item_type: this.item_type,
-    }
+    };
   }
 }
 
 class SquareOrderData {
   constructor(orderData, taxData) {
-      this.line_items = orderData.line_items;
-      this.state = orderData.state || 'OPEN';
-      this.taxes = [new SquareTaxData(taxData).build()];
+    this.line_items = orderData.line_items;
+    this.state = orderData.state || 'OPEN';
+    this.taxes = [new SquareTaxData(taxData).build()];
   }
 
   build() {
-      return {
-          line_items: this.line_items,
-          state: this.state,
-          taxes: this.taxes,
-      };
+    return {
+      line_items: this.line_items,
+      state: this.state,
+      taxes: this.taxes,
+    };
   }
 }
 class SquareOrderWrapper {
@@ -142,7 +143,7 @@ class SquareOrderWrapper {
   build() {
     return {
       order: this.order,
-    }
+    };
   }
 }
 
@@ -265,9 +266,9 @@ export function resetOrderForm() {
     orderData.discountCode = '';
     orderData.getItShipped = false;
   }
-  
-  console.log("orderData:", orderData);
-  localStorage.setItem(`orderFormData`, JSON.stringify(orderData));
+
+  console.log('orderData:', orderData);
+  localStorage.setItem('orderFormData', JSON.stringify(orderData));
 }
 
 export function orderForm(cartData) {
@@ -294,23 +295,23 @@ export function orderForm(cartData) {
   const populateFields = (fields) => {
     const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
     const cartKey = getLastCartKey();
-    
+
     const fieldsToDisplay = [];
-    
+
     const visibleFields = [];
     alwaysVisibleFields.forEach((field) => {
       const visibleField = fields.find((f) => f.name === field);
       if (visibleField) visibleFields.push(visibleField);
     });
-    visibleFields.forEach((field) => fieldsToDisplay.push(field))
-    
+    visibleFields.forEach((field) => fieldsToDisplay.push(field));
+
     const storeFields = [];
     const shippingFields = [];
     addressFields.forEach((field) => {
       const shippingField = fields.find((f) => f.name === field);
       if (shippingField) shippingFields.push(shippingField);
     });
-    
+
     if (cartKey === 'store') {
       pickupFields.forEach((field) => {
         const pickupField = fields.find((f) => f.name === field);
@@ -323,7 +324,7 @@ export function orderForm(cartData) {
       const shouldShipField = fields.find((f) => f.name === 'getItShipped');
       fieldsToDisplay.push(shouldShipField);
 
-      const shouldShip = JSON.parse(localStorage.getItem('orderFormData'))['getItShipped'];
+      const shouldShip = JSON.parse(localStorage.getItem('orderFormData')).getItShipped;
 
       if (shouldShip) {
         pickupFields.forEach((field) => {
@@ -340,7 +341,7 @@ export function orderForm(cartData) {
           const pickupField = fields.find((f) => f.name === field);
           if (pickupField) fieldsToDisplay.push(pickupField);
         });
-        
+
         shippingFields.forEach((field) => {
           const shippingFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
           //  remove items then refresh cart
@@ -350,7 +351,7 @@ export function orderForm(cartData) {
         });
       }
     }
-    
+
     return fieldsToDisplay.map((field) => {
       const value = orderFormData[field.name] || '';
       return {
@@ -364,51 +365,51 @@ export function orderForm(cartData) {
             orderFormData[field.name] = event.target.value;
           }
           localStorage.setItem('orderFormData', JSON.stringify(orderFormData));
-        }
-      }
-    })
-  }
-  
+        },
+      };
+    });
+  };
+
   async function createSquareOrder() {
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
     const currentOrderFormData = JSON.parse(localStorage.getItem('orderFormData'));
-    
-    if (currentOrderFormData.discountCode && currentOrderFormData.discountCode.trim() !== "") {
+
+    if (currentOrderFormData.discountCode && currentOrderFormData.discountCode.trim() !== '') {
       const discounts = [];
       const discountData = window.catalog.discounts[currentOrderFormData.discountCode].id;
       const discount = window.catalog.byId[discountData];
 
       if (discount) {
-        if(discount.discount_data.percentage) {
+        if (discount.discount_data.percentage) {
           discounts.push(new SquareDiscountPercentageData(discount).build());
-        } 
+        }
         if (discount.discount_data.amount_money) {
-          discounts.push(new SquareDiscountAmountData(discount).build())
+          discounts.push(new SquareDiscountAmountData(discount).build());
         }
         orderData.discounts = discounts;
       }
     }
 
     const note = [];
-    if (currentOrderFormData.pickupdate && currentOrderFormData.pickupdate?.trim() !== "") {
+    if (currentOrderFormData.pickupdate && currentOrderFormData.pickupdate?.trim() !== '') {
       note.push(`Pickup Date: ${currentOrderFormData.pickupdate}`);
     }
-    if (currentOrderFormData.pickuptime && currentOrderFormData.pickuptime?.trim() !== "") {
+    if (currentOrderFormData.pickuptime && currentOrderFormData.pickuptime?.trim() !== '') {
       note.push(`Pickup Time: ${currentOrderFormData.pickuptime}`);
     }
-    
+
     cartData.line_items.forEach((item) => {
       item.quantity = String(item.quantity);
-      
+
       if (item.modifiers && item.modifiers.length > 0) {
         item.modifiers.forEach((modifier) => {
           note.push(`${modifier.name}: ${modifier.quantity}`);
           delete modifier.quantity;
-        })
+        });
       }
     });
-    orderData.note = note.length > 0 ? note.join(" | ") : "";
-    
+    orderData.note = note.length > 0 ? note.join(' | ') : '';
+
     if (env === 'sandbox') {
       cartData.line_items.forEach((item) => {
         delete item.catalog_object_id;
@@ -416,23 +417,23 @@ export function orderForm(cartData) {
         if (item.modifiers && item.modifiers.length > 0) {
           item.modifiers.forEach((modifier) => {
             delete modifier.catalog_object_id;
-          })
+          });
         }
       });
     }
 
-    const orderWrapper = new SquareOrderWrapper(orderData).build(); 
+    const orderWrapper = new SquareOrderWrapper(orderData).build();
     const cartLocation = getCartLocation();
 
     // TODO - make sure that this location qp is sending/switching properly in prod env's
-    const newOrder = env === 'sandbox' 
-    ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox') 
-    : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
-    
+    const newOrder = env === 'sandbox'
+      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
+      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');
       toggleModal(cartModal);
-      
+
       const paymentsModal = document.querySelector('.modal.payments');
       toggleModal(paymentsModal, newOrder);
     } else {
@@ -440,9 +441,9 @@ export function orderForm(cartData) {
       console.log('error with creating an order');
     }
   }
-  
+
   const populatedFields = populateFields(fields);
-  const form = buildForm(populatedFields, createSquareOrder, modal)
+  const form = buildForm(populatedFields, createSquareOrder, modal);
   form.className = 'form cart-order-form';
   return form;
 }

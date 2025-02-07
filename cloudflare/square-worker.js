@@ -9,34 +9,34 @@ const ALLOWED_ORIGINS = [
 const SANDBOX_URLS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
-]
+];
 
 const LOCATIONS = [
   {
-      "id": "KNEG5DW42BE2E",
-      "name": "CATERING"
+    id: 'KNEG5DW42BE2E',
+    name: 'CATERING',
   },
   {
-      "id": "WPBKJEG0HRQ9F",
-      "name": "SHIPPING"
+    id: 'WPBKJEG0HRQ9F',
+    name: 'SHIPPING',
   },
   {
-      "id": "6EXJXZ644ND0E",
-      "name": "STORE"
+    id: '6EXJXZ644ND0E',
+    name: 'STORE',
   },
   {
-      "id": "3HQZPV73H8BHM",
-      "name": "TRUCK"
+    id: '3HQZPV73H8BHM',
+    name: 'TRUCK',
   },
   {
-      "id": "Y689GQNGQJYWP",
-      "name": "WHOLESALE"
+    id: 'Y689GQNGQJYWP',
+    name: 'WHOLESALE',
   },
   {
-    "id": "RXJXAWG01MBF5",
-    "name": "SANDBOX",
-  }
-]
+    id: 'RXJXAWG01MBF5',
+    name: 'SANDBOX',
+  },
+];
 
 const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
 const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
@@ -50,8 +50,8 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     const jsonResponse = await response.json();
@@ -77,15 +77,15 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
 
 async function refreshCatalog(env, apiKey) {
   try {
-    const latestCatalog = await fetchAllPages("https://connect.squareup.com/v2/catalog/list", apiKey);
+    const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
 
     if (latestCatalog) {
-      await env.CATALOG_JSON.put("catalog", JSON.stringify(latestCatalog));
+      await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
     } else {
-      console.warn("Failed to fetch new catalog data.");
+      console.warn('Failed to fetch new catalog data.');
     }
   } catch (error) {
-    console.error("Error refreshing catalog:", error);
+    console.error('Error refreshing catalog:', error);
   }
 }
 
@@ -94,9 +94,9 @@ async function fetchCatalog(env, apiKey) {
 
   try {
     // Fetch catalog from KV store
-    catalogData = await env.CATALOG_JSON.get("catalog", { type: "json" });
+    catalogData = await env.CATALOG_JSON.get('catalog', { type: 'json' });
   } catch (kvError) {
-    console.error("Error fetching from KV Store:", kvError);
+    console.error('Error fetching from KV Store:', kvError);
   }
 
   // If catalogData exists, return it as a JSON string immediately
@@ -106,15 +106,15 @@ async function fetchCatalog(env, apiKey) {
   }
 
   // If no cached data, fetch new data from Square before responding
-  const newCatalogData = await fetchAllPages("https://connect.squareup.com/v2/catalog/list", apiKey);
+  const newCatalogData = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
 
   if (newCatalogData) {
-    await env.CATALOG_JSON.put("catalog", JSON.stringify(newCatalogData));
+    await env.CATALOG_JSON.put('catalog', JSON.stringify(newCatalogData));
     return JSON.stringify(newCatalogData);
   }
 
   // Return an empty JSON response if everything fails
-  return JSON.stringify({ error: "Failed to fetch catalog data" });
+  return JSON.stringify({ error: 'Failed to fetch catalog data' });
 }
 
 export default {
@@ -139,7 +139,7 @@ export default {
         headers: { 'Content-Type': 'text/plain' },
       });
     }
-    
+
     if (request.method === 'OPTIONS') {
       // Handle CORS preflight requests by responding with appropriate headers
       return new Response(null, {
@@ -159,20 +159,19 @@ export default {
       try {
         requestBody = JSON.parse(bodyText); // Parse bodyText into an object
       } catch (error) {
-        return new Response("Invalid JSON in request body", { status: 400 });
+        return new Response('Invalid JSON in request body', { status: 400 });
       }
-    }  // Select correct square path to hit based on useProduction flag
+    } // Select correct square path to hit based on useProduction flag
 
     const isOrderRequest = url.pathname.includes('orders');
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
     let locationKey;
     if (isOrderRequest && request.method === 'POST') {
-      if(isSandboxUrl) {
+      if (isSandboxUrl) {
         const locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
         const body = JSON.parse(requestBody);
         body.order.location_id = locationKey;
         requestBody = JSON.stringify(body);
-
       } else {
         const locationParam = url.searchParams.get('location');
         if (locationParam) {
@@ -181,8 +180,7 @@ export default {
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
           requestBody = JSON.stringify(body);
-        } 
-        else {
+        } else {
           return new Response('Bad Request: Location query param is missing', {
             status: 400,
             headers: { 'Content-Type': 'text/plain' },
@@ -192,8 +190,8 @@ export default {
       }
     }
 
-    const forceSandbox = url.searchParams.get("env") === "sandbox";
-    const useProduction = forceSandbox ? false : true;
+    const forceSandbox = url.searchParams.get('env') === 'sandbox';
+    const useProduction = !forceSandbox;
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
@@ -209,7 +207,7 @@ export default {
     const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
 
     // Idempotency Key
-    const idempotencyKeyHeader = request.headers.get("Idempotency-Key");
+    const idempotencyKeyHeader = request.headers.get('Idempotency-Key');
     const idempotencyKey = idempotencyKeyHeader || crypto.randomUUID();
     // Add the idempotency key header for POST or PUT requests
     if (request.method === 'POST' || request.method === 'PUT') {
@@ -221,7 +219,7 @@ export default {
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
       const objects = await fetchCatalog(env, apiKey);
-      return new Response(JSON.stringify({objects}), {
+      return new Response(JSON.stringify({ objects }), {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
@@ -233,7 +231,7 @@ export default {
     // If it's a GET request for listing Square catalog items
     if (request.method === 'GET' && url.pathname.includes('catalog/list')) {
       const objects = await fetchAllPages(fullSquareUrl, apiKey);
-      return new Response(JSON.stringify({objects}), {
+      return new Response(JSON.stringify({ objects }), {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
@@ -248,21 +246,21 @@ export default {
       headers: {
         // Attach the appropriate API key for authentication
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
       },
-      body: request.method !== "GET" && request.method !== "HEAD" ? requestBody : null
+      body: request.method !== 'GET' && request.method !== 'HEAD' ? requestBody : null,
     });
 
     // Send the modified request to the Square API
     const response = await fetch(modifiedRequest);
-    
+
     // Store response in KV for idempotency
     if (request.method === 'POST' || request.method === 'PUT') {
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const clonedResponse = response.clone();
       const responseBody = await clonedResponse.json();
       const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
-      
+
       await env.IDEMPOTENCY_STORE.put(
         cacheKey,
         JSON.stringify({
@@ -270,7 +268,7 @@ export default {
           body: responseBody,
           headers: responseHeaders,
         }),
-        { expirationTtl: 3600 } // 1 hour expiration
+        { expirationTtl: 3600 }, // 1 hour expiration
       );
     }
 
@@ -292,9 +290,9 @@ export default {
         idempotency_key: idempotencyKey, // Include the idempotency key,
         ...additionalFields,
       }),
-      response
+      response,
     );
-    
+
     Object.entries(corsHeaders).forEach(([key, value]) => {
       modifiedResponse.headers.set(key, value);
     });

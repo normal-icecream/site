@@ -118,8 +118,8 @@ export default function decorate(block) {
 
     const squareButton = body.querySelector('.button-wrapper');
     const squareLink = squareButton.querySelector('a')
-    ?.getAttribute('href')
-    .split('/');
+      ?.getAttribute('href')
+      .split('/');
     const squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
     squareButton.remove();
 
@@ -192,7 +192,7 @@ export default function decorate(block) {
         // TODO: disable "add" if max
       });
       cart.append(total);
-      
+
       // build action buttons
       const actions = ['subtract', 'add'];
       actions.forEach((action) => {
@@ -206,7 +206,7 @@ export default function decorate(block) {
         button.append(symbol);
 
         if (action === 'subtract') {
-          button.disabled = getCartItemQuantity(squareProductId) > 0 ? false : true;
+          button.disabled = !(getCartItemQuantity(squareProductId) > 0);
           cart.prepend(button);
           // Fetch catalog item by Id to display in new modal variations and mods to choose from.
           button.addEventListener('click', () => decrement(total, squareProductId));

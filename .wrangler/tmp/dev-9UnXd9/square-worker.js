@@ -18,28 +18,28 @@ var SANDBOX_URLS = [
 ];
 var LOCATIONS = [
   {
-    "id": "KNEG5DW42BE2E",
-    "name": "CATERING"
+    id: "KNEG5DW42BE2E",
+    name: "CATERING"
   },
   {
-    "id": "WPBKJEG0HRQ9F",
-    "name": "SHIPPING"
+    id: "WPBKJEG0HRQ9F",
+    name: "SHIPPING"
   },
   {
-    "id": "6EXJXZ644ND0E",
-    "name": "STORE"
+    id: "6EXJXZ644ND0E",
+    name: "STORE"
   },
   {
-    "id": "3HQZPV73H8BHM",
-    "name": "TRUCK"
+    id: "3HQZPV73H8BHM",
+    name: "TRUCK"
   },
   {
-    "id": "Y689GQNGQJYWP",
-    "name": "WHOLESALE"
+    id: "Y689GQNGQJYWP",
+    name: "WHOLESALE"
   },
   {
-    "id": "RXJXAWG01MBF5",
-    "name": "SANDBOX"
+    id: "RXJXAWG01MBF5",
+    name: "SANDBOX"
   }
 ];
 var PROD_APPLICATION_ID = "sq0idp-7jw3abEgrV94NrJOaRXFTw";
@@ -164,7 +164,7 @@ var square_worker_default = {
       }
     }
     const forceSandbox = url.searchParams.get("env") === "sandbox";
-    const useProduction = forceSandbox ? false : true;
+    const useProduction = !forceSandbox;
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
     const baseUrl = useProduction ? "https://connect.squareup.com" : "https://connect.squareupsandbox.com";
     const squareUrl = `${baseUrl}${url.pathname.replace("/api/square", "")}`;

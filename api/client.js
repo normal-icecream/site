@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { environmentConfig } from "./environmentConfig.js";
+import { environmentConfig } from './environmentConfig.js';
 
 // Define the base URL for API requests depending on the environment
 // If running on localhost, use the local development server;

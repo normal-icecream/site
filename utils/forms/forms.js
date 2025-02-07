@@ -173,10 +173,10 @@ function validateInput(input) {
     }
 
     if (rule === 'discount' && input.value && input.value.trim() !== '') {
-        const discount = window.catalog.discounts[input.value];
-        if (!discount) {
-          errorMessages.push('invalid discount code.');
-        }
+      const discount = window.catalog.discounts[input.value];
+      if (!discount) {
+        errorMessages.push('invalid discount code.');
+      }
     }
 
     // Rule: US phone number validation
@@ -672,46 +672,46 @@ export default function buildForm(fields, handleSubmit, scopedElement) {
     if (isValid) {
       const data = []; // Initialize an object to store form data
       const formFields = Array.from(scopedElement.querySelectorAll('input, select, textarea'));
-      
+
       // Filter out unchecked radio inputs
-      const filteredFormFields = formFields.filter(field => {
-          if (field.type === 'radio') {
-            return field.checked; // Keep only checked radios
-          }
-          return true; // Keep all other field types
+      const filteredFormFields = formFields.filter((field) => {
+        if (field.type === 'radio') {
+          return field.checked; // Keep only checked radios
+        }
+        return true; // Keep all other field types
       });
 
       filteredFormFields.forEach((field) => {
         if (field.type === 'radio') {
           const radioData = {
             field: field.name,
-            value: field.value
-          }
+            value: field.value,
+          };
 
           if (field.id) radioData.id = field.id;
           data.push(radioData);
         } else if (field.type === 'checkbox') {
-            const existingEntry = data.find(entry => entry.name === field.name);
+          const existingEntry = data.find((entry) => entry.name === field.name);
 
-            if (!existingEntry) {
-                data.push({
-                  field: field.name,
-                  value: field.checked ? (field.value !== 'on' ? field.value : true) : false
-                });
-            } else if (field.checked) {
-                // Convert to array if there are multiple checkboxes with the same name
-                if (!Array.isArray(existingEntry.value)) {
-                    existingEntry.value = [existingEntry.value];
-                }
-                existingEntry.value.push(field.value);
-            }
-        } else {
+          if (!existingEntry) {
             data.push({
               field: field.name,
-              value: field.value
+              value: field.checked ? (field.value !== 'on' ? field.value : true) : false,
             });
+          } else if (field.checked) {
+            // Convert to array if there are multiple checkboxes with the same name
+            if (!Array.isArray(existingEntry.value)) {
+              existingEntry.value = [existingEntry.value];
+            }
+            existingEntry.value.push(field.value);
+          }
+        } else {
+          data.push({
+            field: field.name,
+            value: field.value,
+          });
         }
-      })
+      });
 
       // Pass the collected form data to the provided handleSubmit callback
       handleSubmit(data);

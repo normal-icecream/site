@@ -2,11 +2,11 @@ export const environmentConfig = {
   useSandbox: false, // Default to production mode
   useProduction: false,
 };
-  
+
 export function enableSandbox() {
   environmentConfig.useSandbox = true;
 }
-  
+
 export function disableSandbox() {
   environmentConfig.useSandbox = false;
 }
@@ -14,11 +14,11 @@ export function disableSandbox() {
 export function enableProduction() {
   environmentConfig.useProduction = true;
 }
-  
+
 export function disableProduction() {
   environmentConfig.useProduction = false;
 }
-  
+
 export async function hitSandbox(fn, ...args) {
   enableSandbox(); // Enable sandbox mode
   try {
@@ -42,7 +42,7 @@ export async function hitProduction(fn, ...args) {
  * @returns {string} - Returns 'sandbox' if the URL is localhost or ends with .page, otherwise 'production'.
  */
 export function getEnvironment() {
-  const hostname = window.location.hostname;
+  const { hostname } = window.location;
 
   if (hostname === 'localhost' || hostname.endsWith('.page')) {
     return 'sandbox';

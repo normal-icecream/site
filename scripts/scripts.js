@@ -12,8 +12,7 @@ import {
   sampleRUM,
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
-import { getCatalogListJson } from '../api/square/catalog.js';
-import { getCatalogTaxList } from '../api/square/catalog.js';
+import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -173,7 +172,6 @@ async function loadLazy(doc) {
   loadFonts();
   swapIcons(main);
 }
-
 
 export async function fetchCatalog() {
   if (!window.catalog) {
