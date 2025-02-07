@@ -170,8 +170,8 @@ export default {
       } else {
         const locationParam = url.searchParams.get('location');
         if (locationParam) {
-          locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
-
+          locationKey = LOCATIONS.find((location) => 
+            location.name === locationParam.toUpperCase()).id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
           requestBody = JSON.stringify(body);
