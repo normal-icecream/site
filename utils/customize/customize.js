@@ -98,6 +98,21 @@ function resetCustomizeForm() {
   });
 }
 
+// Function to refresh the cart content
+export function refreshCustomizeContent(element) {
+  const customizeWrapper = element.querySelector('.customize');
+  if (customizeWrapper) customizeWrapper.remove();
+
+  const form = element.querySelector('.form');
+  if (form) form.remove();
+
+  const customizeForm = element.querySelector('.customize-form');
+  if (customizeForm) customizeForm.remove();
+
+  const customizeContent = getCustomize(element);
+  element.append(customizeContent);
+}
+
 function createCustomizeForm(data, itemId, limits) {
   // Create the form element
   const form = document.createElement('form');
@@ -320,20 +335,4 @@ export function getCustomize(element) {
     form = buildForm([field], handleSubmit, element);
   }
   return form;
-}
-
-// Function to refresh the cart content
-// eslint-disable-next-line no-use-before-define
-export function refreshCustomizeContent(element) {
-  const customizeWrapper = element.querySelector('.customize');
-  if (customizeWrapper) customizeWrapper.remove();
-
-  const form = element.querySelector('.form');
-  if (form) form.remove();
-
-  const customizeForm = element.querySelector('.customize-form');
-  if (customizeForm) customizeForm.remove();
-
-  const customizeContent = getCustomize(element);
-  element.append(customizeContent);
 }
