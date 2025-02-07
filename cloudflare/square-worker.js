@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 // List of URLs that are allowed to make requests to Square based on environment
 // TODO - add .club as an allowed origin
 const ALLOWED_ORIGINS = [
@@ -46,6 +48,7 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   let currentUrl = baseUrl; // Start with the base URL
 
   do {
+    // eslint-disable-next-line no-await-in-loop
     const response = await fetch(currentUrl, {
       method: 'GET',
       headers: {
@@ -53,10 +56,9 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
         'Content-Type': 'application/json',
       },
     });
-    console.log('response:', response);
 
+    // eslint-disable-next-line no-await-in-loop
     const jsonResponse = await response.json();
-    console.log('jsonResponse:', jsonResponse);
     if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
 
     nextCursor = jsonResponse.cursor;
@@ -161,7 +163,7 @@ export default {
     let locationKey;
     if (isOrderRequest && request.method === 'POST') {
       if (isSandboxUrl) {
-        const locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
+        locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
         const body = JSON.parse(requestBody);
         body.order.location_id = locationKey;
         requestBody = JSON.stringify(body);
