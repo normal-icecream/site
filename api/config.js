@@ -14,21 +14,18 @@ const API_BASE_URLS = {
 export const API_ENDPOINTS = {
   SQUARE: {
     CATALOG: {
-      /**
-       * Constructs the URL for fetching a specific catalog object by its ID.
-       * @param {string} objectId - The ID of the square catalog object to fetch.
-       * @returns {string} - The URL for the square catalog object API.
-      */
-      item: (objectId) => `${API_BASE_URLS.SQUARE}/v2/catalog/object/${objectId}?include_related_objects=true`, // GET
-      /** URL for fetching the list of square catalog objects. */
-      list: `${API_BASE_URLS.SQUARE}/v2/catalog/list`, // GET
+      catalog: `${API_BASE_URLS.SQUARE}/catalog.json`, // GET
+      taxes: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=TAX`, // GE
     },
-    // ORDERS: {
-    // Add endpoint URL here
-    // },
-    // PAYMENTS: {
-    // Add endpoint URL here
-    // },
+    ORDER: {
+      create: (queryParams) => `${API_BASE_URLS.SQUARE}/v2/orders${queryParams}`, // POST
+    },
+    PAYMENTS: {
+      create: `${API_BASE_URLS.SQUARE}/v2/payments`, // POST
+    },
+    LOCATIONS: {
+      list: `${API_BASE_URLS.SQUARE}/v2/locations`, // POST
+    },
   },
   // ADD any other API here
 };
