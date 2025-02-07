@@ -44,6 +44,12 @@ export function refreshCustomizeContent(element) {
   const customizeWrapper = element.querySelector('.customize');
   if (customizeWrapper) customizeWrapper.remove();
 
+  const form = element.querySelector('.form');
+  if (form) form.remove();
+
+  const customizeForm = element.querySelector('.customize-form');
+  if (customizeForm) customizeForm.remove();
+
   const customizeContent = getCustomize(element);
 
   element.append(customizeContent);

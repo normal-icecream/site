@@ -2,6 +2,7 @@ import { addItemToCart } from '../../pages/cart/cart.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { SquareModifier, SquareVariation } from '../orderForm/orderForm.js';
+import { getCardPaymentForm } from '../payments/payments.js';
 
 export function formatMoney(num) {
   return Number(num / 100).toFixed(2);
@@ -169,7 +170,7 @@ function createCustomizeForm(data, itemId, limits) {
   function checkFormValidity() {
     let isFormValid = true;
 
-    const submitButton = document.querySelector('.customize-submit');
+    const customizeSubmitBtn = document.querySelector('.customize-submit');
     const existingErrorContainer = document.querySelector('.customize-submit-validation-errors');
     if (existingErrorContainer) {
       existingErrorContainer.remove();
@@ -199,7 +200,7 @@ function createCustomizeForm(data, itemId, limits) {
 
         errorContainer.append(errorMessageElement);
       });
-      submitButton.after(errorContainer);
+      customizeSubmitBtn.after(errorContainer);
     }
 
     return isFormValid;
@@ -251,6 +252,7 @@ export function getCustomize(element) {
   const { name, variations, modifier_list_info: modifiers } = data;
   // const customizeLabel = writeLabelText(name, variations[0].item_variation_data.name);
 
+  let form;
   if (modifiers) {
     const modifierGroups = [];
     const limits = getLimits(data.description);
@@ -283,8 +285,9 @@ export function getCustomize(element) {
       modifierGroups.push(field);
     });
 
-    const form = createCustomizeForm(modifierGroups, item.id, limits);
-    return form;
+    form = createCustomizeForm(modifierGroups, item.id, limits);
+    // form.className = 'customize-variations-form'
+    // return form;
   }
 
   if (variations.length > 1) {
@@ -314,7 +317,8 @@ export function getCustomize(element) {
       addItemToCart(item.id, modifiers);
     }
 
-    const form = buildForm([field], handleSubmit, element);
-    return form;
+    form = buildForm([field], handleSubmit, element);
+    // form.className = 'customize-variations-form'
   }
+  return form;
 }
