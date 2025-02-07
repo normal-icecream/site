@@ -102,6 +102,7 @@ export function refreshCartContent(element) {
   const cartOrderForm = element.querySelector('.cart-order-form');
   if (cartOrderForm) cartOrderForm.remove();
 
+  // eslint-disable-next-line no-use-before-define
   const currentCart = getCart();
   element.append(currentCart);
 

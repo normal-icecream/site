@@ -323,6 +323,7 @@ export function getCustomize(element) {
 }
 
 // Function to refresh the cart content
+// eslint-disable-next-line no-use-before-define
 export function refreshCustomizeContent(element) {
   const customizeWrapper = element.querySelector('.customize');
   if (customizeWrapper) customizeWrapper.remove();
