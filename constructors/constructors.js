@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import { formatPhoneNumberToE164 } from "../helpers/helpers.js";
 export class SquareBasePriceMoney {
   constructor(data) {
     this.amount = Math.round(Number(data.amount));
@@ -141,6 +142,66 @@ export class SquareOrderWrapper {
   build() {
     return {
       order: this.order,
+    };
+  }
+}
+
+export class SquarePaymentAddress {
+  constructor(formData) {
+    this.address_line_1 = formData.address1;
+    this.address_line_2 = formData.address2;
+    this.first_name = formData.name;
+    this.locality = formData.city; // city
+    this.administrative_district_level_1 = formData.state; // state
+    this.postal_code = formData.zipcode;
+  }
+
+  build() {
+    return {
+      address_line_1: this.address_line_1,
+      address_line_2: this.address_line_2,
+      first_name: this.first_name,
+      locality: this.locality,
+      administrative_district_level_1: this.administrative_district_level_1,
+      postal_code: this.postal_code,
+    };
+  }
+}
+
+export class SquarePayment {
+  constructor(orderData, formData, token) {
+    this.idempotency_key = orderData.idempotency_key;
+    this.source_id = token;
+    this.amount_money = orderData.order.total_money;
+    this.buyer_email_address = formData.email;
+    this.buyer_phone_number = formatPhoneNumberToE164(formData.phone);
+    this.location_id = orderData.order.location_id;
+    this.order_id = orderData.order.id;
+    this.initializeAddresses(formData);
+    // this.tip_money = {}
+  }
+
+  initializeAddresses(formData) {
+    if (formData.getItShipped) {
+      this.shipping_address = new SquarePaymentAddress(formData).build();
+      this.billing_address = new SquarePaymentAddress(formData).build();
+    } else {
+      this.shipping_address = null;
+      this.billing_address = null;
+    }
+  }
+
+  build() {
+    return {
+      idempotency_key: this.idempotency_key,
+      source_id: this.source_id,
+      amount_money: this.amount_money,
+      billing_address: this.billing_address,
+      buyer_email_address: this.buyer_email_address,
+      buyer_phone_number: this.buyer_phone_number,
+      location_id: this.location_id,
+      order_id: this.order_id,
+      shipping_address: this.shipping_address,
     };
   }
 }

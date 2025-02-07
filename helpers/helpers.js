@@ -59,3 +59,19 @@ export function formatCurrency(amountInCents) {
   // Convert cents to dollars by dividing by 100
   return formatter.format(amountInCents / 100);
 }
+
+export function formatPhoneNumberToE164(phoneNumber, countryCode = '1') {
+  // Remove all non-numeric characters
+  const digits = phoneNumber.replace(/\D/g, '');
+
+  // Ensure the phone number has at least 10 digits (US standard)
+  if (digits.length < 10) {
+    throw new Error('Invalid phone number. Must contain at least 10 digits.');
+  }
+
+  // Add the country code prefix if not already included
+  if (digits.startsWith(countryCode)) {
+    return `+${digits}`; // Already in E.164 format
+  }
+  return `+${countryCode}${digits}`;
+}
