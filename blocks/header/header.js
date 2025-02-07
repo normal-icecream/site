@@ -3,7 +3,7 @@ import { swapIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { createModal, toggleModal } from '../../utils/modal/modal.js';
 import {
-  getCart, getLastCartKey, allowedCartPages, setLastCart,
+  getCart, getLastCartKey, allowedCartPages, setLastCart, refreshCartContent,
 } from '../../pages/cart/cart.js';
 
 // media query match that indicates desktop width
@@ -148,9 +148,7 @@ export default async function decorate(block) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
-    button.addEventListener('click', () => {
-      toggleModal(modal);
-    });
+    button.addEventListener('click', () => toggleModal(modal, refreshCartContent));
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');

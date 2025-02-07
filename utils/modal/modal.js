@@ -1,8 +1,4 @@
-import { getCart, getLastCartKey, getLocalStorageCart } from '../../pages/cart/cart.js';
 import { loadCSS } from '../../scripts/aem.js';
-import { getCustomize } from '../customize/customize.js';
-import { orderForm } from '../orderForm/orderForm.js';
-import { getCardPaymentForm } from '../payments/payments.js';
 
 function createModalTitle(title) {
   const modalTitle = document.createElement('h2');
@@ -10,51 +6,12 @@ function createModalTitle(title) {
   return modalTitle;
 }
 
-// Function to refresh the cart content
-export function refreshPaymentsContent(element, orderData) {
-  const paymentForm = element.querySelector('.card-payment-form');
-  if (paymentForm) paymentForm.remove();
-
-  getCardPaymentForm(element, orderData);
-}
-
-// Function to refresh the cart content
-export function refreshCartContent(element) {
-  const cartContent = element.querySelector('.card-wrapper');
-  if (cartContent) cartContent.remove();
-
-  const emptyCartMessage = element.querySelector('.empty-cart-message');
-  if (emptyCartMessage) emptyCartMessage.remove();
-
-  const cartOrderForm = element.querySelector('.cart-order-form');
-  if (cartOrderForm) cartOrderForm.remove();
-
-  const currentCart = getCart();
-  element.append(currentCart);
-
-  // Check if currentCart contains the class `card-wrapper` (cart with items)
-  if (currentCart.classList.contains('card-wrapper')) {
-    // If cart has items, append the order form
-    const cartKey = getLastCartKey();
-    const cartLocalStorageData = getLocalStorageCart();
-    const hasShipping = !!((cartKey === 'shipping' || cartKey === 'merch'));
-
-    const form = orderForm(cartLocalStorageData, hasShipping);
-    element.append(form);
-  }
-}
-
 // Function to toggle the modal
 export function toggleModal(element, refresh, data = null) {
   console.log("refresh:", refresh);
   const isExpanded = element.getAttribute('aria-expanded') === 'true';
 
-  if (!isExpanded) {
-    // If it's a cart modal and is being opened, refresh its content
-    if (element.classList.contains('cart')) refreshCartContent(element);
-    if (element.classList.contains('customize')) refresh(element);
-    if (element.classList.contains('payments')) refreshPaymentsContent(element, data);
-  }
+  if (!isExpanded) refresh(element, data);
 
   element.setAttribute('aria-expanded', !isExpanded);
   element.style.display = isExpanded ? 'none' : 'block';

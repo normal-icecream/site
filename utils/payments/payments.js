@@ -7,6 +7,14 @@ import { resetCart } from '../../pages/cart/cart.js';
 import { resetOrderForm } from '../orderForm/orderForm.js';
 import { SquarePayment } from '../../constructors/constructors.js';
 
+// Function to refresh the cart content
+export function refreshPaymentsContent(element, orderData) {
+  const paymentForm = element.querySelector('.card-payment-form');
+  if (paymentForm) paymentForm.remove();
+
+  getCardPaymentForm(element, orderData);
+}
+
 async function createSquarePayment(token, orderData, element) {
   const env = getEnvironment();
 

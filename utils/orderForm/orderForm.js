@@ -2,13 +2,14 @@ import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
-import { getLastCartKey, getCartLocation } from '../../pages/cart/cart.js';
+import { getLastCartKey, getCartLocation, refreshCartContent } from '../../pages/cart/cart.js';
 import {
   SquareOrderWrapper,
   SquareDiscountAmountData,
   SquareDiscountPercentageData,
   SquareOrderData,
 } from '../../constructors/constructors.js';
+import { refreshPaymentsContent } from '../customize/customize.js';
 
 const alwaysVisibleFields = [
   'name',
@@ -296,10 +297,10 @@ export function orderForm(cartData) {
 
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');
-      toggleModal(cartModal);
+      toggleModal(cartModal, refreshCartContent);
 
       const paymentsModal = document.querySelector('.modal.payments');
-      toggleModal(paymentsModal, newOrder);
+      toggleModal(paymentsModal, refreshPaymentsContent, newOrder);
     } else {
       // throw user an error
       // eslint-disable-next-line no-console
