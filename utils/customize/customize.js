@@ -275,7 +275,7 @@ export function getCustomize(element) {
         const option = {
           id: m.id,
           name: mName,
-          label: mName, // TODO - do I need this field?
+          label: mName,
           price: formatMoney(m.modifier_data.price_money.amount),
           currency: m.modifier_data.price_money.currency,
         };
@@ -286,8 +286,6 @@ export function getCustomize(element) {
     });
 
     form = createCustomizeForm(modifierGroups, item.id, limits);
-    // form.className = 'customize-variations-form'
-    // return form;
   }
 
   if (variations.length > 1) {
@@ -312,13 +310,12 @@ export function getCustomize(element) {
     fields.push(field);
 
     function handleSubmit(formData) {
-      const modifiers = [];
-      formData.forEach((item) => modifiers.push(new SquareVariation({ id: item.id }).build()));
-      addItemToCart(item.id, modifiers);
+      const mods = [];
+      formData.forEach((i) => mods.push(new SquareVariation({ id: i.id }).build()));
+      addItemToCart(item.id, mods);
     }
 
     form = buildForm([field], handleSubmit, element);
-    // form.className = 'customize-variations-form'
   }
   return form;
 }
