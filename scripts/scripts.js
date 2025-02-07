@@ -218,8 +218,6 @@ export async function fetchCatalog() {
       window.catalog = catalog;
     }
   }
-  console.log("window - in loadDelay:", window.catalog);
-  return window.catalog;
 }
 
 /**

@@ -3,7 +3,6 @@ import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { getLastCartKey, getCartLocation } from '../../pages/cart/cart.js';
-// import { refreshCartContent } from '../../utils/modal/modal.js';
 
 class SquareBasePriceMoney {
   constructor(data) {
@@ -214,13 +213,6 @@ const fields = [
     // max: '17:00', // Latest allowable time
     required: true,
   },
-  // {
-  //   type: 'checkbox',
-  //   label: 'want to pay with a gift card?',
-  //   name: 'giftCard',
-  //   val: 'giftCard',
-  //   required: true,
-  // },
   {
     type: 'checkbox',
     label: 'get it shipped?',
@@ -264,6 +256,19 @@ const fields = [
   },
 ];
 
+export function resetOrderForm() {
+  const orderData = JSON.parse(localStorage.getItem('orderFormData'));
+
+  if (orderData) {
+    orderData.pickupdate = '';
+    orderData.pickuptime = '';
+    orderData.discountCode = '';
+    orderData.getItShipped = false;
+  }
+  
+  console.log("orderData:", orderData);
+  localStorage.setItem(`orderFormData`, JSON.stringify(orderData));
+}
 
 export function orderForm(cartData) {
   const env = getEnvironment();
@@ -275,8 +280,8 @@ export function orderForm(cartData) {
       phone: '',
       email: '',
       discountCode: '',
-      date: '',
-      time: '',
+      pickupdate: '',
+      pickuptime: '',
       address1: '',
       address2: '',
       city: '',
@@ -365,13 +370,9 @@ export function orderForm(cartData) {
   }
   
   async function createSquareOrder() {
-    cartData.line_items.forEach((item) => {
-      item.quantity = String(item.quantity);
-    });
-
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
-
     const currentOrderFormData = JSON.parse(localStorage.getItem('orderFormData'));
+    
     if (currentOrderFormData.discountCode && currentOrderFormData.discountCode.trim() !== "") {
       const discounts = [];
       const discountData = window.catalog.discounts[currentOrderFormData.discountCode].id;
@@ -388,16 +389,40 @@ export function orderForm(cartData) {
       }
     }
 
+    const note = [];
+    if (currentOrderFormData.pickupdate && currentOrderFormData.pickupdate?.trim() !== "") {
+      note.push(`Pickup Date: ${currentOrderFormData.pickupdate}`);
+    }
+    if (currentOrderFormData.pickuptime && currentOrderFormData.pickuptime?.trim() !== "") {
+      note.push(`Pickup Time: ${currentOrderFormData.pickuptime}`);
+    }
+    
+    cartData.line_items.forEach((item) => {
+      item.quantity = String(item.quantity);
+      
+      if (item.modifiers && item.modifiers.length > 0) {
+        item.modifiers.forEach((modifier) => {
+          note.push(`${modifier.name}: ${modifier.quantity}`);
+          delete modifier.quantity;
+        })
+      }
+    });
+    orderData.note = note.length > 0 ? note.join(" | ") : "";
+    
     if (env === 'sandbox') {
       cartData.line_items.forEach((item) => {
         delete item.catalog_object_id;
+
+        if (item.modifiers && item.modifiers.length > 0) {
+          item.modifiers.forEach((modifier) => {
+            delete modifier.catalog_object_id;
+          })
+        }
       });
     }
 
     const orderWrapper = new SquareOrderWrapper(orderData).build(); 
     const cartLocation = getCartLocation();
-
-    // TODO - should I hit calculate order API????
 
     // TODO - make sure that this location qp is sending/switching properly in prod env's
     const newOrder = env === 'sandbox' 

@@ -1,5 +1,6 @@
 import { addItemToCart } from "../../pages/cart/cart.js";
 import buildForm from "../forms/forms.js";
+import { toggleModal } from "../modal/modal.js";
 import { SquareModifier, SquareVariation } from "../orderForm/orderForm.js";
 
 export function formatMoney(num) {
@@ -85,6 +86,16 @@ function decrement(input, groupName, groupSelections) {
       groupSelections.set(groupName, groupSelections.get(groupName) + 1);
     }
   }
+
+function resetCustomizeForm() {
+  const form = document.querySelector('.customize-form');
+  if (!form) return;
+  // Reset all input fields
+  form.querySelectorAll('input[type="number"]').forEach((input) => {
+      input.value = 0;
+      input.dispatchEvent(new Event('change'));
+  });
+}
 
 function createCustomizeForm(data, itemId, limits) {
     // Create the form element
@@ -215,21 +226,19 @@ function createCustomizeForm(data, itemId, limits) {
                           },
                           catalog_object_id: input.dataset.id,
                           name: modData.name,
-                          // TODO - This is broken. The api version we are using doesn't allow more than one quantity and also doesn't allow you to provide multiple of the same modifiers with the same id. 
                           quantity,
                         }
-
-                        // Array.from({ length: quantity }, () => {
-                        //   const modifier = new SquareModifier(modifierData).build()
-                        //   selectedItems.push(modifier);
-                        // });
 
                         const modifier = new SquareModifier(modifierData).build();
                         selectedItems.push(modifier);
                     }
                 });
             });
-            addItemToCart(itemId, selectedItems)
+            addItemToCart(itemId, selectedItems);
+
+            resetCustomizeForm();
+            const cartModal = document.querySelector('.modal.customize');
+            toggleModal(cartModal);
         }
     })
 

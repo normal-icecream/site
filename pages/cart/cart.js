@@ -1,8 +1,5 @@
-import { loadCSS } from '../../scripts/aem.js';
 import { refreshCartContent } from '../../utils/modal/modal.js';
 import { formatCurrency } from '../../helpers/helpers.js';
-import { getEnvironment } from '../../api/environmentConfig.js';
-import { fetchCatalog } from '../../scripts/scripts.js';
 import { SquareOrderLineItem } from '../../utils/orderForm/orderForm.js';
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
@@ -143,7 +140,6 @@ export async function addItemToCart(id, modifiers = []) {
             item_type: squareItem.type,
         }
         const lineItem = new SquareOrderLineItem(lineItemData);
-
         if (modifiers.length > 0) lineItem.modifiers = modifiers;
 
         cart.line_items.push(lineItem);
@@ -170,7 +166,6 @@ export function getCartItemQuantity(prodId) {
     const cart = getLocalStorageCart();
     const itemQuantity = cart?.line_items.find((item) => item.catalog_object_id === prodId)?.quantity;
     const quantity = itemQuantity ? itemQuantity : 0;
-
     return quantity;
 }
 
@@ -186,6 +181,13 @@ export function getLastCartKey() {
     const cart = JSON.parse(localStorage.getItem('carts'));
     return cart ? cart['lastcart'] : '';
 }
+
+export function resetCart() {
+    const cartKey = getLastCartKey();
+    const carts = JSON.parse(localStorage.getItem('carts'));
+    carts[cartKey] = { 'line_items': [] }
+    localStorage.setItem(`carts`, JSON.stringify(carts));
+}   
 
 export function getCart() {
     loadCSS(`${window.hlx.codeBasePath}/pages/cart/cart.css`);

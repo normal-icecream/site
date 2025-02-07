@@ -32,6 +32,14 @@ export function createModal(element, title, content = '') {
 }
 
 // Function to refresh the cart content
+export function refreshPaymentsContent(element, orderData) {
+  const paymentForm = element.querySelector('.card-payment-form');
+  if (paymentForm) paymentForm.remove();
+
+  getCardPaymentForm(element, orderData);
+}
+
+// Function to refresh the cart content
 export function refreshCustomizeContent(element) {
   const customizeWrapper = element.querySelector('.customize');
   if (customizeWrapper) customizeWrapper.remove();
@@ -58,7 +66,6 @@ export function refreshCartContent(element) {
   // Check if currentCart contains the class `card-wrapper` (cart with items)
   if (currentCart.classList.contains('card-wrapper')) {
     // If cart has items, append the order form
-    // TODO - clean up this logic
     const cartKey = getLastCartKey();
     const cartLocalStorageData = getLocalStorageCart();
     const hasShipping = (cartKey === 'shipping' || cartKey === 'merch') ? true : false;
