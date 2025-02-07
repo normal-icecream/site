@@ -76,6 +76,7 @@ export async function getCardPaymentForm(element, orderData) {
 
     if (formData[0].value === 'giftCard') {
       try {
+        // eslint-disable-next-line no-use-before-define
         const result = await giftCard.tokenize();
         if (result.status === 'OK') {
           await createSquarePayment(result.token, orderData, element);
@@ -96,6 +97,7 @@ export async function getCardPaymentForm(element, orderData) {
       }
     } else {
       try {
+        // eslint-disable-next-line no-use-before-define
         const result = await card.tokenize();
         if (result.status === 'OK') {
           await createSquarePayment(result.token, orderData, element);

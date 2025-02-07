@@ -154,7 +154,7 @@ export function orderForm(cartData) {
     }));
   }
 
-  const populateFields = (fields) => {
+  const populateFields = (formFields) => {
     const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
     const cartKey = getLastCartKey();
 
@@ -162,7 +162,7 @@ export function orderForm(cartData) {
 
     const visibleFields = [];
     alwaysVisibleFields.forEach((field) => {
-      const visibleField = fields.find((f) => f.name === field);
+      const visibleField = formFields.find((f) => f.name === field);
       if (visibleField) visibleFields.push(visibleField);
     });
     visibleFields.forEach((field) => fieldsToDisplay.push(field));
@@ -170,20 +170,20 @@ export function orderForm(cartData) {
     const storeFields = [];
     const shippingFields = [];
     addressFields.forEach((field) => {
-      const shippingField = fields.find((f) => f.name === field);
+      const shippingField = formFields.find((f) => f.name === field);
       if (shippingField) shippingFields.push(shippingField);
     });
 
     if (cartKey === 'store') {
       pickupFields.forEach((field) => {
-        const pickupField = fields.find((f) => f.name === field);
+        const pickupField = formFields.find((f) => f.name === field);
         if (pickupField) storeFields.push(pickupField);
       });
       storeFields.forEach((field) => fieldsToDisplay.push(field));
     } else if (cartKey === 'shipping') {
       shippingFields.forEach((field) => fieldsToDisplay.push(field));
     } else if (cartKey === 'merch') {
-      const shouldShipField = fields.find((f) => f.name === 'getItShipped');
+      const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
       fieldsToDisplay.push(shouldShipField);
 
       const shouldShip = JSON.parse(localStorage.getItem('orderFormData')).getItShipped;
@@ -201,7 +201,7 @@ export function orderForm(cartData) {
         shippingFields.forEach((field) => fieldsToDisplay.push(field));
       } else {
         pickupFields.forEach((field) => {
-          const pickupField = fields.find((f) => f.name === field);
+          const pickupField = formFields.find((f) => f.name === field);
           if (pickupField) fieldsToDisplay.push(pickupField);
         });
 
@@ -301,8 +301,8 @@ export function orderForm(cartData) {
       const paymentsModal = document.querySelector('.modal.payments');
       toggleModal(paymentsModal, newOrder);
     } else {
-      // eslint-disable-next-line no-console
       // throw user an error
+      // eslint-disable-next-line no-console
       console.log('error with creating an order');
     }
   }
