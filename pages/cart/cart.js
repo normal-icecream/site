@@ -91,6 +91,32 @@ export function removeItemFromCart(id) {
   localStorage.setItem('carts', JSON.stringify(carts));
 }
 
+// Function to refresh the cart content
+export function refreshCartContent(element) {
+  const cartContent = element.querySelector('.card-wrapper');
+  if (cartContent) cartContent.remove();
+
+  const emptyCartMessage = element.querySelector('.empty-cart-message');
+  if (emptyCartMessage) emptyCartMessage.remove();
+
+  const cartOrderForm = element.querySelector('.cart-order-form');
+  if (cartOrderForm) cartOrderForm.remove();
+
+  const currentCart = getCart();
+  element.append(currentCart);
+
+  // Check if currentCart contains the class `card-wrapper` (cart with items)
+  if (currentCart.classList.contains('card-wrapper')) {
+    // If cart has items, append the order form
+    const cartKey = getLastCartKey();
+    const cartLocalStorageData = getLocalStorageCart();
+    const hasShipping = !!((cartKey === 'shipping' || cartKey === 'merch'));
+
+    const form = orderForm(cartLocalStorageData, hasShipping);
+    element.append(form);
+  }
+}
+
 function getCartCard(cartItems) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
@@ -217,30 +243,4 @@ export function getCart() {
     cart = getEmptyCartMessage();
   }
   return cart;
-}
-
-// Function to refresh the cart content
-export function refreshCartContent(element) {
-  const cartContent = element.querySelector('.card-wrapper');
-  if (cartContent) cartContent.remove();
-
-  const emptyCartMessage = element.querySelector('.empty-cart-message');
-  if (emptyCartMessage) emptyCartMessage.remove();
-
-  const cartOrderForm = element.querySelector('.cart-order-form');
-  if (cartOrderForm) cartOrderForm.remove();
-
-  const currentCart = getCart();
-  element.append(currentCart);
-
-  // Check if currentCart contains the class `card-wrapper` (cart with items)
-  if (currentCart.classList.contains('card-wrapper')) {
-    // If cart has items, append the order form
-    const cartKey = getLastCartKey();
-    const cartLocalStorageData = getLocalStorageCart();
-    const hasShipping = !!((cartKey === 'shipping' || cartKey === 'merch'));
-
-    const form = orderForm(cartLocalStorageData, hasShipping);
-    element.append(form);
-  }
 }
