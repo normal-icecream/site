@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable max-len */
 
 // List of URLs that are allowed to make requests to Square based on environment
 // TODO - add .club as an allowed origin
@@ -170,8 +171,7 @@ export default {
       } else {
         const locationParam = url.searchParams.get('location');
         if (locationParam) {
-          locationKey = LOCATIONS.find((location) => 
-            location.name === locationParam.toUpperCase()).id;
+          locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
           requestBody = JSON.stringify(body);
