@@ -39,7 +39,8 @@ export async function hitProduction(fn, ...args) {
 
 /**
  * Determines the environment based on the current URL.
- * @returns {string} - Returns 'sandbox' if the URL is localhost or ends with .page, otherwise 'production'.
+ * @returns {string} - Returns 'sandbox' if the URL is 
+ * localhost or ends with .page, otherwise 'production'.
  */
 export function getEnvironment() {
   const { hostname } = window.location;

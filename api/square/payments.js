@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { apiClient } from '../client.js';
 import { API_ENDPOINTS } from '../config.js';
 

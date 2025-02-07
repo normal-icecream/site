@@ -41,38 +41,44 @@ const LOCATIONS = [
 const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
 const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
 
-async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
+async function fetchAllPages(baseUrl, apiKey) {
+  let collectedItems = [];
   let nextCursor = null;
-  let currentUrl = baseUrl; // Start with the base URL
+  let currentUrl = baseUrl;
 
-  do {
-    const response = await fetch(currentUrl, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
+  while (true) {
+    try {
+      // Fetch data
+      const response = await fetch(currentUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-    const jsonResponse = await response.json();
-    if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
-
-    nextCursor = jsonResponse.cursor;
-
-    if (nextCursor) {
-      // Create a URL object to manipulate query parameters safely
-      const urlObj = new URL(currentUrl);
-      if (urlObj.searchParams.has('cursor')) {
-        // Replace the existing cursor value
-        urlObj.searchParams.set('cursor', nextCursor);
-      } else {
-        // Append the new cursor if it doesn't exist
-        urlObj.searchParams.append('cursor', nextCursor);
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
       }
+
+      const jsonResponse = await response.json();
+      if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
+
+      nextCursor = jsonResponse.cursor;
+
+      if (!nextCursor) break; // Exit loop if no more pages
+
+      // Update the URL with the new cursor
+      const urlObj = new URL(currentUrl);
+      urlObj.searchParams.set('cursor', nextCursor);
       currentUrl = urlObj.toString();
+    } catch (error) {
+      console.error("Error fetching paginated data:", error);
+      break; // Stop looping if an error occurs
     }
-  } while (nextCursor); // Keep looping until there’s no cursor
-  return collectedItems; // Return all collected items
+  }
+
+  return collectedItems;
 }
 
 async function refreshCatalog(env, apiKey) {
@@ -168,7 +174,7 @@ export default {
     let locationKey;
     if (isOrderRequest && request.method === 'POST') {
       if (isSandboxUrl) {
-        const locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
+        locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
         const body = JSON.parse(requestBody);
         body.order.location_id = locationKey;
         requestBody = JSON.stringify(body);

@@ -44,31 +44,36 @@ var LOCATIONS = [
 ];
 var PROD_APPLICATION_ID = "sq0idp-7jw3abEgrV94NrJOaRXFTw";
 var SANDBOX_APPLICATION_ID = "sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA";
-async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
+async function fetchAllPages(baseUrl, apiKey) {
+  let collectedItems = [];
   let nextCursor = null;
   let currentUrl = baseUrl;
-  do {
-    const response = await fetch(currentUrl, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+  while (true) {
+    try {
+      const response = await fetch(currentUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
       }
-    });
-    const jsonResponse = await response.json();
-    if (jsonResponse.objects)
-      collectedItems.push(...jsonResponse.objects);
-    nextCursor = jsonResponse.cursor;
-    if (nextCursor) {
+      const jsonResponse = await response.json();
+      if (jsonResponse.objects)
+        collectedItems.push(...jsonResponse.objects);
+      nextCursor = jsonResponse.cursor;
+      if (!nextCursor)
+        break;
       const urlObj = new URL(currentUrl);
-      if (urlObj.searchParams.has("cursor")) {
-        urlObj.searchParams.set("cursor", nextCursor);
-      } else {
-        urlObj.searchParams.append("cursor", nextCursor);
-      }
+      urlObj.searchParams.set("cursor", nextCursor);
       currentUrl = urlObj.toString();
+    } catch (error) {
+      console.error("Error fetching paginated data:", error);
+      break;
     }
-  } while (nextCursor);
+  }
   return collectedItems;
 }
 __name(fetchAllPages, "fetchAllPages");
@@ -144,9 +149,9 @@ var square_worker_default = {
     let locationKey;
     if (isOrderRequest && request.method === "POST") {
       if (isSandboxUrl) {
-        const locationKey2 = LOCATIONS.find((location) => location.name === "SANDBOX").id;
+        locationKey = LOCATIONS.find((location) => location.name === "SANDBOX").id;
         const body = JSON.parse(requestBody);
-        body.order.location_id = locationKey2;
+        body.order.location_id = locationKey;
         requestBody = JSON.stringify(body);
       } else {
         const locationParam = url.searchParams.get("location");
@@ -269,7 +274,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// .wrangler/tmp/bundle-pHhJQd/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-2hHSsD/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default
 ];
@@ -300,7 +305,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-pHhJQd/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-2hHSsD/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

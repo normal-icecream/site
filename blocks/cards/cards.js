@@ -101,7 +101,6 @@ function clampBodies(wrapper) {
   });
 }
 
-// TODO - need to add logic that will handle checking the item quantity and only allowing users to order what is available.
 export default function decorate(block) {
   const variants = [...block.classList];
   const ul = document.createElement('ul');
