@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Test environment for Normal Ice Cream",
   "scripts": {
-    "lint:js": "eslint  .",
+    "lint:js": "eslint  . --fix",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css"
   },
