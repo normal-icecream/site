@@ -10,6 +10,11 @@ export const allowedCartPages = Object.freeze([
   'merch',
 ]);
 
+export function getLastCartKey() {
+  const cart = JSON.parse(localStorage.getItem('carts'));
+  return cart ? cart.lastcart : '';
+}
+
 export function getLocalStorageCart() {
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
@@ -39,6 +44,37 @@ function getCartTotals(cartItems) {
   const total = cartItems.line_items.reduce((total, item) => total + item.base_price_money.amount * item.quantity, 0);
 
   return formatCurrency(total);
+}
+
+export async function addItemToCart(id, modifiers = []) {
+  const carts = JSON.parse(localStorage.getItem('carts'));
+  const cartKey = getLastCartKey();
+  const cart = carts[cartKey];
+  const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
+
+  // TODO - need to add logic to handle modifiers, where if a user has already added to cart an add about the novelties for example and wants to create a new one, the current logic will just increment the quantity of the item with the same id in localstorage and will not create a new instance of the new all about the novelties pack. What is should do is add a new one even if there is already one in localstorage.
+  const quantity = 1; // Default quantity for a new item
+  if (cartItem) {
+    cartItem.quantity += quantity;
+  } else {
+    const squareItem = window.catalog.byId[id];
+    const lineItemData = {
+      catalog_object_id: squareItem.id,
+      quantity,
+      base_price_money: {
+        amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
+        currency: 'USD',
+      },
+      description: squareItem.item_data.description,
+      name: squareItem.item_data.name,
+      item_type: squareItem.type,
+    };
+    const lineItem = new SquareOrderLineItem(lineItemData);
+    if (modifiers.length > 0) lineItem.modifiers = modifiers;
+
+    cart.line_items.push(lineItem);
+  }
+  localStorage.setItem('carts', JSON.stringify(carts));
 }
 
 function getCartCard(cartItems) {
@@ -115,37 +151,6 @@ function getCartCard(cartItems) {
   return cartCardWrapper;
 }
 
-export async function addItemToCart(id, modifiers = []) {
-  const carts = JSON.parse(localStorage.getItem('carts'));
-  const cartKey = getLastCartKey();
-  const cart = carts[cartKey];
-  const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
-
-  // TODO - need to add logic to handle modifiers, where if a user has already added to cart an add about the novelties for example and wants to create a new one, the current logic will just increment the quantity of the item with the same id in localstorage and will not create a new instance of the new all about the novelties pack. What is should do is add a new one even if there is already one in localstorage.
-  const quantity = 1; // Default quantity for a new item
-  if (cartItem) {
-    cartItem.quantity += quantity;
-  } else {
-    const squareItem = window.catalog.byId[id];
-    const lineItemData = {
-      catalog_object_id: squareItem.id,
-      quantity,
-      base_price_money: {
-        amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
-        currency: 'USD',
-      },
-      description: squareItem.item_data.description,
-      name: squareItem.item_data.name,
-      item_type: squareItem.type,
-    };
-    const lineItem = new SquareOrderLineItem(lineItemData);
-    if (modifiers.length > 0) lineItem.modifiers = modifiers;
-
-    cart.line_items.push(lineItem);
-  }
-  localStorage.setItem('carts', JSON.stringify(carts));
-}
-
 export function removeItemFromCart(id) {
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
@@ -153,7 +158,7 @@ export function removeItemFromCart(id) {
   const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
 
   if (cartItem.quantity > 1) {
-    cartItem.quantity--;
+    cartItem.quantity -= 1;
   } else {
     const cartIndex = cart.line_items.findIndex((item) => item.catalog_object_id === id);
     cart.line_items.splice(cartIndex, 1);
@@ -174,11 +179,6 @@ export function setLastCart(pageName) {
     cart.lastcart = pageName;
     localStorage.setItem('carts', JSON.stringify(cart));
   }
-}
-
-export function getLastCartKey() {
-  const cart = JSON.parse(localStorage.getItem('carts'));
-  return cart ? cart.lastcart : '';
 }
 
 export function resetCart() {
