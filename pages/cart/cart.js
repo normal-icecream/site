@@ -1,6 +1,7 @@
 import { refreshCartContent } from '../../utils/modal/modal.js';
 import { formatCurrency } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../utils/orderForm/orderForm.js';
+import { loadCSS } from '../../scripts/aem.js';
 
 // TODO - fix logic so when Store page is clicked store cart is added to localstorage. same for the other cart valid pages!
 export const allowedCartPages = Object.freeze([
