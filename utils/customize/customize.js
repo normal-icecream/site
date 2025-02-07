@@ -1,7 +1,7 @@
 import { addItemToCart } from '../../pages/cart/cart.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
-import { SquareModifier, SquareVariation } from '../orderForm/orderForm.js';
+import { SquareModifier, SquareVariation } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
 
 export function formatMoney(num) {

@@ -1,6 +1,6 @@
 import { refreshCartContent } from '../../utils/modal/modal.js';
 import { formatCurrency } from '../../helpers/helpers.js';
-import { SquareOrderLineItem } from '../../utils/orderForm/orderForm.js';
+import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 
 export const allowedCartPages = Object.freeze([
