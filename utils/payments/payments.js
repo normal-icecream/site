@@ -69,6 +69,55 @@ export async function getCardPaymentForm(element, orderData) {
   await loadScript(paymentsSdkUrl);
 
   const payments = window.Square.payments(orderData.applicationId, orderData.order.location_id);
+
+  async function handleSubmit(formData) {
+    const errorMessage = element.querySelector('.payment-failure');
+    if (errorMessage) errorMessage.remove();
+
+    if (formData[0].value === 'giftCard') {
+      try {
+        const result = await giftCard.tokenize();
+        if (result.status === 'OK') {
+          await createSquarePayment(result.token, orderData, element);
+        } else {
+          let gcErrorMessage = `Tokenization failed with status: ${result.status}`;
+          if (result.errors) {
+            gcErrorMessage += ` and errors: ${JSON.stringify(
+              result.errors,
+            )}`;
+          }
+          throw new Error(gcErrorMessage);
+        }
+      } catch (error) {
+        const errorMessageDiv = document.createElement('div');
+        errorMessageDiv.classList.add('payments', 'payment-failure');
+        errorMessageDiv.textContent = 'Payment failed, try again!';
+        element.append(errorMessageDiv);
+      }
+    } else {
+      try {
+        const result = await card.tokenize();
+        if (result.status === 'OK') {
+          await createSquarePayment(result.token, orderData, element);
+        } else {
+          let ccErrorMessage = `Tokenization failed with status: ${result.status}`;
+          if (result.errors) {
+            ccErrorMessage += ` and errors: ${JSON.stringify(
+              result.errors,
+            )}`;
+          }
+
+          throw new Error(ccErrorMessage);
+        }
+      } catch (error) {
+        const errorMessageDiv = document.createElement('div');
+        errorMessageDiv.classList.add('payments', 'payment-failure');
+        errorMessageDiv.textContent = 'Payment failed, try again!';
+        element.append(errorMessageDiv);
+      }
+    }
+  }
+
   const form = buildForm(fields, handleSubmit, element);
 
   const creditCardForm = document.createElement('div');
@@ -90,54 +139,4 @@ export async function getCardPaymentForm(element, orderData) {
 
   const giftCard = await payments.giftCard();
   await giftCard.attach('#gift-card');
-
-  async function handleSubmit(formData) {
-    const errorMessage = element.querySelector('.payment-failure');
-    if (errorMessage) errorMessage.remove();
-
-    if (formData[0].value === 'giftCard') {
-      try {
-        const result = await giftCard.tokenize();
-        if (result.status === 'OK') {
-          await createSquarePayment(result.token, orderData, element);
-        } else {
-          let errorMessage = `Tokenization failed with status: ${result.status}`;
-          if (result.errors) {
-            errorMessage += ` and errors: ${JSON.stringify(
-              result.errors,
-            )}`;
-          }
-          throw new Error(errorMessage);
-        }
-      } catch (error) {
-        console.error(error);
-        const errorMessageDiv = document.createElement('div');
-        errorMessageDiv.classList.add('payments', 'payment-failure');
-        errorMessageDiv.textContent = 'Payment failed, try again!';
-        element.append(errorMessageDiv);
-      }
-    } else {
-      try {
-        const result = await card.tokenize();
-        if (result.status === 'OK') {
-          await createSquarePayment(result.token, orderData, element);
-        } else {
-          let errorMessage = `Tokenization failed with status: ${result.status}`;
-          if (result.errors) {
-            errorMessage += ` and errors: ${JSON.stringify(
-              result.errors,
-            )}`;
-          }
-
-          throw new Error(errorMessage);
-        }
-      } catch (error) {
-        console.error(error);
-        const errorMessageDiv = document.createElement('div');
-        errorMessageDiv.classList.add('payments', 'payment-failure');
-        errorMessageDiv.textContent = 'Payment failed, try again!';
-        element.append(errorMessageDiv);
-      }
-    }
-  }
 }
