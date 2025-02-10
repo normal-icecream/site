@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import { formatPhoneNumberToE164 } from "../helpers/helpers.js";
+import { formatPhoneNumberToE164 } from '../helpers/helpers.js';
+
 export class SquareBasePriceMoney {
   constructor(data) {
     this.amount = Math.round(Number(data.amount));
@@ -10,18 +11,6 @@ export class SquareBasePriceMoney {
     return {
       amount: this.amount,
       currency: this.currency,
-    };
-  }
-}
-
-export class SquareVariation {
-  constructor(data) {
-    this.catalog_object_id = data.id;
-  }
-
-  build() {
-    return {
-      catalog_object_id: this.catalog_object_id,
     };
   }
 }

@@ -31,7 +31,7 @@ async function createSquarePayment(token, orderData, element) {
       resetOrderForm();
     }
   } catch (error) {
-    let errorMessage = `Create payment failed.`;
+    const errorMessage = 'Create payment failed.';
     throw new Error(errorMessage);
   }
 }
@@ -135,7 +135,7 @@ export async function getCardPaymentForm(element, orderData) {
 
   form.append(creditCardForm);
   form.append(giftCardForm);
-  
+
   element.append(form);
 
   const card = await payments.card();

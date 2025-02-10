@@ -23,13 +23,13 @@ function debounce(func, delay) {
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
  */
-function decrement(input, id) {
+function decrement(input, catalogObjectId) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
     input.value = total - 1;
     input.dispatchEvent(new Event('change'));
-    removeItemFromCart(id);
+    removeItemFromCart(catalogObjectId, catalogObjectId);
   }
 }
 
@@ -37,13 +37,13 @@ function decrement(input, id) {
  * Increases the value of an input element by 1 (while observing the max value).
  * @param {HTMLInputElement} input - Input element whose value will be incremented.
  */
-function increment(input, id) {
+function increment(input, catalogObjectId) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
     input.value = total + 1;
     input.dispatchEvent(new Event('change'));
-    addItemToCart(id);
+    addItemToCart(catalogObjectId, catalogObjectId);
   }
 }
 

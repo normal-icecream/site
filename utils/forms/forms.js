@@ -695,14 +695,14 @@ export default function buildForm(fields, handleSubmit, scopedElement) {
 
           if (!existingEntry) {
             let value;
-            if (field.checked){
-              value = field.value !== 'on' ? field.value : true
+            if (field.checked) {
+              value = field.value !== 'on' ? field.value : true;
             } else {
-              value = false
+              value = false;
             }
             data.push({
               field: field.name,
-              value
+              value,
               // value: field.checked ? (field.value !== 'on' ? field.value : true) : false,
             });
           } else if (field.checked) {

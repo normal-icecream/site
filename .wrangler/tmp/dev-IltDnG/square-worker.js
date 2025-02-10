@@ -245,7 +245,7 @@ var square_worker_default = {
   }
 };
 
-// ../../../../.nvm/versions/node/v21.6.1/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
 var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
@@ -263,13 +263,13 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// .wrangler/tmp/bundle-NjRPWG/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-WJdeK6/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default
 ];
 var middleware_insertion_facade_default = square_worker_default;
 
-// ../../../../.nvm/versions/node/v21.6.1/lib/node_modules/wrangler/templates/middleware/common.ts
+// node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
@@ -294,7 +294,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-NjRPWG/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-WJdeK6/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -1,5 +1,4 @@
 /* eslint-disable import/no-cycle */
-
 import { formatCurrency } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
@@ -47,76 +46,85 @@ function getCartTotals(cartItems) {
   return formatCurrency(cartTotals);
 }
 
-export async function addItemToCart(id, modifiers = []) {
+function createLineItem(catalogItemId, quantity) {
+  const squareItem = window.catalog.byId[catalogItemId];
+  const lineItemData = {
+    catalog_object_id: squareItem.id,
+    quantity,
+    base_price_money: {
+      amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
+      currency: 'USD',
+    },
+    description: squareItem.item_data.description,
+    name: squareItem.item_data.name,
+    item_type: squareItem.type,
+  };
+  return new SquareOrderLineItem(lineItemData);
+}
+
+export async function addItemToCart(key, catalogObjectId, modifiers = [], variation = {}) {
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
-  const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
+  const cartItem = cart?.line_items.find((item) => item.key === key);
 
   const quantity = 1; // Default quantity for a new item
   if (cartItem) {
     cartItem.quantity += quantity;
   } else {
-    const squareItem = window.catalog.byId[id];
-    const lineItemData = {
-      catalog_object_id: squareItem.id,
-      quantity,
-      base_price_money: {
-        amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
-        currency: 'USD',
-      },
-      description: squareItem.item_data.description,
-      name: squareItem.item_data.name,
-      item_type: squareItem.type,
-    };
-    const lineItem = new SquareOrderLineItem(lineItemData);
-    if (modifiers.length > 0) lineItem.modifiers = modifiers;
+    const lineItem = createLineItem(catalogObjectId, quantity);
 
+    if (modifiers.length > 0) {
+      const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
+      lineItem.key = `${catalogObjectId}${compoundCartKey}`;
+
+      lineItem.modifiers = modifiers;
+    } else if (variation.name) {
+      lineItem.key = `${catalogObjectId}-${variation.id}`;
+      lineItem.variation_name = variation.name;
+    } else {
+      lineItem.key = catalogObjectId;
+    }
     cart.line_items.push(lineItem);
   }
   localStorage.setItem('carts', JSON.stringify(carts));
 }
 
-export function removeItemFromCart(id) {
+export function removeItemFromCart(key) {
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
-  const cartItem = cart?.line_items.find((item) => item.catalog_object_id === id);
+  const cartItem = cart?.line_items.find((item) => item.key === key);
 
   if (cartItem.quantity > 1) {
     cartItem.quantity -= 1;
   } else {
-    const cartIndex = cart.line_items.findIndex((item) => item.catalog_object_id === id);
+    const cartIndex = cart.line_items.findIndex((item) => item.key === key);
     cart.line_items.splice(cartIndex, 1);
   }
   localStorage.setItem('carts', JSON.stringify(carts));
 }
 
-// Function to refresh the cart content
-export function refreshCartContent(element) {
-  const cartContent = element.querySelector('.card-wrapper');
-  if (cartContent) cartContent.remove();
+export function getCartItemQuantity(prodId) {
+  const cart = getLocalStorageCart();
+  const itemQuantity = cart?.line_items.find((item) => item.catalog_object_id === prodId)?.quantity;
+  const quantity = itemQuantity || 0;
+  return quantity;
+}
 
-  const emptyCartMessage = element.querySelector('.empty-cart-message');
-  if (emptyCartMessage) emptyCartMessage.remove();
-
-  const cartOrderForm = element.querySelector('.cart-order-form');
-  if (cartOrderForm) cartOrderForm.remove();
-
-  // eslint-disable-next-line no-use-before-define
-  const currentCart = getCart();
-  element.append(currentCart);
-
-  // Check if currentCart contains the class `card-wrapper` (cart with items)
-  if (currentCart.classList.contains('card-wrapper')) {
-    // If cart has items, append the order form
-    const cartKey = getLastCartKey();
-    const cartLocalStorageData = getLocalStorageCart();
-    const hasShipping = !!((cartKey === 'shipping' || cartKey === 'merch'));
-
-    const form = orderForm(cartLocalStorageData, hasShipping);
-    element.append(form);
+export function setLastCart(pageName) {
+  const cart = JSON.parse(localStorage.getItem('carts'));
+  if (cart && allowedCartPages.includes(pageName)) {
+    cart.lastcart = pageName;
+    localStorage.setItem('carts', JSON.stringify(cart));
   }
+}
+
+export function resetCart() {
+  const cartKey = getLastCartKey();
+  const carts = JSON.parse(localStorage.getItem('carts'));
+  carts[cartKey] = { line_items: [] };
+  localStorage.setItem('carts', JSON.stringify(carts));
 }
 
 function getCartCard(cartItems) {
@@ -158,7 +166,8 @@ function getCartCard(cartItems) {
     decrement.textContent = '-';
     decrement.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
-      removeItemFromCart(item.catalog_object_id);
+      removeItemFromCart(item.key);
+      // eslint-disable-next-line no-use-before-define
       refreshCartContent(modal);
     });
     buttonWrapper.append(decrement);
@@ -168,7 +177,8 @@ function getCartCard(cartItems) {
     increment.textContent = '+';
     increment.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
-      addItemToCart(item.catalog_object_id);
+      addItemToCart(item.key, item.catalog_object_id);
+      // eslint-disable-next-line no-use-before-define
       refreshCartContent(modal);
     });
     buttonWrapper.append(increment);
@@ -191,28 +201,6 @@ function getCartCard(cartItems) {
   cartCardWrapper.append(grandTotal);
 
   return cartCardWrapper;
-}
-
-export function getCartItemQuantity(prodId) {
-  const cart = getLocalStorageCart();
-  const itemQuantity = cart?.line_items.find((item) => item.catalog_object_id === prodId)?.quantity;
-  const quantity = itemQuantity || 0;
-  return quantity;
-}
-
-export function setLastCart(pageName) {
-  const cart = JSON.parse(localStorage.getItem('carts'));
-  if (cart && allowedCartPages.includes(pageName)) {
-    cart.lastcart = pageName;
-    localStorage.setItem('carts', JSON.stringify(cart));
-  }
-}
-
-export function resetCart() {
-  const cartKey = getLastCartKey();
-  const carts = JSON.parse(localStorage.getItem('carts'));
-  carts[cartKey] = { line_items: [] };
-  localStorage.setItem('carts', JSON.stringify(carts));
 }
 
 export function getCart() {
@@ -245,4 +233,31 @@ export function getCart() {
     cart = getEmptyCartMessage();
   }
   return cart;
+}
+
+// Function to refresh the cart content
+export function refreshCartContent(element) {
+  const cartContent = element.querySelector('.card-wrapper');
+  if (cartContent) cartContent.remove();
+
+  const emptyCartMessage = element.querySelector('.empty-cart-message');
+  if (emptyCartMessage) emptyCartMessage.remove();
+
+  const cartOrderForm = element.querySelector('.cart-order-form');
+  if (cartOrderForm) cartOrderForm.remove();
+
+  // eslint-disable-next-line no-use-before-define
+  const currentCart = getCart();
+  element.append(currentCart);
+
+  // Check if currentCart contains the class `card-wrapper` (cart with items)
+  if (currentCart.classList.contains('card-wrapper')) {
+    // If cart has items, append the order form
+    const cartKey = getLastCartKey();
+    const cartLocalStorageData = getLocalStorageCart();
+    const hasShipping = !!((cartKey === 'shipping' || cartKey === 'merch'));
+
+    const form = orderForm(cartLocalStorageData, hasShipping);
+    element.append(form);
+  }
 }

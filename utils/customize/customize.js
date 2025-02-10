@@ -1,9 +1,8 @@
 /* eslint-disable import/no-cycle */
-
 import { addItemToCart } from '../../pages/cart/cart.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
-import { SquareModifier, SquareVariation } from '../../constructors/constructors.js';
+import { SquareModifier } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
 
 export function formatMoney(num) {
@@ -255,7 +254,9 @@ function createCustomizeForm(data, itemId, limits) {
           }
         });
       });
-      addItemToCart(itemId, selectedItems);
+      const compoundCartKey = selectedItems.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
+
+      addItemToCart(`${itemId}${compoundCartKey}`, itemId, selectedItems);
       resetCustomizeForm();
       const customizeModal = document.querySelector('.modal.customize');
       toggleModal(customizeModal, refreshCustomizeContent);
@@ -267,14 +268,13 @@ function createCustomizeForm(data, itemId, limits) {
 
 export function getCustomize(element) {
   const item = window.catalog.byId[element?.dataset.id];
-  const data = item.item_data;
-  const { name, variations, modifier_list_info: modifiers } = data;
+  const { name, variations, modifier_list_info: modifiers } = item.item_data;
   // const customizeLabel = writeLabelText(name, variations[0].item_variation_data.name);
 
   let form;
   if (modifiers) {
     const modifierGroups = [];
-    const limits = getLimits(data.description);
+    const limits = getLimits(item.item_data.description);
     modifiers.forEach((mod) => {
       const modData = window.catalog.byId[mod.modifier_list_id].modifier_list_data;
       const modName = modData.name.replace('SHIPPING', '').trim();
@@ -330,9 +330,13 @@ export function getCustomize(element) {
 
     // eslint-disable-next-line no-inner-declarations
     function handleSubmit(formData) {
-      const mods = [];
-      formData.forEach((i) => mods.push(new SquareVariation({ id: i.id }).build()));
-      addItemToCart(item.id, mods);
+      const variation = variations.find((vari) => vari.id === formData[0].id);
+      const variationData = {
+        id: variation.id,
+        name: variation.item_variation_data.name,
+      };
+      const key = `${item.id}-${variation.id}`;
+      addItemToCart(key, item.id, [], variationData);
     }
 
     form = buildForm([field], handleSubmit, element);

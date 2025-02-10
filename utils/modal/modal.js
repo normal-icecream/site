@@ -36,4 +36,3 @@ export function createModal(element, title, content = '') {
 
   return element;
 }
-

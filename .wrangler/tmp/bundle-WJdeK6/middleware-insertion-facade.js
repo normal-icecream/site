@@ -1,5 +1,5 @@
 				import worker, * as OTHER_EXPORTS from "/Users/andicarlstrom/Programming/professional/new/site/cloudflare/square-worker.js";
-				import * as __MIDDLEWARE_0__ from "/Users/andicarlstrom/.nvm/versions/node/v21.6.1/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts";
+				import * as __MIDDLEWARE_0__ from "/Users/andicarlstrom/Programming/professional/new/site/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts";
 
 				export * from "/Users/andicarlstrom/Programming/professional/new/site/cloudflare/square-worker.js";
 
