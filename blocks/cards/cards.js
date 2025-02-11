@@ -173,7 +173,6 @@ export default function decorate(block) {
     if (!variants.includes('customize')) {
       // decorate cart actions
       const cart = document.createElement('form');
-
       cart.className = 'cards-card-cart';
 
       // build total field
@@ -220,9 +219,7 @@ export default function decorate(block) {
       const modal = document.createElement('div');
       modal.className = 'customize';
       modal.dataset.id = squareProductId;
-      const modalContent = document.createElement('div');
-      // TODO make the title here dynamic not hard coded
-      createModal(modal, 'all about novelties', modalContent);
+      createModal(modal);
       li.append(modal);
 
       // build customize button
@@ -232,7 +229,10 @@ export default function decorate(block) {
       // TODO: write more dynamic button label
       button.setAttribute('aria-label', 'customize item');
       button.textContent = 'customize';
-      button.addEventListener('click', () => toggleModal(modal, refreshCustomizeContent));
+      button.addEventListener('click', () => {
+        const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;
+        toggleModal(modal, cardItemTitle, refreshCustomizeContent);
+      });
       li.append(button);
     }
 

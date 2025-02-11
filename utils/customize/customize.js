@@ -259,7 +259,8 @@ function createCustomizeForm(data, itemId, limits) {
       addItemToCart(`${itemId}${compoundCartKey}`, itemId, selectedItems);
       resetCustomizeForm();
       const customizeModal = document.querySelector('.modal.customize');
-      toggleModal(customizeModal, refreshCustomizeContent);
+      const customizeTitle = window.catalog.byId[itemId].item_data.name;
+      toggleModal(customizeModal, customizeTitle, refreshCustomizeContent);
     }
   });
 

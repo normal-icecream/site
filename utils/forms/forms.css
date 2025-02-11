@@ -73,7 +73,8 @@ textarea::placeholder {
 }
 
 .form .form-submit {
-    align-self: center;
+    display: flex;
+    justify-content: center;
 }
 
 .form .form-submit button {

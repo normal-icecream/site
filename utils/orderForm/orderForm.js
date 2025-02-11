@@ -299,10 +299,10 @@ export function orderForm(cartData) {
 
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');
-      toggleModal(cartModal, refreshCartContent);
+      toggleModal(cartModal, `your ${getLastCartKey()} order`, refreshCartContent);
 
       const paymentsModal = document.querySelector('.modal.payments');
-      toggleModal(paymentsModal, refreshPaymentsContent, newOrder);
+      toggleModal(paymentsModal, `your ${getLastCartKey()} order`, refreshPaymentsContent, newOrder);
     } else {
       // throw user an error
       // eslint-disable-next-line no-console

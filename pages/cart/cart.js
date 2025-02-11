@@ -153,7 +153,7 @@ function getCartCard(cartItems) {
     });
     quantityWrapper.append(decrement);
 
-    const quantity = document.createElement('h3');
+    const quantity = document.createElement('h4');
     quantity.classList.add('cart', 'cart-quantity');
     quantity.textContent = item.quantity;
     quantityWrapper.append(quantity);
@@ -173,7 +173,7 @@ function getCartCard(cartItems) {
     const descriptionWrapper = document.createElement('div');
     descriptionWrapper.classList.add('cart', 'cart-description-wrapper');
 
-    const name = document.createElement('h3');
+    const name = document.createElement('h4');
     name.className = 'cart cart-name';
     name.textContent = item.name;
     descriptionWrapper.append(name);
@@ -199,7 +199,7 @@ function getCartCard(cartItems) {
     cartContentWrapper.append(descriptionWrapper);
     cartCard.append(cartContentWrapper);
 
-    const price = document.createElement('h3');
+    const price = document.createElement('h4');
     price.classList.add('cart', 'cart-price');
     price.textContent = formatCurrency(item.base_price_money.amount * item.quantity);
     cartCard.append(price);
@@ -210,11 +210,11 @@ function getCartCard(cartItems) {
   const totalWrapper = document.createElement('div');
   totalWrapper.classList.add('cart', 'cart-total-wrapper');
 
-  const totalTitle = document.createElement('h3');
+  const totalTitle = document.createElement('h4');
   totalTitle.textContent = 'total';
   totalWrapper.append(totalTitle);
 
-  const totalAmount = document.createElement('h3');
+  const totalAmount = document.createElement('h4');
   totalAmount.classList.add('cart', 'cart-amount');
   totalAmount.textContent = getCartTotals(cartItems);
   totalWrapper.append(totalAmount);

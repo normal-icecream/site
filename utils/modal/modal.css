@@ -3,30 +3,22 @@
     z-index: 10;
     left: 0;
     top: 0;
-    padding: var(--spacing-xl);
     width: 100%;
     height: 100%;
     overflow: auto;
     background-color: var(--white);
+    padding: var(--spacing-xl);
+}
+
+.modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--heading-size-xl);
+    font-family: var(--heading-font-family);
 }
 
 .modal .modal-close-btn {
-    height: auto;
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: var(--spacing-xl);
-    padding: var(--horizontal-spacing);
-    font-size: var(--heading-size-s);
     color: var(--blue);
-    border: none;
     cursor: pointer;
-    font-size: var(--heading-size-xl);
 }
-
-.modal .modal-close-btn:focus:not(:focus-visible) {
-    outline: none;
-    border: none;
-    box-shadow: none;
-}
-

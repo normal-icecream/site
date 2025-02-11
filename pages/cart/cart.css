@@ -1,5 +1,5 @@
 .cart .cart-card-wrapper {
-    margin-bottom: var(--spacing-xxl);
+    margin: var(--spacing-xxl) 0;
 }
 
 .cart .cart-card {
@@ -51,6 +51,10 @@
 }
 
 @media (width >= 600px) {
+    .cart > h4 {
+        font-size: var(--heading-size-l);
+    }
+
     .cart .cart-quantity-wrapper {
         flex-flow: row;
     }

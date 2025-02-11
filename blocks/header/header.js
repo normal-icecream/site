@@ -134,7 +134,7 @@ export default async function decorate(block) {
   if (cart) {
     const modal = document.createElement('div');
     modal.classList.add('cart');
-    createModal(modal, 'cart', getCart(getLastCartKey()));
+    createModal(modal, '', getCart(getLastCartKey()));
     block.append(modal);
 
     const paymentModal = document.createElement('div');
@@ -148,7 +148,7 @@ export default async function decorate(block) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
-    button.addEventListener('click', () => toggleModal(modal, refreshCartContent));
+    button.addEventListener('click', () => toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent));
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');
