@@ -130,39 +130,20 @@ export function resetCart() {
 function getCartCard(cartItems) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
-  cartCardWrapper.className = 'cart card-wrapper';
+  cartCardWrapper.classList.add('cart', 'cart-card-wrapper');
 
   cartItems.line_items.forEach((item) => {
     const cartCard = document.createElement('div');
-    cartCard.className = 'cart card';
-    cartCard.textContent = item.title;
-    cartCardWrapper.append(cartCard);
+    cartCard.className = 'cart cart-card';
 
-    const quantity = document.createElement('div');
-    quantity.className = 'cart cart-quantity';
-    quantity.textContent = item.quantity;
-    cartCardWrapper.append(quantity);
+    const cartContentWrapper = document.createElement('div');
+    cartContentWrapper.className = 'cart cart-content-wrapper';
 
-    const name = document.createElement('div');
-    name.className = 'cart cart-name';
-    name.textContent = item.name;
-    cartCardWrapper.append(name);
-
-    const price = document.createElement('div');
-    price.classprice = 'cart cart-price';
-    price.textContent = formatCurrency(item.base_price_money.amount);
-    cartCardWrapper.append(price);
-
-    const description = document.createElement('div');
-    description.className = 'cart cart-description';
-    description.textContent = item.description;
-    cartCardWrapper.append(description);
-
-    const buttonWrapper = document.createElement('div');
-    buttonWrapper.className = 'cart card-button-wrapper';
+    const quantityWrapper = document.createElement('div');
+    quantityWrapper.classList.add('cart', 'cart-quantity-wrapper');
 
     const decrement = document.createElement('button');
-    decrement.className = 'cart card-decrement';
+    decrement.classList.add('cart', 'button', 'cart-button');
     decrement.textContent = '-';
     decrement.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
@@ -170,10 +151,15 @@ function getCartCard(cartItems) {
       // eslint-disable-next-line no-use-before-define
       refreshCartContent(modal);
     });
-    buttonWrapper.append(decrement);
+    quantityWrapper.append(decrement);
+
+    const quantity = document.createElement('h3');
+    quantity.classList.add('cart', 'cart-quantity');
+    quantity.textContent = item.quantity;
+    quantityWrapper.append(quantity);
 
     const increment = document.createElement('button');
-    increment.className = 'cart card-increment';
+    increment.classList.add('cart', 'button', 'cart-button');
     increment.textContent = '+';
     increment.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
@@ -181,24 +167,58 @@ function getCartCard(cartItems) {
       // eslint-disable-next-line no-use-before-define
       refreshCartContent(modal);
     });
-    buttonWrapper.append(increment);
-    cartCardWrapper.append(buttonWrapper);
+    quantityWrapper.append(increment);
+    cartContentWrapper.append(quantityWrapper);
+
+    const descriptionWrapper = document.createElement('div');
+    descriptionWrapper.classList.add('cart', 'cart-description-wrapper');
+
+    const name = document.createElement('h3');
+    name.className = 'cart cart-name';
+    name.textContent = item.name;
+    descriptionWrapper.append(name);
+
+    if (item.variation_name) {
+      const itemVariation = document.createElement('div');
+      itemVariation.textContent = item.variation_name;
+      descriptionWrapper.append(itemVariation);
+    }
+
+    if (item.modifiers) {
+      const itemDetails = [];
+      const itemMods = document.createElement('div');
+
+      item.modifiers.forEach((modifier) => {
+        itemDetails.push(`${modifier.name} x ${modifier.quantity}`);
+      });
+
+      itemMods.textContent = itemDetails.join(' • ');
+      descriptionWrapper.append(itemMods);
+    }
+
+    cartContentWrapper.append(descriptionWrapper);
+    cartCard.append(cartContentWrapper);
+
+    const price = document.createElement('h3');
+    price.classList.add('cart', 'cart-price');
+    price.textContent = formatCurrency(item.base_price_money.amount * item.quantity);
+    cartCard.append(price);
+
+    cartCardWrapper.append(cartCard);
   });
 
-  const cartTotal = getCartTotals(cartItems);
-  cartCardWrapper.append(cartTotal);
+  const totalWrapper = document.createElement('div');
+  totalWrapper.classList.add('cart', 'cart-total-wrapper');
 
-  const cartTax = document.createElement('div');
-  cartTax.textContent = 'NEED TO CALC CART TAX';
-  cartCardWrapper.append(cartTax);
+  const totalTitle = document.createElement('h3');
+  totalTitle.textContent = 'total';
+  totalWrapper.append(totalTitle);
 
-  const shippingCost = document.createElement('div');
-  shippingCost.textContent = 'NEED TO CALC SHIPPING COST';
-  cartCardWrapper.append(shippingCost);
-
-  const grandTotal = document.createElement('div');
-  grandTotal.textContent = 'NEED TO GRAND TOTAL';
-  cartCardWrapper.append(grandTotal);
+  const totalAmount = document.createElement('h3');
+  totalAmount.classList.add('cart', 'cart-amount');
+  totalAmount.textContent = getCartTotals(cartItems);
+  totalWrapper.append(totalAmount);
+  cartCardWrapper.append(totalWrapper);
 
   return cartCardWrapper;
 }
@@ -237,7 +257,7 @@ export function getCart() {
 
 // Function to refresh the cart content
 export function refreshCartContent(element) {
-  const cartContent = element.querySelector('.card-wrapper');
+  const cartContent = element.querySelector('.cart-card-wrapper');
   if (cartContent) cartContent.remove();
 
   const emptyCartMessage = element.querySelector('.empty-cart-message');
@@ -250,8 +270,10 @@ export function refreshCartContent(element) {
   const currentCart = getCart();
   element.append(currentCart);
 
+  const hasNewCartWrapper = element.querySelector('.cart.cart-card-wrapper');
+
   // Check if currentCart contains the class `card-wrapper` (cart with items)
-  if (currentCart.classList.contains('card-wrapper')) {
+  if (hasNewCartWrapper) {
     // If cart has items, append the order form
     const cartKey = getLastCartKey();
     const cartLocalStorageData = getLocalStorageCart();

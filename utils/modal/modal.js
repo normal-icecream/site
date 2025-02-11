@@ -29,7 +29,7 @@ export function createModal(element, title, content = '') {
   element.append(content);
 
   const closeModalButton = document.createElement('button');
-  closeModalButton.textContent = 'X';
+  closeModalButton.textContent = 'x';
   closeModalButton.className = 'modal-close-btn';
   closeModalButton.addEventListener('click', () => toggleModal(element));
   element.append(closeModalButton);
