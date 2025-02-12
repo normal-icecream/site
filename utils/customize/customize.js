@@ -5,6 +5,7 @@ import { toggleModal } from '../modal/modal.js';
 import { SquareModifier } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
 
+// TODO - do I need this? see helpers formatCurrency
 export function formatMoney(num) {
   return Number(num / 100).toFixed(2);
 }
@@ -17,8 +18,11 @@ export function toClassName(name) {
 
 // Function to refresh the cart content
 export function refreshPaymentsContent(element, orderData) {
-  const paymentForm = element.querySelector('.card-payment-form');
+  const paymentForm = element.querySelector('.payment-form');
   if (paymentForm) paymentForm.remove();
+
+  const cartCard = element.querySelector('.cart.cart-card-wrapper');
+  if (cartCard) cartCard.remove();
 
   getCardPaymentForm(element, orderData);
 }

@@ -40,10 +40,11 @@
     border-radius: 100%;
 }
 
-.cart .cart-total-wrapper {
+.cart .cart-total {
     display: flex;
     justify-content: end;
     align-items: end;
+    margin-bottom: 12px;
 }
 
 .cart .cart-amount {
@@ -51,10 +52,6 @@
 }
 
 @media (width >= 600px) {
-    .cart > h4 {
-        font-size: var(--heading-size-l);
-    }
-
     .cart .cart-quantity-wrapper {
         flex-flow: row;
     }

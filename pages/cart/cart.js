@@ -127,23 +127,43 @@ export function resetCart() {
   localStorage.setItem('carts', JSON.stringify(carts));
 }
 
-function getCartCard(cartItems) {
+export function createCartTotalContent(title, amount) {
+  // Create total container
+  const total = document.createElement('div');
+  total.className = 'cart-total';
+
+  // Create total title
+  const totalTitle = document.createElement('h4');
+  totalTitle.textContent = title;
+
+  // Create total amount
+  const totalAmount = document.createElement('h4');
+  totalAmount.className = 'cart-amount';
+  totalAmount.textContent = amount;
+
+  // Append elements to total container
+  total.append(totalTitle, totalAmount);
+
+  return total;
+}
+
+export function getCartCard(cartItems) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
   cartCardWrapper.classList.add('cart', 'cart-card-wrapper');
 
   cartItems.line_items.forEach((item) => {
     const cartCard = document.createElement('div');
-    cartCard.className = 'cart cart-card';
+    cartCard.className = 'cart-card';
 
     const cartContentWrapper = document.createElement('div');
-    cartContentWrapper.className = 'cart cart-content-wrapper';
+    cartContentWrapper.className = 'cart-content-wrapper';
 
     const quantityWrapper = document.createElement('div');
-    quantityWrapper.classList.add('cart', 'cart-quantity-wrapper');
+    quantityWrapper.className = 'cart-quantity-wrapper';
 
     const decrement = document.createElement('button');
-    decrement.classList.add('cart', 'button', 'cart-button');
+    decrement.classList.add('button', 'cart-button');
     decrement.textContent = '-';
     decrement.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
@@ -154,12 +174,12 @@ function getCartCard(cartItems) {
     quantityWrapper.append(decrement);
 
     const quantity = document.createElement('h4');
-    quantity.classList.add('cart', 'cart-quantity');
+    quantity.className = 'cart-quantity';
     quantity.textContent = item.quantity;
     quantityWrapper.append(quantity);
 
     const increment = document.createElement('button');
-    increment.classList.add('cart', 'button', 'cart-button');
+    increment.classList.add('button', 'cart-button');
     increment.textContent = '+';
     increment.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
@@ -171,10 +191,10 @@ function getCartCard(cartItems) {
     cartContentWrapper.append(quantityWrapper);
 
     const descriptionWrapper = document.createElement('div');
-    descriptionWrapper.classList.add('cart', 'cart-description-wrapper');
+    descriptionWrapper.className = 'cart-description-wrapper';
 
     const name = document.createElement('h4');
-    name.className = 'cart cart-name';
+    name.className = 'cart-name';
     name.textContent = item.name;
     descriptionWrapper.append(name);
 
@@ -200,24 +220,20 @@ function getCartCard(cartItems) {
     cartCard.append(cartContentWrapper);
 
     const price = document.createElement('h4');
-    price.classList.add('cart', 'cart-price');
+    price.className = 'cart-price';
     price.textContent = formatCurrency(item.base_price_money.amount * item.quantity);
     cartCard.append(price);
 
     cartCardWrapper.append(cartCard);
   });
-
+  // Create wrapper for total section
   const totalWrapper = document.createElement('div');
-  totalWrapper.classList.add('cart', 'cart-total-wrapper');
+  totalWrapper.className = 'cart-total-wrapper';
 
-  const totalTitle = document.createElement('h4');
-  totalTitle.textContent = 'total';
-  totalWrapper.append(totalTitle);
+  const totalContent = createCartTotalContent('total', getCartTotals(cartItems));
 
-  const totalAmount = document.createElement('h4');
-  totalAmount.classList.add('cart', 'cart-amount');
-  totalAmount.textContent = getCartTotals(cartItems);
-  totalWrapper.append(totalAmount);
+  // Append total container to wrapper
+  totalWrapper.append(totalContent);
   cartCardWrapper.append(totalWrapper);
 
   return cartCardWrapper;

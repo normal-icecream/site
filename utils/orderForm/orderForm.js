@@ -228,10 +228,12 @@ export function orderForm(cartData) {
         oninput: (event) => {
           if (event.target.type === 'checkbox') {
             orderFormFields[field.name] = event.target.checked;
+            localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
+            refreshCartContent(modal);
           } else {
             orderFormFields[field.name] = event.target.value;
+            localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
           }
-          localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
         },
       };
     });

@@ -66,6 +66,11 @@ textarea::placeholder {
     display: block;
 }
 
+.form .form-checkbox label {
+   display: flex;
+   align-items: center;
+}
+
 .form .form-checkbox input {
    height: 20px;
    width: 20px;

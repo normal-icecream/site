@@ -3,11 +3,14 @@
 
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createPayment } from '../../api/square/payments.js';
-import { loadScript } from '../../scripts/aem.js';
+import { loadScript, loadCSS } from '../../scripts/aem.js';
 import buildForm from '../forms/forms.js';
-import { resetCart } from '../../pages/cart/cart.js';
+import {
+  getLocalStorageCart, resetCart, getCartCard, createCartTotalContent,
+} from '../../pages/cart/cart.js';
 import { resetOrderForm } from '../orderForm/orderForm.js';
 import { SquarePayment } from '../../constructors/constructors.js';
+import { formatCurrency } from '../../helpers/helpers.js';
 
 async function createSquarePayment(token, orderData, element) {
   const env = getEnvironment();
@@ -19,6 +22,9 @@ async function createSquarePayment(token, orderData, element) {
   try {
     const payment = env === 'sandbox' ? await hitSandbox(createPayment, SquarePaymentDataJson) : await createPayment(SquarePaymentDataJson);
     if (payment.payment.status === 'COMPLETED') {
+      const cartCard = element.querySelector('.cart.cart-card-wrapper');
+      cartCard.remove();
+
       const form = element.querySelector('form');
       form.remove();
 
@@ -65,6 +71,7 @@ const fields = [
 // https://developer.squareup.com/reference/sdks/web/payments/card-payments
 // https://developer.squareup.com/docs/web-payments/quickstart/add-sdk-to-web-client
 export async function getCardPaymentForm(element, orderData) {
+  loadCSS(`${window.hlx.codeBasePath}/utils/payments/payments.css`);
   const env = getEnvironment();
   const paymentsSdkUrl = env === 'sandbox' ? 'https://sandbox.web.squarecdn.com/v1/square.js' : 'https://web.squarecdn.com/v1/square.js';
 
@@ -122,26 +129,55 @@ export async function getCardPaymentForm(element, orderData) {
     }
   }
 
+  const cartData = getLocalStorageCart();
+  const currentCart = getCartCard(cartData);
+  element.append(currentCart);
+
+  const totalWrapper = element.querySelector('.cart .cart-total-wrapper');
+  if (totalWrapper) totalWrapper.innerHTML = '';
+
+  const tax = createCartTotalContent('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
+  totalWrapper.append(tax);
+
+  const total = createCartTotalContent('total', formatCurrency(orderData.order.net_amount_due_money.amount));
+  totalWrapper.append(total);
+
   const form = buildForm(fields, handleSubmit, element);
+  form.classList.add('payment-form');
 
   const creditCardForm = document.createElement('div');
-  creditCardForm.className = 'payments card-payment-form';
+  creditCardForm.className = 'card-payment-form';
   creditCardForm.id = 'card';
 
   const giftCardForm = document.createElement('div');
-  giftCardForm.className = 'payments gift-card-payment-form';
+  giftCardForm.className = 'gift-card-payment-form';
   giftCardForm.id = 'gift-card';
   giftCardForm.style.display = 'none';
 
-  form.append(creditCardForm);
-  form.append(giftCardForm);
+  form.prepend(creditCardForm);
+  form.prepend(giftCardForm);
 
   element.append(form);
 
-  const card = await payments.card();
+  // https://developer.squareup.com/docs/web-payments/customize-styles
+  const cartStyles = {
+    '.input-container': {
+      borderColor: '#C1C8FF',
+    },
+    input: {
+      backgroundColor: '#FFFCF3',
+      color: '#0B21E0',
+    },
+  };
+
+  const card = await payments.card({
+    style: cartStyles,
+  });
   await card.attach('#card');
 
-  const giftCard = await payments.giftCard();
+  const giftCard = await payments.giftCard({
+    style: cartStyles,
+  });
   await giftCard.attach('#gift-card');
 }
 
