@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { formatCurrency } from '../../helpers/helpers.js';
+import { formatCurrency, getIconSvg } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 import { orderForm } from '../../utils/orderForm/orderForm.js';
@@ -33,11 +33,21 @@ export function getCartLocation() {
   return currentLocation;
 }
 
-function getEmptyCartMessage() {
-  const noCartDiv = document.createElement('div');
+async function getEmptyCartMessage() {
+  const cartIcon = await getIconSvg('normal-cart', '200px', '200px', 'var(--blue)');
+
+  const noItemsInCartContainer = document.createElement('div');
+  noItemsInCartContainer.className = 'empty-cart-container'; // Optional styling class
+
+  if (cartIcon) noItemsInCartContainer.appendChild(cartIcon);
+
+  const noCartDiv = document.createElement('h4');
   noCartDiv.className = 'empty-cart-message';
-  noCartDiv.textContent = 'nothing is in your cart! go pick something!';
-  return noCartDiv;
+  noCartDiv.textContent = `Nothing is in your ${getLastCartKey()} cart! Go pick something!`;
+
+  noItemsInCartContainer.appendChild(noCartDiv);
+
+  return noItemsInCartContainer; // Return the full container with SVG and message
 }
 
 function getCartTotals(cartItems) {
@@ -143,7 +153,6 @@ export function createCartTotalContent(title, amount) {
 
   // Append elements to total container
   total.append(totalTitle, totalAmount);
-
   return total;
 }
 
@@ -239,7 +248,7 @@ export function getCartCard(cartItems) {
   return cartCardWrapper;
 }
 
-export function getCart() {
+export async function getCart() {
   loadCSS(`${window.hlx.codeBasePath}/pages/cart/cart.css`);
 
   let cart = [];
@@ -257,45 +266,35 @@ export function getCart() {
       },
       lastcart: '',
     }));
-    cart = getEmptyCartMessage();
+    cart = await getEmptyCartMessage();
   } else if (cartData.lastcart.length > 0) {
     const currentCartData = cartData[cartData.lastcart];
     if (currentCartData.line_items.length > 0) {
       cart = getCartCard(currentCartData);
     } else {
-      cart = getEmptyCartMessage();
+      cart = await getEmptyCartMessage();
     }
   } else {
-    cart = getEmptyCartMessage();
+    cart = await getEmptyCartMessage();
   }
   return cart;
 }
 
 // Function to refresh the cart content
-export function refreshCartContent(element) {
-  const cartContent = element.querySelector('.cart-card-wrapper');
-  if (cartContent) cartContent.remove();
-
-  const emptyCartMessage = element.querySelector('.empty-cart-message');
-  if (emptyCartMessage) emptyCartMessage.remove();
-
-  const cartOrderForm = element.querySelector('.cart-order-form');
-  if (cartOrderForm) cartOrderForm.remove();
+export async function refreshCartContent(element) {
+  const modalContentSection = element.querySelector('.modal-content');
+  modalContentSection.innerHTML = '';
 
   // eslint-disable-next-line no-use-before-define
-  const currentCart = getCart();
-  element.append(currentCart);
+  const currentCart = await getCart();
+  modalContentSection.append(currentCart);
 
   const hasNewCartWrapper = element.querySelector('.cart.cart-card-wrapper');
-
   // Check if currentCart contains the class `card-wrapper` (cart with items)
   if (hasNewCartWrapper) {
     // If cart has items, append the order form
-    const cartKey = getLastCartKey();
     const cartLocalStorageData = getLocalStorageCart();
-    const hasShipping = !!((cartKey === 'shipping' || cartKey === 'merch'));
-
-    const form = orderForm(cartLocalStorageData, hasShipping);
-    element.append(form);
+    const form = orderForm(cartLocalStorageData);
+    modalContentSection.append(form);
   }
 }

@@ -1,16 +1,16 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/prefer-default-export */
-
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createPayment } from '../../api/square/payments.js';
 import { loadScript, loadCSS } from '../../scripts/aem.js';
 import buildForm from '../forms/forms.js';
 import {
-  getLocalStorageCart, resetCart, getCartCard, createCartTotalContent,
+  getLocalStorageCart, resetCart, getCartCard, createCartTotalContent, getLastCartKey,
 } from '../../pages/cart/cart.js';
 import { resetOrderForm } from '../orderForm/orderForm.js';
 import { SquarePayment } from '../../constructors/constructors.js';
-import { formatCurrency } from '../../helpers/helpers.js';
+import { formatCurrency, getIconSvg } from '../../helpers/helpers.js';
+import { toggleModal } from '../modal/modal.js';
 
 async function createSquarePayment(token, orderData, element) {
   const env = getEnvironment();
@@ -22,16 +22,35 @@ async function createSquarePayment(token, orderData, element) {
   try {
     const payment = env === 'sandbox' ? await hitSandbox(createPayment, SquarePaymentDataJson) : await createPayment(SquarePaymentDataJson);
     if (payment.payment.status === 'COMPLETED') {
-      const cartCard = element.querySelector('.cart.cart-card-wrapper');
-      cartCard.remove();
+      element.innerHTML = '';
 
-      const form = element.querySelector('form');
-      form.remove();
+      const paymentSuccessContainer = document.createElement('div');
+      paymentSuccessContainer.className = 'payment-success-container';
 
-      const successMessage = document.createElement('div');
-      successMessage.classList.add('payments', 'payment-success');
-      successMessage.textContent = 'Payment was successful!';
-      element.append(successMessage);
+      const iconContainer = document.createElement('div');
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'icon icon-logo';
+      iconContainer.append(iconSpan);
+
+      const svg = await getIconSvg('logo');
+
+      iconContainer.append(svg);
+      paymentSuccessContainer.append(iconContainer);
+
+      const successMessage = document.createElement('h4');
+      successMessage.className = 'payment-success-message';
+      successMessage.textContent = 'great choice! your order has been placed successfully.';
+      paymentSuccessContainer.append(successMessage);
+
+      const backButton = document.createElement('button');
+      backButton.textContent = `back to ${getLastCartKey()}`;
+      backButton.className = 'payment-back-button';
+      backButton.addEventListener('click', () => {
+        toggleModal(element.parentElement);
+        window.location.reload();
+      });
+      paymentSuccessContainer.append(backButton);
+      element.append(paymentSuccessContainer);
 
       resetCart();
       resetOrderForm();
@@ -100,7 +119,7 @@ export async function getCardPaymentForm(element, orderData) {
         }
       } catch (error) {
         const errorMessageDiv = document.createElement('div');
-        errorMessageDiv.classList.add('payments', 'payment-failure');
+        errorMessageDiv.className = 'payment-failure';
         errorMessageDiv.textContent = 'Payment failed, try again!';
         element.append(errorMessageDiv);
       }
@@ -123,7 +142,7 @@ export async function getCardPaymentForm(element, orderData) {
       } catch (error) {
         const errorMessageDiv = document.createElement('div');
         errorMessageDiv.classList.add('payments', 'payment-failure');
-        errorMessageDiv.textContent = 'Payment failed, try again!';
+        errorMessageDiv.textContent = 'oh no! Payment failed, please try again.';
         element.append(errorMessageDiv);
       }
     }
@@ -132,6 +151,9 @@ export async function getCardPaymentForm(element, orderData) {
   const cartData = getLocalStorageCart();
   const currentCart = getCartCard(cartData);
   element.append(currentCart);
+
+  const cartItemActions = element.querySelectorAll('.cart .cart-quantity-wrapper');
+  cartItemActions.forEach((cartAction) => cartAction.remove());
 
   const totalWrapper = element.querySelector('.cart .cart-total-wrapper');
   if (totalWrapper) totalWrapper.innerHTML = '';
@@ -183,8 +205,8 @@ export async function getCardPaymentForm(element, orderData) {
 
 // Function to refresh the cart content
 export function refreshPaymentsContent(element, orderData) {
-  const paymentForm = element.querySelector('.card-payment-form');
-  if (paymentForm) paymentForm.remove();
+  const modalContentSection = element.querySelector('.modal-content');
+  modalContentSection.innerHTML = '';
 
-  getCardPaymentForm(element, orderData);
+  getCardPaymentForm(modalContentSection, orderData);
 }

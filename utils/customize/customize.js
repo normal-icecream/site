@@ -18,13 +18,9 @@ export function toClassName(name) {
 
 // Function to refresh the cart content
 export function refreshPaymentsContent(element, orderData) {
-  const paymentForm = element.querySelector('.payment-form');
-  if (paymentForm) paymentForm.remove();
-
-  const cartCard = element.querySelector('.cart.cart-card-wrapper');
-  if (cartCard) cartCard.remove();
-
-  getCardPaymentForm(element, orderData);
+  const modalContentSection = element.querySelector('.modal-content');
+  modalContentSection.innerHTML = '';
+  getCardPaymentForm(modalContentSection, orderData);
 }
 
 export function removeStoreFromString(str) {
@@ -105,18 +101,11 @@ function resetCustomizeForm() {
 
 // Function to refresh the cart content
 export function refreshCustomizeContent(element) {
-  const customizeWrapper = element.querySelector('.customize');
-  if (customizeWrapper) customizeWrapper.remove();
-
-  const form = element.querySelector('.form');
-  if (form) form.remove();
-
-  const customizeForm = element.querySelector('.customize-form');
-  if (customizeForm) customizeForm.remove();
-
+  const modalContentSection = element.querySelector('.modal-content');
+  modalContentSection.innerHTML = '';
   // eslint-disable-next-line no-use-before-define
   const customizeContent = getCustomize(element);
-  element.append(customizeContent);
+  modalContentSection.append(customizeContent);
 }
 
 function createCustomizeForm(data, itemId, limits) {

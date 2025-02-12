@@ -117,11 +117,14 @@ export default function decorate(block) {
     card.append(image, body);
 
     const squareButton = body.querySelector('.button-wrapper');
-    const squareLink = squareButton.querySelector('a')
-      ?.getAttribute('href')
-      .split('/');
-    const squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
-    squareButton.remove();
+    let squareProductId;
+    if (squareButton) {
+      const squareLink = squareButton.querySelector('a')
+        ?.getAttribute('href')
+        .split('/');
+      squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
+      squareButton.remove();
+    }
 
     // decorate image
     const img = image.querySelector('picture > img');
@@ -179,7 +182,7 @@ export default function decorate(block) {
       const total = document.createElement('input');
       total.type = 'number';
       total.min = 0;
-      total.value = getCartItemQuantity(squareProductId);
+      total.value = squareProductId ? getCartItemQuantity(squareProductId) : 0;
       total.step = 1;
       total.readOnly = true;
       total.addEventListener('change', () => {
@@ -230,10 +233,17 @@ export default function decorate(block) {
       button.setAttribute('aria-label', 'customize item');
       button.textContent = 'customize';
       button.addEventListener('click', () => {
-        const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;
-        toggleModal(modal, cardItemTitle, refreshCustomizeContent);
+        if (squareProductId) {
+          const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;
+          toggleModal(modal, cardItemTitle, refreshCustomizeContent);
+        }
       });
       li.append(button);
+    }
+
+    if (variants.includes('actionless')) {
+      const cardActions = li.querySelector('.cards-card-cart');
+      cardActions.remove();
     }
 
     // assemble card

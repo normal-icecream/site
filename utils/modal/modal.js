@@ -43,7 +43,12 @@ export function createModal(element, content = '') {
   modalHeader.append(closeModalButton);
 
   element.append(modalHeader);
-  element.append(content);
+
+  const modalContent = document.createElement('div');
+  modalContent.className = 'modal-content';
+  modalContent.append(content);
+
+  element.append(modalContent);
 
   return element;
 }
