@@ -56,6 +56,21 @@ function getCartTotals(cartItems) {
   return formatCurrency(cartTotals);
 }
 
+export function getCartQuantity() {
+  const currentCart = getLocalStorageCart();
+  let quantity;
+  const cartQuantity = currentCart.line_items
+    .reduce((total, item) => total + item.quantity, 0);
+
+  if (cartQuantity > 0) {
+    quantity = cartQuantity;
+  } else {
+    quantity = 0;
+  }
+
+  return quantity;
+}
+
 function createLineItem(catalogItemId, quantity) {
   const squareItem = window.catalog.byId[catalogItemId];
   const lineItemData = {
@@ -70,6 +85,11 @@ function createLineItem(catalogItemId, quantity) {
     item_type: squareItem.type,
   };
   return new SquareOrderLineItem(lineItemData);
+}
+
+function updateCartQuantityUI() {
+  const cartQuantityButton = document.getElementById('nav-cart-total');
+  if (cartQuantityButton) cartQuantityButton.textContent = getCartQuantity();
 }
 
 export async function addItemToCart(key, catalogObjectId, modifiers = [], variation = {}) {
@@ -98,6 +118,7 @@ export async function addItemToCart(key, catalogObjectId, modifiers = [], variat
     cart.line_items.push(lineItem);
   }
   localStorage.setItem('carts', JSON.stringify(carts));
+  updateCartQuantityUI();
 }
 
 export function removeItemFromCart(key) {
@@ -113,6 +134,7 @@ export function removeItemFromCart(key) {
     cart.line_items.splice(cartIndex, 1);
   }
   localStorage.setItem('carts', JSON.stringify(carts));
+  updateCartQuantityUI();
 }
 
 export function getCartItemQuantity(prodId) {

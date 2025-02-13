@@ -3,7 +3,12 @@ import { swapIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { createModal, toggleModal } from '../../utils/modal/modal.js';
 import {
-  getCart, getLastCartKey, allowedCartPages, setLastCart, refreshCartContent,
+  getCart,
+  getLastCartKey,
+  allowedCartPages,
+  setLastCart,
+  refreshCartContent,
+  getCartQuantity,
 } from '../../pages/cart/cart.js';
 
 // media query match that indicates desktop width
@@ -153,7 +158,7 @@ export default async function decorate(block) {
     // build total placeholder
     const total = document.createElement('p');
     total.id = 'nav-cart-total';
-    total.textContent = 0;
+    total.textContent = getCartQuantity();
     button.append(total);
   }
 
