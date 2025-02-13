@@ -4,6 +4,7 @@ import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { SquareModifier } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
+import { loadCSS } from '../../scripts/aem.js';
 
 // TODO - do I need this? see helpers formatCurrency
 export function formatMoney(num) {
@@ -60,6 +61,25 @@ function getLimits(description) {
   return limits;
 }
 
+function updateCustomizeCountUI(action, groupName) {
+  const groupCount = document.querySelector(`.customize-${groupName} .customize-selected-amount`);
+  if (groupCount) {
+    const currentCount = groupCount.textContent;
+    if (action === 'increment') {
+      groupCount.textContent = Number(currentCount) + 1;
+    } else if (action === 'decrement') {
+      groupCount.textContent = Number(currentCount) - 1;
+    }
+  }
+}
+
+function clearFormErrors() {
+  const formErrors = document.querySelector('.customize-validation-errors');
+  if (formErrors) {
+    formErrors.remove();
+  }
+}
+
 /**
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
@@ -68,11 +88,13 @@ function decrement(input, groupName, groupSelections) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
-    input.value = total - 1;
+    const newTotal = total - 1;
+    input.value = newTotal;
     input.dispatchEvent(new Event('change'));
-
     groupSelections.set(groupName, groupSelections.get(groupName) - 1);
   }
+  updateCustomizeCountUI('decrement', groupName);
+  clearFormErrors();
 }
 
 /**
@@ -83,9 +105,12 @@ function increment(input, groupName, groupSelections) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
-    input.value = total + 1;
+    const newTotal = total + 1;
+    input.value = newTotal;
     input.dispatchEvent(new Event('change'));
     groupSelections.set(groupName, groupSelections.get(groupName) + 1);
+    updateCustomizeCountUI('increment', groupName);
+    clearFormErrors();
   }
 }
 
@@ -125,6 +150,33 @@ function createCustomizeForm(data, itemId, limits) {
     // Initialize selection count for this group
     groupSelections.set(group.name, 0);
 
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'customize-group-header';
+
+    const groupName = document.createElement('h3');
+    groupName.className = 'customize-group-name';
+    groupName.textContent = group.label;
+    groupHeader.append(groupName);
+
+    const groupCountWrapper = document.createElement('div');
+    groupCountWrapper.className = 'customize-count-wrapper';
+
+    const selectedAmount = document.createElement('h3');
+    selectedAmount.textContent = 0;
+    selectedAmount.className = 'customize-selected-amount';
+    groupCountWrapper.append(selectedAmount);
+
+    const groupLimit = document.createElement('h3');
+    groupLimit.textContent = `/${group.limit}`;
+    groupLimit.className = 'customize-group-limit';
+    groupCountWrapper.append(groupLimit);
+    groupHeader.append(groupCountWrapper);
+
+    fieldset.append(groupHeader);
+
+    const customizeItems = document.createElement('div');
+    customizeItems.className = 'customize-items';
+
     group.options.forEach((option) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'customize-item';
@@ -132,6 +184,9 @@ function createCustomizeForm(data, itemId, limits) {
 
       const label = document.createElement('label');
       label.textContent = option.name;
+
+      const actions = document.createElement('div');
+      actions.className = 'customize-actions';
 
       // build total field
       const total = document.createElement('input');
@@ -144,43 +199,53 @@ function createCustomizeForm(data, itemId, limits) {
       total.readOnly = true;
       total.addEventListener('change', () => {
         const value = parseInt(total.value, 10);
-        const subtract = form.querySelector('.button.subtract');
+        const subtract = form.querySelector(`.button.subtract-${option.id}`);
         const min = parseInt(total.min, 10) || 0;
+        const max = parseInt(total.max, 10) || 0;
         if (value > min) subtract.removeAttribute('disabled');
         else subtract.disabled = true;
-        // TODO: disable "add" if max
+
+        const add = form.querySelector(`.button.add-${option.id}`);
+        add.disabled = false;
+        if (value >= max) add.disabled = true;
       });
 
       const decrementBtn = document.createElement('button');
-      decrementBtn.classList.add('button', 'subtract');
+      decrementBtn.classList.add('button', 'subtract', `subtract-${option.id}`);
       decrementBtn.textContent = '-';
       decrementBtn.type = 'button';
       decrementBtn.disabled = true;
       decrementBtn.addEventListener('click', () => decrement(total, group.name, groupSelections));
 
       const incrementBtn = document.createElement('button');
-      decrementBtn.classList.add('button', 'add');
+      incrementBtn.classList.add('button', 'add', `add-${option.id}`);
       incrementBtn.textContent = '+';
       incrementBtn.type = 'button';
       incrementBtn.addEventListener('click', () => increment(total, group.name, groupSelections));
 
-      wrapper.append(label, decrementBtn, total, incrementBtn);
-      fieldset.appendChild(wrapper);
+      actions.append(decrementBtn, total, incrementBtn);
+      wrapper.append(label, actions);
+      customizeItems.append(wrapper);
     });
+    fieldset.appendChild(customizeItems);
 
     form.appendChild(fieldset);
   });
+
+  const submitWrapper = document.createElement('div');
+  submitWrapper.className = 'customize-submit-wrapper';
 
   // Create submit button
   const submitButton = document.createElement('button');
   submitButton.className = 'customize-submit';
   submitButton.type = 'submit';
   submitButton.textContent = 'add to cart';
+  submitWrapper.append(submitButton);
 
   function checkFormValidity() {
     let isFormValid = true;
 
-    const customizeSubmitBtn = document.querySelector('.customize-submit');
+    const customizeSubmitWrapper = document.querySelector('.customize-submit-wrapper');
     const existingErrorContainer = document.querySelector('.customize-submit-validation-errors');
     if (existingErrorContainer) {
       existingErrorContainer.remove();
@@ -194,7 +259,7 @@ function createCustomizeForm(data, itemId, limits) {
       if (selectedCount < maxAllowedSelections) {
         isFormValid = false;
         const remainingSelections = maxAllowedSelections - selectedCount;
-        errorMessages.push(`You need ${remainingSelections} more selection${remainingSelections > 1 ? 's' : ''} for "${groupName}".`);
+        errorMessages.push(`Please select ${remainingSelections} more item${remainingSelections > 1 ? 's' : ''} for "${groupName}".`);
       } else if (selectedCount > maxAllowedSelections) {
         isFormValid = false;
         const excessSelections = selectedCount - maxAllowedSelections;
@@ -204,21 +269,17 @@ function createCustomizeForm(data, itemId, limits) {
 
     if (errorMessages.length > 0) {
       const errorContainer = document.createElement('div');
-      errorContainer.className = 'customize-submit-validation-errors';
-      errorMessages.forEach((message) => {
-        const errorMessageElement = document.createElement('p');
-        errorMessageElement.textContent = message;
-
-        errorContainer.append(errorMessageElement);
-      });
-      customizeSubmitBtn.after(errorContainer);
+      errorContainer.className = 'customize-validation-errors';
+      const errorMessage = errorMessages.join('  |  ');
+      errorContainer.textContent = errorMessage;
+      customizeSubmitWrapper.append(errorContainer);
     }
 
     return isFormValid;
   }
   /* eslint-enable no-restricted-syntax */
 
-  form.appendChild(submitButton);
+  form.appendChild(submitWrapper);
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -251,9 +312,8 @@ function createCustomizeForm(data, itemId, limits) {
 
       addItemToCart(`${itemId}${compoundCartKey}`, itemId, selectedItems);
       resetCustomizeForm();
-      const customizeModal = document.querySelector('.modal.customize');
-      const customizeTitle = window.catalog.byId[itemId].item_data.name;
-      toggleModal(customizeModal, customizeTitle, refreshCustomizeContent);
+      const customizeModal = document.querySelector(`.modal.customize.customize-${itemId}`);
+      toggleModal(customizeModal);
     }
   });
 
@@ -261,6 +321,7 @@ function createCustomizeForm(data, itemId, limits) {
 }
 
 export function getCustomize(element) {
+  loadCSS(`${window.hlx.codeBasePath}/utils/customize/customize.css`);
   const item = window.catalog.byId[element?.dataset.id];
   const { name, variations, modifier_list_info: modifiers } = item.item_data;
   // const customizeLabel = writeLabelText(name, variations[0].item_variation_data.name);
@@ -280,6 +341,7 @@ export function getCustomize(element) {
         label: modLabel,
         name: modName,
         title: toClassName(modName),
+        limit: limits[modLabel],
         options: [],
       };
 

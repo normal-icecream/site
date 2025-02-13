@@ -220,7 +220,7 @@ export default function decorate(block) {
       li.append(cart);
     } else {
       const modal = document.createElement('div');
-      modal.className = 'customize';
+      modal.classList.add('customize', `customize-${squareProductId}`);
       modal.dataset.id = squareProductId;
       createModal(modal);
       li.append(modal);

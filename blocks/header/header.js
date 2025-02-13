@@ -153,7 +153,9 @@ export default async function decorate(block) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
-    button.addEventListener('click', () => toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent));
+    button.addEventListener('click', () => {
+      toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
+    });
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');

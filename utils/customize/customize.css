@@ -1,0 +1,85 @@
+.customize {
+    margin-bottom: var(--spacing-xxl);
+}
+
+.customize .customize-form {
+    display: flex;
+    flex-flow: column;
+}
+
+.customize .customize-form fieldset {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    margin-bottom: var(--spacing-xxl);
+}
+
+.customize .customize-form fieldset .customize-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-m);
+}
+
+.customize .customize-form fieldset .customize-group-header .customize-count-wrapper{
+    display: flex;
+}
+
+.customize .customize-form fieldset .customize-items {
+    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.customize .customize-form fieldset .customize-item {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    border: var(--border-s) solid var(--blue-light);
+    border-radius: var(--rounding-m);
+    padding: var(--spacing-l);
+    color: var(--blue);
+}
+
+.customize .customize-form fieldset .customize-item label {
+    color: var(--blue);
+}
+
+.customize .customize-form fieldset .customize-actions {
+    display: flex;
+}
+
+.customize .customize-form fieldset .customize-actions input {
+    padding-right: 1.4ch;
+}
+
+.customize .customize-form .customize-submit-wrapper {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
+.customize .customize-form .customize-submit {
+    text-transform: lowercase;
+    color: var(--white);
+    background-color: var(--blue);
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-m);
+    line-height: 0;
+    min-height: 50px;
+    min-width: 300px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.customize .customize-form .customize-validation-errors {
+    text-align: center;
+    padding: var(--spacing-l) 0;
+    color: var(--red);
+}
+

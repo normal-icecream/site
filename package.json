@@ -5,7 +5,7 @@
   "description": "Test environment for Normal Ice Cream",
   "scripts": {
     "lint:js": "eslint  . --fix",
-    "start": "concurrently \"aem up\" \"npx wrangler dev --remote\"",
+    "start": "concurrently \"aem up\" \"wrangler dev --remote\"",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css"
   },
