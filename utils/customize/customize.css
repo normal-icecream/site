@@ -7,6 +7,10 @@
     flex-flow: column;
 }
 
+.customize .customize-form.customize-variation {
+    margin-top: var(--spacing-xxl);
+}
+
 .customize .customize-form fieldset {
     display: flex;
     flex-flow: column;

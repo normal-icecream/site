@@ -393,9 +393,12 @@ export function getCustomize(element) {
       };
       const key = `${item.id}-${variation.id}`;
       addItemToCart(key, item.id, [], variationData);
+      const customizeModal = document.querySelector(`.modal.customize.customize-${item.id}`);
+      toggleModal(customizeModal);
     }
 
     form = buildForm([field], handleSubmit, element);
+    form.classList.add('form', 'customize-form', 'customize-variation');
   }
   return form;
 }
