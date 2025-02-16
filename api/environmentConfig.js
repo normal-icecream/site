@@ -22,7 +22,7 @@ export function disableProduction() {
 export async function hitSandbox(fn, ...args) {
   enableSandbox(); // Enable sandbox mode
   try {
-    return await fn(...args); // Call the wrapped function with any  arguments
+    return await fn(...args); // Call the wrapped function with any arguments
   } finally {
     disableSandbox(); // Restore the environment to production
   }
