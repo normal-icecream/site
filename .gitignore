@@ -2,7 +2,7 @@
 coverage/*
 logs/*
 node_modules/*
-.wranger/*
+.wrangler
 wrangler.toml
 
 helix-importer-ui
