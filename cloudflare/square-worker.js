@@ -155,7 +155,7 @@ export default {
       try {
         requestBody = JSON.parse(bodyText); // Parse bodyText into an object
       } catch (error) {
-        return new Response('Invalid JSON in request body', { status: 400 });
+        return new Response('Invalid JSON in request body', { status: 415 });
       }
     } // Select correct square path to hit based on useProduction flag
 
