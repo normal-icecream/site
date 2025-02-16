@@ -4,6 +4,7 @@ logs/*
 node_modules/*
 .wranger
 wrangler.toml
+cloudflare
 
 helix-importer-ui
 .DS_Store
