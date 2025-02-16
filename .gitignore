@@ -2,9 +2,8 @@
 coverage/*
 logs/*
 node_modules/*
-.wranger
+.wranger/*
 wrangler.toml
-cloudflare
 
 helix-importer-ui
 .DS_Store
