@@ -10,17 +10,21 @@
 export function createEl(tag, attrs, children) {
   const el = document.createElement(tag);
   // loop through the attributes and set them
-  Object.keys(attrs).forEach((key) => {
-    el.setAttribute(key, attrs[key]);
-  });
+  if (attrs) {
+    Object.entries(attrs).forEach(([key, value]) => {
+      el.setAttribute(key, value);
+    });
+  }
   // normalize children to always be an array
-  // eslint-disable-next-line no-param-reassign
-  children = Array.isArray(children) ? children : [children];
-  // add each child to the element
-  children.forEach((child) => {
-    if (child instanceof HTMLElement) el.appendChild(child);
-    else el.appendChild(document.createTextNode(child));
-  });
+  if (children) {
+    // eslint-disable-next-line no-param-reassign
+    children = Array.isArray(children) ? children : [children];
+    // add each child to the element
+    children.forEach((child) => {
+      if (child instanceof HTMLElement) el.appendChild(child);
+      else el.appendChild(document.createTextNode(child));
+    });
+  }
   return el;
 }
 
