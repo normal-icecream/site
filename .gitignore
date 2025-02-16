@@ -3,6 +3,7 @@ coverage/*
 logs/*
 node_modules/*
 .wranger
+wrangler.toml
 
 helix-importer-ui
 .DS_Store
