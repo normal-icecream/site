@@ -1,7 +1,3 @@
-.title {
-  font-family: var(--heading-font-family);
-}
-
 .title-wrapper.sticky {
   position: sticky;
   top: calc(var(--header-height) - 1px);
@@ -26,6 +22,10 @@
 .title-wrapper[data-sticky='true']::after {
   width: 100%;
   opacity: 1;
+}
+
+.title {
+  font-family: var(--heading-font-family);
 }
 
 .title h2,
