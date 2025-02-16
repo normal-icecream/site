@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { formatCurrency, getIconSvg } from '../../helpers/helpers.js';
+import { formatCurrency } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 import { orderForm } from '../../utils/orderForm/orderForm.js';
@@ -34,12 +34,8 @@ export function getCartLocation() {
 }
 
 async function getEmptyCartMessage() {
-  const cartIcon = await getIconSvg('normal-cart', '200px', '200px', 'var(--blue)');
-
   const noItemsInCartContainer = document.createElement('div');
   noItemsInCartContainer.className = 'empty-cart-container'; // Optional styling class
-
-  if (cartIcon) noItemsInCartContainer.appendChild(cartIcon);
 
   const noCartDiv = document.createElement('h4');
   noCartDiv.className = 'empty-cart-message';

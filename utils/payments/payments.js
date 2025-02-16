@@ -9,7 +9,7 @@ import {
 } from '../../pages/cart/cart.js';
 import { resetOrderForm } from '../orderForm/orderForm.js';
 import { SquarePayment } from '../../constructors/constructors.js';
-import { formatCurrency, getIconSvg } from '../../helpers/helpers.js';
+import { formatCurrency } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';
 
 async function createSquarePayment(token, orderData, element) {
@@ -32,9 +32,6 @@ async function createSquarePayment(token, orderData, element) {
       iconSpan.className = 'icon icon-logo';
       iconContainer.append(iconSpan);
 
-      const svg = await getIconSvg('logo');
-
-      iconContainer.append(svg);
       paymentSuccessContainer.append(iconContainer);
 
       const successMessage = document.createElement('h4');
