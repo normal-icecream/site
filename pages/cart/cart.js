@@ -54,14 +54,14 @@ function getCartTotals(cartItems) {
 
 export function getCartQuantity() {
   const currentCart = getLocalStorageCart();
-  let quantity;
-  const cartQuantity = currentCart.line_items
-    .reduce((total, item) => total + item.quantity, 0);
+  const quantity = 0;
+  if (currentCart) {
+    const cartQuantity = currentCart.line_items
+      .reduce((total, item) => total + item.quantity, 0);
 
-  if (cartQuantity > 0) {
-    quantity = cartQuantity;
-  } else {
-    quantity = 0;
+    if (cartQuantity > 0) {
+      return cartQuantity;
+    }
   }
 
   return quantity;
