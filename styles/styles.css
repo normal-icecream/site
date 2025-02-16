@@ -90,14 +90,20 @@
 /* fallback fonts */
 @font-face {
   font-family: poppins-fallback;
-  size-adjust: 110.471%;
-  src: local('Arial');
+  size-adjust: 94.1%;
+  ascent-override: 95%;
+  descent-override: 20%;
+  line-gap-override: 5%;
+  src: local('Futura'), local('Century Gothic'), local('Arial');
 }
 
 @font-face {
-  font-family: acuminextracondensedbold-fallback;
-  size-adjust: 65.478%;
-  src: local('Arial');
+  font-family: acumin-fallback;
+  size-adjust: 88.8%;
+  ascent-override: 90%;
+  descent-override: 25%;
+  line-gap-override: 5%;
+  src: local('Arial Narrow'), local('Helvetica Condensed'), local('Arial');
 }
 
 *,
