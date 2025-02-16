@@ -1,106 +1,138 @@
 .title {
-    /* The gradient here doesn't look great on desktop, better on mobile. Maybe we can create a slightly different one later */
-    background: var(--gradient);
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    padding: 26px;
-    border-top: 2px solid var(--blue);
-    border-bottom: 2px solid var(--blue);
-    position: relative;
-    margin-top: 80px;
-    margin-bottom: 40px;
+  font-family: var(--heading-font-family);
 }
 
-@keyframes rotate-background {
-  from {
-        background-position: center center;
-        transform: rotate(0deg);
-    }
+.title-wrapper.sticky {
+  position: sticky;
+  top: calc(var(--header-height) - 1px);
+  padding-top: var(--spacing-s);
+  padding-bottom: var(--spacing-l);
+  background-color: var(--layer-base);
+  z-index: 1;
+}
 
-  to {
-        background-position: center center;
-        transform: rotate(360deg);
-    }
+.title-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: var(--border-m);
+  background-color: var(--blue);
+  transition: opacity 0.3s, width 0.3s;
+  opacity: 0;
+}
+
+.title-wrapper[data-sticky='true']::after {
+  width: 100%;
+  opacity: 1;
+}
+
+.title h2,
+.title .h2 {
+  margin: 0;
+  scroll-margin: 1em;
+  font-size: var(--heading-size-xxl);
+  font-weight: var(--weight-extrabold);
+  line-height: var(--line-height-s);
+  text-transform: lowercase;
+}
+
+.title p {
+  font-size: var(--heading-size-xs);
+  grid-row: 2;
+  grid-column: span 2;
+}
+
+.title h2 + p {
+  margin: 0;
+}
+
+.title > div {
+  display: grid;
+  grid-template-columns: 1fr minmax(auto, max-content);
+  grid-template-rows: auto;
+  gap: 0 var(--spacing-s);
+  max-width: 100%;
+}
+
+.title > div > * {
+  align-self: end;
 }
 
 .title .title-price {
-    position: absolute;
-    height: 130px;
-    width: 130px;
-    top: -40%;
-    right: 10%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0 2ch;
+  min-width: 0;
+  overflow-wrap: break-word;
+  text-align: right;
+}
+
+.title .title-price p {
+  display: block;
+  position: relative;
+  margin: 0;
+  margin-right: 2ch;
+}
+
+.title .title-price .title-price-label {
+  position: absolute;
+  top: 5px;
+  left: calc(100% + 1ch);
+  transform: rotate(90deg);
+  transform-origin: left;
+  line-height: 0;
+  transition: all 0.3s;
+}
+
+.title .title-price .title-price-extra {
+  display: none;
+}
+
+@media (width >= 600px) {
+  .title > div {
+    grid-template-rows: auto 1fr;
+  }
+
+  .title p {
+    grid-column: 1;
+  }
+
+  .title .title-price {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .title > div > * {
+    align-self: unset;
+  }
+  
+  .title .title-price p {
     display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    overflow: hidden;
-}
+    flex-direction: column;
+    margin-right: 0;
+  }
+  
+  .title .title-price .title-price-label {
+    position: unset;
+    transform: unset;
+    line-height: unset;
+  }
 
-.title .title-price span {
-    position: absolute;
-    height: 240px;
-    width: 240px;
-    padding: 55px;
-}
-
-.title .title-price span svg {
-    height: 100%;
-    width: 100%;
-    animation: rotate-background 10s linear infinite;
-    stroke: var(--blue);
-    stroke-width: 2px;
-    fill: var(--specialty-color-blue);
-}
-
-.title .title-price-content {
-    position: relative;
-    z-index: 2;
-    transform: rotate(-360deg);
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.title .title-price-amount {
-    font-family: var(--heading-font-family);
-    font-size: var(--heading-size-xl);
-    text-align: center;
-    line-height: 34px;
-    padding-top: 10px;
-}
-
-.title .title-price-subtext {
-    text-align: center;
-    font-family: var(--heading-font-family);
-    font-size: var(--heading-size-xs);
-    line-height: 24px;
-}
-
-.title .title-price-long-subtext {
-    font-size: var(--heading-size-xxs);
+  .title .title-price .title-price-extra {
+    font-family: var(--body-font-family);
+    font-size: var(--body-size-s);
+    display: unset;
+    max-width: 80px;
+  }
 }
 
 @media (width >= 900px) {
-    .title {
-        width: 100%;
-        margin-left: 0;
-        border-left: 2px solid var(--blue);
-        border-right: 2px solid var(--blue);
-        border-radius: 4px;
-    }
-
-    .title .title-price {
-        right: 3%;
-        top: -50%;
-    }
-
-    .title .title-price-amount {
-        font-size: var(--heading-size-xxl);
-    }
-
-    .title .title-price-long-subtext {
-        font-size: var(--heading-size-xs);
-    } 
+  .title h2,
+  .title .h2 {
+    font-size: var(--heading-size-xxxl);
+  }
 }
