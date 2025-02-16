@@ -140,6 +140,7 @@ body ::selection {
 }
 
 header {
+  position: fixed;
   min-height: var(--header-height);
   transition: height 0.2s, min-height 0.2s;
 }
