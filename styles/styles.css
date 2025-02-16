@@ -82,7 +82,7 @@
 @media (width >= 900px) {
   :root {
     /* widths and heights */
-    --header-height: 80px;
+    --header-height: 95px;
     --horizontal-spacing: var(--spacing-xl);
   }
 }
