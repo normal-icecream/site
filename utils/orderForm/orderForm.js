@@ -1,10 +1,14 @@
 /* eslint-disable import/no-cycle */
-
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
-import { getLastCartKey, getCartLocation, refreshCartContent } from '../../pages/cart/cart.js';
+import { 
+  getLastCartKey, 
+  getCartLocation, 
+  refreshCartContent, 
+  getCartCard 
+} from '../../pages/cart/cart.js';
 import {
   SquareOrderWrapper,
   SquareDiscountAmountData,
@@ -136,9 +140,7 @@ export function resetOrderForm() {
   localStorage.setItem('orderFormData', JSON.stringify(orderData));
 }
 
-export function orderForm(cartData) {
-  const env = getEnvironment();
-  const modal = document.querySelector('.modal.cart');
+function getOrderFormData() {
   const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
   if (!orderFormData) {
     localStorage.setItem('orderFormData', JSON.stringify({
@@ -156,27 +158,133 @@ export function orderForm(cartData) {
       getItShipped: false,
     }));
   }
+  return orderFormData;
+}
 
-  const populateFields = (formFields) => {
-    const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
-    const cartKey = getLastCartKey();
+export function wholesaleOrderForm(wholesaleData, modal) {
+  console.log("wholesaleData:", wholesaleData);
+  const env = getEnvironment();
+  const currentOrderFormData = getOrderFormData();
 
+  const wholesaleCartCard = getCartCard(wholesaleData);
+  modal.append(wholesaleCartCard);
+  
+  function populateFields(formFields) {
+    const orderFormFields = getOrderFormData();
     const fieldsToDisplay = [];
-
+  
     const visibleFields = [];
     alwaysVisibleFields.forEach((field) => {
       const visibleField = formFields.find((f) => f.name === field);
       if (visibleField) visibleFields.push(visibleField);
     });
     visibleFields.forEach((field) => fieldsToDisplay.push(field));
+  
+    const shippingFields = [];
+    addressFields.forEach((field) => {
+      const shippingField = formFields.find((f) => f.name === field);
+      if (shippingField) shippingFields.push(shippingField);
+    });
+    shippingFields.forEach((field) => fieldsToDisplay.push(field));
+  
+    return fieldsToDisplay.map((field) => {
+      const value = orderFormFields[field.name] || '';
+      return {
+        ...field,
+        value,
+        oninput: (event) => {
+          orderFormFields[field.name] = event.target.value;
+          localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
+        },
+      };
+    });
+  };
 
+  async function createSquareWholesaleOrder() {
+    const orderData = new SquareOrderData(wholesaleData, window.taxList[0]).build();
+    
+    console.log('hitting createSquareWholesaleOrder');
+    if (currentOrderFormData.discountCode && currentOrderFormData.discountCode.trim() !== '') {
+      const discounts = [];
+      const discountData = window.catalog.discounts[currentOrderFormData.discountCode].id;
+      const discount = window.catalog.byId[discountData];
+
+      if (discount) {
+        if (discount.discount_data.percentage) {
+          discounts.push(new SquareDiscountPercentageData(discount).build());
+        }
+        if (discount.discount_data.amount_money) {
+          discounts.push(new SquareDiscountAmountData(discount).build());
+        }
+        orderData.discounts = discounts;
+      }
+    }
+
+    const note = [];
+    if (wholesaleData.note) note.push(wholesaleData.note);
+    orderData.note = note.length > 0 ? note.join(' | ') : '';
+
+    orderData.line_items.forEach((item) => item.quantity = String(item.quantity));
+
+    if (env === 'sandbox') {
+      orderData.line_items.forEach((item) => delete item.catalog_object_id);
+    }
+
+    const orderWrapper = new SquareOrderWrapper(orderData).build();
+    console.log("orderWrapper:", orderWrapper);
+    const cartLocation = getCartLocation();
+    console.log("cartLocation:", cartLocation);
+
+    const newOrder = env === 'sandbox'
+      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
+      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+
+    if (newOrder) {
+      console.log("newOrder:", newOrder);
+      // const cartModal = document.querySelector('.modal.');
+      // toggleModal(modal, `your wholesale order`, refreshCartContent);
+
+      // const paymentsModal = document.querySelector('.modal.payments');
+      // toggleModal(paymentsModal, `your ${getLastCartKey()} order`, refreshPaymentsContent, newOrder);
+    } else {
+      // throw user an error
+      // eslint-disable-next-line no-console
+      console.log('error with creating an order');
+    }
+  }
+
+  const populatedFields = populateFields(fields);
+  const form = buildForm(populatedFields, createSquareWholesaleOrder, modal);
+  form.className = 'form cart-order-form';
+  modal.append(form);
+
+}
+
+export function orderForm(cartData) {
+  const env = getEnvironment();
+  const modal = document.querySelector('.modal.cart');
+  const currentOrderFormData = getOrderFormData();
+
+  function populateFields(formFields) {
+    const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
+    const cartKey = getLastCartKey();
+  
+    const fieldsToDisplay = [];
+  
+    const visibleFields = [];
+    alwaysVisibleFields.forEach((field) => {
+      const visibleField = formFields.find((f) => f.name === field);
+      if (visibleField) visibleFields.push(visibleField);
+    });
+    visibleFields.forEach((field) => fieldsToDisplay.push(field));
+  
     const storeFields = [];
     const shippingFields = [];
     addressFields.forEach((field) => {
       const shippingField = formFields.find((f) => f.name === field);
       if (shippingField) shippingFields.push(shippingField);
     });
-
+  
     if (cartKey === 'store') {
       pickupFields.forEach((field) => {
         const pickupField = formFields.find((f) => f.name === field);
@@ -188,9 +296,9 @@ export function orderForm(cartData) {
     } else if (cartKey === 'merch') {
       const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
       fieldsToDisplay.push(shouldShipField);
-
+  
       const shouldShip = JSON.parse(localStorage.getItem('orderFormData')).getItShipped;
-
+  
       if (shouldShip) {
         pickupFields.forEach((field) => {
           const pickupFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
@@ -200,14 +308,14 @@ export function orderForm(cartData) {
             fieldsToDisplay.splice(pickupFieldIndex, 1);
           }
         });
-
+  
         shippingFields.forEach((field) => fieldsToDisplay.push(field));
       } else {
         pickupFields.forEach((field) => {
           const pickupField = formFields.find((f) => f.name === field);
           if (pickupField) fieldsToDisplay.push(pickupField);
         });
-
+  
         shippingFields.forEach((field) => {
           const shippingFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
           //  remove items then refresh cart
@@ -218,7 +326,7 @@ export function orderForm(cartData) {
         });
       }
     }
-
+  
     return fieldsToDisplay.map((field) => {
       const value = orderFormFields[field.name] || '';
       return {
@@ -241,7 +349,6 @@ export function orderForm(cartData) {
 
   async function createSquareOrder() {
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
-    const currentOrderFormData = JSON.parse(localStorage.getItem('orderFormData'));
 
     if (currentOrderFormData.discountCode && currentOrderFormData.discountCode.trim() !== '') {
       const discounts = [];
@@ -267,7 +374,8 @@ export function orderForm(cartData) {
       note.push(`Pickup Time: ${currentOrderFormData.pickuptime}`);
     }
 
-    cartData.line_items.forEach((item) => {
+    // TODO - make sure the switch from cartData to orderData isn't breaking this
+    orderData.line_items.forEach((item) => {
       item.quantity = String(item.quantity);
 
       if (item.modifiers && item.modifiers.length > 0) {
@@ -279,8 +387,10 @@ export function orderForm(cartData) {
     });
     orderData.note = note.length > 0 ? note.join(' | ') : '';
 
+    console.log("env:", env);
     if (env === 'sandbox') {
-      cartData.line_items.forEach((item) => {
+      // TODO - make sure the switch from cartData to orderData isn't breaking this
+      orderData.line_items.forEach((item) => {
         delete item.catalog_object_id;
 
         if (item.modifiers && item.modifiers.length > 0) {
@@ -292,6 +402,7 @@ export function orderForm(cartData) {
     }
 
     const orderWrapper = new SquareOrderWrapper(orderData).build();
+    console.log("orderWrapper:", orderWrapper);
     const cartLocation = getCartLocation();
 
     // TODO - make sure that this location qp is sending/switching properly in prod env's

@@ -22,13 +22,19 @@ export function getLocalStorageCart() {
 }
 
 export function getCartLocation() {
-  const cartkey = getLastCartKey();
-  const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
   let currentLocation = '';
-  if (cartkey === 'merch') {
-    currentLocation = getItShipped ? 'shipping' : 'store';
+  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+
+  if (wholesale) {
+    currentLocation = 'wholesale';
   } else {
-    currentLocation = cartkey;
+    const cartkey = getLastCartKey();
+    const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
+    if (cartkey === 'merch') {
+      currentLocation = getItShipped ? 'shipping' : 'store';
+    } else {
+      currentLocation = cartkey;
+    }
   }
   return currentLocation;
 }
@@ -71,7 +77,7 @@ export function getCartQuantity() {
   return quantity;
 }
 
-function createLineItem(catalogItemId, quantity) {
+export function createLineItem(catalogItemId, quantity) {
   const squareItem = window.catalog.byId[catalogItemId];
   const lineItemData = {
     catalog_object_id: squareItem.id,
@@ -84,7 +90,7 @@ function createLineItem(catalogItemId, quantity) {
     name: squareItem.item_data.name,
     item_type: squareItem.type,
   };
-  return new SquareOrderLineItem(lineItemData);
+  return new SquareOrderLineItem(lineItemData).build();
 }
 
 function updateCartQuantityUI() {

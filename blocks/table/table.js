@@ -68,13 +68,19 @@ export default async function decorate(block) {
         productPTag.textContent = group[0].TYPE;
         productTh.append(productPTag);
 
+        // create price header
+        const priceTh = document.createElement('th');
+        const pricePTag = document.createElement('p');
+        pricePTag.textContent = 'price';
+        priceTh.append(pricePTag);
+
         // create quantity header
         const quantityTh = document.createElement('th');
         const quantityPTag = document.createElement('p');
         quantityPTag.textContent = 'quantity';
         quantityTh.append(quantityPTag);
 
-        labelRow.append(productTh, quantityTh);
+        labelRow.append(productTh, priceTh, quantityTh);
         tbody.append(labelRow);
 
         // Loop over each product within the group and add table row and data
@@ -113,6 +119,11 @@ export default async function decorate(block) {
             productCell.append(imageWrapper);
           }
 
+          const priceCell = document.createElement('td');
+          const price = document.createElement('h4');
+          price.textContent = product.PRICE;
+          priceCell.append(price);
+
           // Create the quantity cell, showing either "sold out" or an input field.
           const quantityCell = document.createElement('td');
           if (product.SOLDOUT) {
@@ -124,6 +135,7 @@ export default async function decorate(block) {
             const quantityInput = document.createElement('input');
             quantityInput.type = 'number';
             quantityInput.id = product.ID;
+            quantityInput.dataset.itemName = product.ITEM;
             quantityInput.value = 0;
             quantityInput.min = 0;
             quantityInput.max = product.AVAILABLE;
@@ -131,13 +143,13 @@ export default async function decorate(block) {
             quantityCell.append(quantityInput);
           }
           // Append product and quantity cells to the row.
-          productRow.append(productCell, quantityCell);
+          productRow.append(productCell, priceCell, quantityCell);
           tbody.append(productRow);
         });
         // Append the tbody for this group to the table.
         table.append(tbody);
       });
-      // Add table toto form in table block
+      // Add table to form in table block
       form.prepend(table);
     } catch (err) {
       throw new Error('no .json');

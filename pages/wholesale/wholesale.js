@@ -1,5 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import { buildBlock, loadCSS } from '../../scripts/aem.js';
+import { createModal, toggleModal } from '../../utils/modal/modal.js';
+import { wholesaleOrderForm } from '../../utils/orderForm/orderForm.js';
+import { createLineItem } from '../cart/cart.js';
 
 function createSubmitButton() {
   // Create submit button wrapper
@@ -9,7 +12,7 @@ function createSubmitButton() {
   // Create submit button
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
-  submitButton.textContent = 'add to cart';
+  submitButton.textContent = 'place order';
 
   submitButtonWrapper.append(submitButton);
   return submitButtonWrapper;
@@ -75,27 +78,70 @@ export async function decorateWholesale(main) {
     const parentDiv = link.closest('div');
 
     const form = document.createElement('form');
-    form.className = 'table-form';
+    form.classList.add('table-form', 'wholesale-form');
+
+    const wholesaleModal = document.createElement('div');
+    wholesaleModal.classList.add('wholesale-modal');
+    createModal(wholesaleModal);
+    form.append(wholesaleModal);
 
     // Form handle submit
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      console.log("event:", event.target.value);
 
       const isValid = validateForm();
       if (isValid) {
-        const formData = {};
+        // const formData = {};
+        // const inputsTest = form.querySelectorAll('input');
+        // console.log("inputsTest:", inputsTest);
+        // const test = [];
+        // inputsTest.forEach((field) => {
+        //   console.log('field', field)
+        //   console.log('field.name', field.name)
+        // });
+        // // Add data to cart
+        // console.log("lineItems:", lineItems);
+        // console.log("formData:", formData);
+
         const inputs = form.querySelectorAll('input[type="number"]');
-        inputs.forEach(({ id, value }) => {
+        
+        const lineItems = [];
+        inputs.forEach(({id, value, dataset}) => {
           // If input value isn't empty or zero, add to formData
           if (value > 0) {
-            formData[id] = {
-              // TODO - Add whatever data we want to send
-              quantity: value,
-            };
+            const item = window.catalog.byId[id];
+            const lineItem = createLineItem(item.id, value);
+            lineItems.push(lineItem);
+            lineItem.note = dataset.itemName;
+            // lineItem.key = id;
+          
+            // formData[id] = {
+            //   // TODO - Add whatever data we want to send
+            //   quantity: value,
+            // };
           }
         });
-        // Add data to cart
-        // console.log("formData:", formData);
+        console.log("lineItems:", lineItems);
+
+
+        // const modalContentSection = element.querySelector('.wholesale-modal');
+
+        function refreshWholesaleContent(formData) {
+          console.log("formData:", formData);
+          const wholesaleModal = document.querySelector('.wholesale-modal');
+          const modalContentSection = wholesaleModal.querySelector('.modal-content');
+          console.log("modalContentSection:", modalContentSection);
+
+          // wholesaleModal.innerHTML = '';
+          
+          // const test = document.createElement('div');
+          // test.textContent = 'TTTAAACCCCCCOOOOOOO';
+          // wholesaleModal.append(test);
+          wholesaleOrderForm({line_items: lineItems}, wholesaleModal)
+        }
+
+        toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
       }
     });
 
