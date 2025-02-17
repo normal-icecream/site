@@ -172,6 +172,13 @@ function validateInput(input) {
       errorMessages.push('Numbers are not allowed.');
     }
 
+    if (rule === 'discount' && input.value && input.value.trim() !== '') {
+      const discount = window.catalog.discounts[input.value];
+      if (!discount) {
+        errorMessages.push('invalid discount code.');
+      }
+    }
+
     // Rule: US phone number validation
     if (rule === 'phone:US' && /\d/.test(input.value)) {
       const digitsOnly = input.value.replace(/\D/g, '');
@@ -261,7 +268,7 @@ function buildInput(field) {
   input.type = field.type || 'text';
   input.name = field.name || '';
   input.placeholder = field.placeholder || '';
-  input.value = field.value ?? '';
+  input.value = (field.value || field.val) ?? '';
   input.min = field.min ?? '';
 
   // Apply additional optional attributes
@@ -361,9 +368,11 @@ function buildRadio(field) {
 
     // Set required attribute if specified
     if (field.required) radio.required = true;
-
-    // Prepend the radio input to its label
-    radioLabel.prepend(radio);
+    if (option.id) radio.id = option.id;
+    if (radioLabel) {
+      // Prepend the radio input to its label
+      radioLabel.prepend(radio);
+    }
 
     // Trigger input validation when the user types into the field
     radio.addEventListener('input', () => {
@@ -548,7 +557,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
       throw new Error(`Field at index ${index} of type "${field.type}" must include a "placeholder" property.`);
     }
     if (field.type === 'checkbox') {
-      if ((!field.value || typeof field.value !== 'string')) {
+      if ((!field.val || typeof field.val !== 'string')) {
         throw new Error(`Missing valid "value" property from config at index ${index}.`);
       }
     }
@@ -594,7 +603,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
             throw new Error('"Type" is missing from option');
           }
 
-          if (!option.value) {
+          if (!option.val) {
             throw new Error('"Value" is missing from option');
           }
 
@@ -618,7 +627,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
  * @param {Function} handleSubmit - A callback function to handle the form data on submission.
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
-export default function buildForm(fields, handleSubmit) {
+export default function buildForm(fields, handleSubmit, scopedElement) {
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
 
@@ -627,6 +636,7 @@ export default function buildForm(fields, handleSubmit) {
 
   // Create the <form> element
   const form = document.createElement('form');
+  form.className = 'form';
 
   // Disable browser's default validation UI in favor of custom validation logic and styling
   form.noValidate = true;
@@ -643,6 +653,12 @@ export default function buildForm(fields, handleSubmit) {
   // Loop through each field definition and dynamically build its corresponding form input
   fields.forEach((field) => {
     const formField = buildField(field);
+
+    // Attach event listeners dynamically
+    if (field.oninput) {
+      formField.addEventListener('input', field.oninput);
+    }
+
     form.append(formField);
   });
 
@@ -654,28 +670,53 @@ export default function buildForm(fields, handleSubmit) {
     isValid = validateForm(form); // Perform custom validation on the form
 
     if (isValid) {
-      const data = {}; // Initialize an object to store form data
-      const formFields = document.querySelectorAll('input, select, textarea');
+      const data = []; // Initialize an object to store form data
+      const formFields = Array.from(scopedElement.querySelectorAll('input, select, textarea'));
 
-      // Process each form field to gather its value
-      formFields.forEach((field) => {
-        if (field.type === 'radio' && field.checked) {
-          data[field.name] = field.value;
+      // Filter out unchecked radio inputs
+      const filteredFormFields = formFields.filter((field) => {
+        if (field.type === 'radio') {
+          return field.checked; // Keep only checked radios
+        }
+        return true; // Keep all other field types
+      });
+
+      filteredFormFields.forEach((field) => {
+        if (field.type === 'radio') {
+          const radioData = {
+            field: field.name,
+            value: field.value,
+          };
+
+          if (field.id) radioData.id = field.id;
+          data.push(radioData);
         } else if (field.type === 'checkbox') {
-          if (data[field.name] === undefined) {
-            data[field.name] = field.checked ? (field.value !== 'on' && field.value) || true : false;
-          } else {
-            // If multiple checkboxes share the same name, store their values in an array
-            if (!Array.isArray(data[field.name])) {
-              data[field.name] = data[field.name] ? [data[field.name]] : [];
-            }
+          const existingEntry = data.find((entry) => entry.name === field.name);
+
+          if (!existingEntry) {
+            let value;
             if (field.checked) {
-              data[field.name].push(field.value);
+              value = field.value !== 'on' ? field.value : true;
+            } else {
+              value = false;
             }
+            data.push({
+              field: field.name,
+              value,
+              // value: field.checked ? (field.value !== 'on' ? field.value : true) : false,
+            });
+          } else if (field.checked) {
+            // Convert to array if there are multiple checkboxes with the same name
+            if (!Array.isArray(existingEntry.value)) {
+              existingEntry.value = [existingEntry.value];
+            }
+            existingEntry.value.push(field.value);
           }
         } else {
-          // For other input types, store their value directly
-          data[field.name] = field.value;
+          data.push({
+            field: field.name,
+            value: field.value,
+          });
         }
       });
 

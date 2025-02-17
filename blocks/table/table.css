@@ -60,6 +60,10 @@
     position: relative;
 }
 
+.table table tbody tr td:first-child h4 {
+    padding-right: var(--spacing-l);
+}
+
 .table table tbody tr td:first-child p:first-child {
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-l);

@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { environmentConfig } from './environmentConfig.js';
 
 // Define the base URL for API requests depending on the environment
 // If running on localhost, use the local development server;
@@ -20,12 +21,14 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   const headers = { 'Content-Type': 'application/json' };
   const options = { method, headers };
 
-  if (data) {
-    options.body = JSON.stringify(data);
-  }
+  if (data) options.body = JSON.stringify(data);
 
   // Send the API request and await the response
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  const baseUrl = `${API_BASE_URL}${endpoint}`;
+  const url = new URL(baseUrl);
+  if (environmentConfig.useSandbox) url.searchParams.set('env', 'sandbox');
+
+  const response = await fetch(url.toString(), options);
 
   // Check if the response status indicates an error
   if (!response.ok) {
