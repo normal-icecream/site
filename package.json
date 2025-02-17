@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Test environment for Normal Ice Cream",
   "scripts": {
-    "lint:js": "eslint  . --fix",
+    "lint:js": "eslint . --fix",
     "start": "concurrently \"aem up\" \"wrangler dev --remote\"",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css"
@@ -26,6 +26,6 @@
     "eslint-plugin-import": "2.29.1",
     "stylelint": "16.6.1",
     "stylelint-config-standard": "36.0.0",
-    "wrangler": "^3.107.3"
+    "wrangler": "^3.109.1"
   }
 }

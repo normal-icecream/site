@@ -10,17 +10,21 @@
 export function createEl(tag, attrs, children) {
   const el = document.createElement(tag);
   // loop through the attributes and set them
-  Object.keys(attrs).forEach((key) => {
-    el.setAttribute(key, attrs[key]);
-  });
+  if (attrs) {
+    Object.entries(attrs).forEach(([key, value]) => {
+      el.setAttribute(key, value);
+    });
+  }
   // normalize children to always be an array
-  // eslint-disable-next-line no-param-reassign
-  children = Array.isArray(children) ? children : [children];
-  // add each child to the element
-  children.forEach((child) => {
-    if (child instanceof HTMLElement) el.appendChild(child);
-    else el.appendChild(document.createTextNode(child));
-  });
+  if (children) {
+    // eslint-disable-next-line no-param-reassign
+    children = Array.isArray(children) ? children : [children];
+    // add each child to the element
+    children.forEach((child) => {
+      if (child instanceof HTMLElement) el.appendChild(child);
+      else el.appendChild(document.createTextNode(child));
+    });
+  }
   return el;
 }
 
@@ -74,35 +78,4 @@ export function formatPhoneNumberToE164(phoneNumber, countryCode = '1') {
     return `+${digits}`; // Already in E.164 format
   }
   return `+${countryCode}${digits}`;
-}
-
-export async function getIconSvg(icon, height, width, color = 'red') {
-  const svgPath = `../icons/${icon}.svg`;
-
-  try {
-    const response = await fetch(svgPath);
-
-    if (!response.ok) {
-      throw new Error(`Failed to load SVG: ${response.statusText}`);
-    }
-
-    const svgText = await response.text();
-    const div = document.createElement('div');
-    div.innerHTML = svgText;
-
-    const svgElement = div.querySelector('svg');
-    if (!svgElement) {
-      throw new Error('Invalid SVG file.');
-    }
-
-    if (width) svgElement.setAttribute('width', width);
-    if (height) svgElement.setAttribute('height', height);
-    if (color) svgElement.setAttribute('fill', color);
-
-    return svgElement; // Return the SVG elemen
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log('Error fetching SVG:', error);
-    return null;
-  }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { formatCurrency, getIconSvg } from '../../helpers/helpers.js';
+import { formatCurrency } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 import { orderForm } from '../../utils/orderForm/orderForm.js';
@@ -12,7 +12,7 @@ export const allowedCartPages = Object.freeze([
 
 export function getLastCartKey() {
   const cart = JSON.parse(localStorage.getItem('carts'));
-  return cart ? cart.lastcart : '';
+  return cart ? cart.lastcart : 'store';
 }
 
 export function getLocalStorageCart() {
@@ -40,12 +40,8 @@ export function getCartLocation() {
 }
 
 async function getEmptyCartMessage() {
-  const cartIcon = await getIconSvg('normal-cart', '200px', '200px', 'var(--blue)');
-
   const noItemsInCartContainer = document.createElement('div');
   noItemsInCartContainer.className = 'empty-cart-container'; // Optional styling class
-
-  if (cartIcon) noItemsInCartContainer.appendChild(cartIcon);
 
   const noCartDiv = document.createElement('h4');
   noCartDiv.className = 'empty-cart-message';
@@ -64,14 +60,14 @@ function getCartTotals(cartItems) {
 
 export function getCartQuantity() {
   const currentCart = getLocalStorageCart();
-  let quantity;
-  const cartQuantity = currentCart.line_items
-    .reduce((total, item) => total + item.quantity, 0);
+  const quantity = 0;
+  if (currentCart) {
+    const cartQuantity = currentCart.line_items
+      .reduce((total, item) => total + item.quantity, 0);
 
-  if (cartQuantity > 0) {
-    quantity = cartQuantity;
-  } else {
-    quantity = 0;
+    if (cartQuantity > 0) {
+      return cartQuantity;
+    }
   }
 
   return quantity;

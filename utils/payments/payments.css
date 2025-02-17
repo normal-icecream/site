@@ -49,3 +49,7 @@
     cursor: pointer;
     border-radius: 6px;
 }
+
+.payments.modal .cart .cart-content-wrapper > .cart-quantity-wrapper button {
+    display: none;
+}

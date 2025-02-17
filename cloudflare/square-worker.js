@@ -41,76 +41,56 @@ const LOCATIONS = [
   },
 ];
 
-const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
-const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
-
 async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
-  let nextCursor = null;
-  let currentUrl = baseUrl; // Start with the base URL
-
-  do {
-    // eslint-disable-next-line no-await-in-loop
-    const response = await fetch(currentUrl, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // eslint-disable-next-line no-await-in-loop
-    const jsonResponse = await response.json();
-    if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
-
-    nextCursor = jsonResponse.cursor;
-
-    if (nextCursor) {
-      // Create a URL object to manipulate query parameters safely
-      const urlObj = new URL(currentUrl);
-      if (urlObj.searchParams.has('cursor')) {
-        // Replace the existing cursor value
-        urlObj.searchParams.set('cursor', nextCursor);
-      } else {
-        // Append the new cursor if it doesn't exist
-        urlObj.searchParams.append('cursor', nextCursor);
-      }
-      currentUrl = urlObj.toString();
-    }
-  } while (nextCursor); // Keep looping until there’s no cursor
-  return collectedItems; // Return all collected items
-}
-
-async function refreshCatalog(env, apiKey) {
-  const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-
-  if (latestCatalog) {
-    await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
-  } else {
-    console.warn('Failed to fetch new catalog data.');
-  }
-}
-
-async function fetchCatalog(env, apiKey) {
-  let catalogData;
-
   try {
-    // Fetch catalog from KV store
-    catalogData = await env.CATALOG_JSON.get('catalog', { type: 'json' });
-    refreshCatalog(env, apiKey); // Trigger refresh in the background
-    return JSON.stringify(catalogData); // Return it safely
-  } catch (kvError) {
-    console.error('Error fetching from KV Store:', kvError);
-  }
+    let nextCursor = null;
+    let currentUrl = baseUrl; // Start with the base URL
 
-  // If no cached data, fetch new data from Square before responding
-  const newCatalogData = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-  if (newCatalogData) {
-    await env.CATALOG_JSON.put('catalog', JSON.stringify(newCatalogData));
-    return JSON.stringify(newCatalogData);
-  }
+    do {
+      // eslint-disable-next-line no-await-in-loop
+      const response = await fetch(currentUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-  // Return an empty JSON response if everything fails
-  return JSON.stringify({ error: 'Failed to fetch catalog data' });
+      // eslint-disable-next-line no-await-in-loop
+      const jsonResponse = await response.json();
+      if (jsonResponse.objects) collectedItems.push(...jsonResponse.objects);
+
+      nextCursor = jsonResponse.cursor;
+
+      if (nextCursor) {
+        // Create a URL object to manipulate query parameters safely
+        const urlObj = new URL(currentUrl);
+        if (urlObj.searchParams.has('cursor')) {
+          // Replace the existing cursor value
+          urlObj.searchParams.set('cursor', nextCursor);
+        } else {
+          // Append the new cursor if it doesn't exist
+          urlObj.searchParams.append('cursor', nextCursor);
+        }
+        currentUrl = urlObj.toString();
+      }
+    } while (nextCursor); // Keep looping until there's no cursor
+    return collectedItems; // Return all collected items
+  } catch (error) {
+    console.error('Error in fetchAllPages:', error);
+    return []; // Return empty array to prevent blocking execution
+  }
+}
+
+async function triggerBackgroundRefresh(env, apiKey) {
+  try {
+    const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
+    if (latestCatalog && latestCatalog.length > 0) {
+      await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
+    }
+  } catch (err) {
+    console.error('Failed to refresh catalog:', err);
+  }
 }
 
 export default {
@@ -159,6 +139,7 @@ export default {
       }
     } // Select correct square path to hit based on useProduction flag
 
+    // Check if request is for 'orders' in the request path
     const isOrderRequest = url.pathname.includes('orders');
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
     let locationKey;
@@ -181,24 +162,34 @@ export default {
             headers: { 'Content-Type': 'text/plain' },
           });
         }
-        // check for locations qp and grab the corresponding location
       }
     }
 
+    // Check if the request is explicitly set to use the Square Sandbox environment
     const forceSandbox = url.searchParams.get('env') === 'sandbox';
+
+    // Determine whether to use the production API or the sandbox API
     const useProduction = !forceSandbox;
+
+    // Select the appropriate API key based on the environment
     const apiKey = useProduction ? env.SQUARE_PROD_API_KEY : env.SQUARE_SANDBOX_API_KEY;
+
+    // Set the base URL for the Square API, choosing either production or sandbox
     const baseUrl = useProduction ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
     // Extract the pathname from the request URL and modify it to match the Square API
     const squareUrl = `${baseUrl}${url.pathname.replace('/api/square', '')}`;
 
+    // Filter out unnecessary query parameters from the request
     const filteredParams = Array.from(url.searchParams.entries()).filter((([key]) => !key.startsWith('env') && !key.startsWith('location')));
+
     // Rebuild the query parameters without the ones starting with "env"
     url.search = new URLSearchParams(filteredParams).toString();
 
+    // Reconstruct the final query string, properly encoding parameters
     const queryString = filteredParams.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
 
+    // Construct the final Square API request URL with the filtered query string
     const fullSquareUrl = queryString ? `${squareUrl}?${queryString}` : squareUrl;
 
     // Idempotency Key
@@ -211,16 +202,42 @@ export default {
       requestBody = JSON.stringify(body);
     }
 
+    // Check if the request is for the catalog json
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
-      const objects = await fetchCatalog(env, apiKey);
-      return new Response(JSON.stringify({ objects }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': originHeader,
-        },
-      });
+      try {
+        // Try to get catalog data from Cloudflare KV storage
+        const catalogData = await env.CATALOG_JSON.get('catalog', { type: 'json' });
+
+        // If catalog data exists and is not empty, return it immediately to the client
+        if (catalogData && catalogData.length > 0) {
+          // Trigger a background refresh of the catalog data without blocking the response
+          triggerBackgroundRefresh(env, apiKey);
+          return new Response(JSON.stringify({ objects: catalogData }), {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': originHeader,
+            },
+          });
+        }
+        // If no catalog data is found, fetch the latest data from Square
+        const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
+        // Store the fetched catalog data in Cloudflare KV storage
+        await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
+
+        // Return the fetched catalog data to the client
+        return new Response(JSON.stringify({ objects: latestCatalog }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': originHeader,
+          },
+        });
+      } catch (error) {
+        console.error(`KV returned error: ${error}`);
+        return new Response(error, { status: 500 });
+      }
     }
 
     // If it's a GET request for listing Square catalog items
@@ -276,7 +293,7 @@ export default {
 
     const additionalFields = {};
     if (isOrderRequest) {
-      additionalFields.applicationId = isSandboxUrl ? SANDBOX_APPLICATION_ID : PROD_APPLICATION_ID;
+      additionalFields.applicationId = isSandboxUrl ? env.SQUARE_SANDBOX_APP_ID : env.SQUARE_PROD_APP_ID;
     }
 
     const modifiedResponse = new Response(

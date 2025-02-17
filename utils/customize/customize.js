@@ -4,17 +4,11 @@ import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { SquareModifier } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
-import { loadCSS } from '../../scripts/aem.js';
+import { loadCSS, toClassName } from '../../scripts/aem.js';
 
 // TODO - do I need this? see helpers formatCurrency
 export function formatMoney(num) {
   return Number(num / 100).toFixed(2);
-}
-
-export function toClassName(name) {
-  return name && typeof name === 'string'
-    ? name.toLowerCase().replace(/[^0-9a-z]/gi, '-')
-    : '';
 }
 
 // Function to refresh the cart content
