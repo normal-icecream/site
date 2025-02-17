@@ -149,9 +149,6 @@ export async function getCardPaymentForm(element, orderData) {
   const currentCart = getCartCard(cartData);
   element.append(currentCart);
 
-  const cartItemActions = element.querySelectorAll('.cart .cart-quantity-wrapper');
-  cartItemActions.forEach((cartAction) => cartAction.remove());
-
   const totalWrapper = element.querySelector('.cart .cart-total-wrapper');
   if (totalWrapper) totalWrapper.innerHTML = '';
 
