@@ -190,19 +190,18 @@ export default {
               'Access-Control-Allow-Origin': originHeader,
             },
           });
-        } else {
-          const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-          await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
-  
-          // return new Response("Value not found", { status: 404 });
-          return new Response(JSON.stringify({ objects: latestCatalog }), {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': originHeader,
-            },
-          });
         }
+        const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
+        await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
+
+        // return new Response("Value not found", { status: 404 });
+        return new Response(JSON.stringify({ objects: latestCatalog }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': originHeader,
+          },
+        });
       } catch (error) {
         console.error(`KV returned error: ${error}`);
         return new Response(error, { status: 500 });
