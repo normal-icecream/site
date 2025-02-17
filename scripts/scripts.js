@@ -215,6 +215,7 @@ export async function fetchCatalog() {
       window.catalog = catalog;
     }
   }
+  console.log('window.catalog', window.catalog);
 }
 
 /**

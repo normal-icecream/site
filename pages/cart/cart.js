@@ -12,7 +12,7 @@ export const allowedCartPages = Object.freeze([
 
 export function getLastCartKey() {
   const cart = JSON.parse(localStorage.getItem('carts'));
-  return cart ? cart.lastcart : '';
+  return cart ? cart.lastcart : 'store';
 }
 
 export function getLocalStorageCart() {
