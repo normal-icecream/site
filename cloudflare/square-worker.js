@@ -80,39 +80,6 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   return collectedItems; // Return all collected items
 }
 
-async function refreshCatalog(env, apiKey) {
-  const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-
-  if (latestCatalog) {
-    await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
-  } else {
-    console.warn('Failed to fetch new catalog data.');
-  }
-}
-
-async function fetchCatalog(env, apiKey) {
-  let catalogData;
-
-  try {
-    // Fetch catalog from KV store
-    catalogData = await env.CATALOG_JSON.get('catalog', { type: 'json' });
-    refreshCatalog(env, apiKey); // Trigger refresh in the background
-    return JSON.stringify(catalogData); // Return it safely
-  } catch (kvError) {
-    console.error('Error fetching from KV Store:', kvError);
-  }
-
-  // If no cached data, fetch new data from Square before responding
-  const newCatalogData = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-  if (newCatalogData) {
-    await env.CATALOG_JSON.put('catalog', JSON.stringify(newCatalogData));
-    return JSON.stringify(newCatalogData);
-  }
-
-  // Return an empty JSON response if everything fails
-  return JSON.stringify({ error: 'Failed to fetch catalog data' });
-}
-
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
@@ -213,14 +180,33 @@ export default {
 
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
-      const objects = await fetchCatalog(env, apiKey);
-      return new Response(JSON.stringify({ objects }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': originHeader,
-        },
-      });
+      try {
+        const catalogData = await env.CATALOG_JSON.get('catalog', { type: 'json' });
+
+        if (catalogData.length > 0) {
+          return new Response(JSON.stringify({ objects: catalogData }), {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': originHeader,
+            },
+          });
+        }
+        const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
+        await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
+
+        // return new Response("Value not found", { status: 404 });
+        return new Response(JSON.stringify({ objects: latestCatalog }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': originHeader,
+          },
+        });
+      } catch (error) {
+        console.error(`KV returned error: ${error}`);
+        return new Response(error, { status: 500 });
+      }
     }
 
     // If it's a GET request for listing Square catalog items

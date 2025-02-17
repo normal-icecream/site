@@ -176,15 +176,14 @@ async function loadLazy(doc) {
 export async function fetchCatalog() {
   if (!window.catalog) {
     const json = await getCatalogListJson();
-    const formattedJson = JSON.parse(json);
-    if (formattedJson) {
+    if (json) {
       const catalog = {
         byId: {},
         items: [],
         categories: [],
         discounts: {},
       };
-      formattedJson.forEach((e) => {
+      json.forEach((e) => {
         if (!catalog.byId[e.id]) {
           catalog.byId[e.id] = e;
         }
@@ -227,6 +226,7 @@ async function loadDelayed() {
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
   fetchCatalog();
+  // TODO - do i even need this?
   getCatalogTaxList();
 }
 

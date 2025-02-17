@@ -21,18 +21,12 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   const headers = { 'Content-Type': 'application/json' };
   const options = { method, headers };
 
-  if (data) {
-    options.body = JSON.stringify(data);
-  }
+  if (data) options.body = JSON.stringify(data);
 
   // Send the API request and await the response
-  const sandboxParam = environmentConfig.useSandbox ? '?env=sandbox' : '';
-  const prodParam = environmentConfig.useProduction ? '&env=prod' : '';
-
   const baseUrl = `${API_BASE_URL}${endpoint}`;
   const url = new URL(baseUrl);
-  if (sandboxParam) url.searchParams.set('env', 'sandbox');
-  if (prodParam) url.searchParams.set('env', 'prod');
+  if (environmentConfig.useSandbox) url.searchParams.set('env', 'sandbox');
 
   const response = await fetch(url.toString(), options);
 
