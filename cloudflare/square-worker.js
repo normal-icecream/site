@@ -41,9 +41,6 @@ const LOCATIONS = [
   },
 ];
 
-const PROD_APPLICATION_ID = 'sq0idp-7jw3abEgrV94NrJOaRXFTw';
-const SANDBOX_APPLICATION_ID = 'sandbox-sq0idb-qLf4bq1JWvEeLouPhDqnRA';
-
 async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   try {
     let nextCursor = null;
@@ -296,7 +293,7 @@ export default {
 
     const additionalFields = {};
     if (isOrderRequest) {
-      additionalFields.applicationId = isSandboxUrl ? SANDBOX_APPLICATION_ID : PROD_APPLICATION_ID;
+      additionalFields.applicationId = isSandboxUrl ? env.SQUARE_SANDBOX_APP_ID : env.SQUARE_PROD_APP_ID;
     }
 
     const modifiedResponse = new Response(
