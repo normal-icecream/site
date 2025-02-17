@@ -12,6 +12,7 @@ import {
   sampleRUM,
 } from './aem.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
+import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -172,20 +173,67 @@ async function loadLazy(doc) {
   swapIcons(main);
 }
 
+export async function fetchCatalog() {
+  if (!window.catalog) {
+    const json = await getCatalogListJson();
+    if (json) {
+      const catalog = {
+        byId: {},
+        items: [],
+        categories: [],
+        discounts: {},
+      };
+      json.forEach((e) => {
+        if (!catalog.byId[e.id]) {
+          catalog.byId[e.id] = e;
+        }
+        if (e.type === 'ITEM') {
+          catalog.items.push(e);
+          if (e.item_data.variations) {
+            e.item_data.variations.forEach((v) => {
+              catalog.byId[v.id] = v;
+            });
+          }
+        }
+        if (e.type === 'MODIFIER_LIST') {
+          if (e.modifier_list_data.modifiers) {
+            e.modifier_list_data.modifiers.forEach((m) => {
+              m.modifier_data.modifier_list_id = e.id;
+              catalog.byId[m.id] = m;
+            });
+          }
+        }
+        if (e.type === 'DISCOUNT') {
+          if (e.discount_data.name) {
+            catalog.discounts[e.discount_data.name.toLowerCase()] = { id: e.id };
+          }
+        }
+        if (e.type === 'CATEGORY') {
+          catalog.categories.push(e);
+        }
+      });
+      window.catalog = catalog;
+    }
+  }
+}
+
 /**
  * Loads everything that happens a lot later,
  * without impacting the user experience.
  */
-function loadDelayed() {
+async function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
+  fetchCatalog();
+  // TODO - do i even need this?
+  getCatalogTaxList();
 }
 
 async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
-  loadDelayed();
+  await loadDelayed();
 }
 
 loadPage();

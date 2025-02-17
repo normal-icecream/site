@@ -1,4 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { addItemToCart, removeItemFromCart, getCartItemQuantity } from '../../pages/cart/cart.js';
+import { createModal, toggleModal } from '../../utils/modal/modal.js';
+import { refreshCustomizeContent } from '../../utils/customize/customize.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -20,13 +23,13 @@ function debounce(func, delay) {
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
  */
-function decrement(input) {
+function decrement(input, catalogObjectId) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
     input.value = total - 1;
     input.dispatchEvent(new Event('change'));
-    // TODO: update cart totals
+    removeItemFromCart(catalogObjectId, catalogObjectId);
   }
 }
 
@@ -34,13 +37,13 @@ function decrement(input) {
  * Increases the value of an input element by 1 (while observing the max value).
  * @param {HTMLInputElement} input - Input element whose value will be incremented.
  */
-function increment(input) {
+function increment(input, catalogObjectId) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
     input.value = total + 1;
     input.dispatchEvent(new Event('change'));
-    // TODO: update cart totals
+    addItemToCart(catalogObjectId, catalogObjectId);
   }
 }
 
@@ -101,7 +104,6 @@ function clampBodies(wrapper) {
 
 export default function decorate(block) {
   const variants = [...block.classList];
-  // reorganize cards in ordered list
   const ul = document.createElement('ul');
 
   // decorate each card
@@ -113,6 +115,16 @@ export default function decorate(block) {
     image.className = 'cards-card-image';
     body.className = 'cards-card-body';
     card.append(image, body);
+
+    const squareButton = body.querySelector('.button-wrapper');
+    let squareProductId;
+    if (squareButton) {
+      const squareLink = squareButton.querySelector('a')
+        ?.getAttribute('href')
+        .split('/');
+      squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
+      squareButton.remove();
+    }
 
     // decorate image
     const img = image.querySelector('picture > img');
@@ -170,7 +182,7 @@ export default function decorate(block) {
       const total = document.createElement('input');
       total.type = 'number';
       total.min = 0;
-      total.value = 0; // TODO: pull from cart totals
+      total.value = squareProductId ? getCartItemQuantity(squareProductId) : 0;
       total.step = 1;
       total.readOnly = true;
       total.addEventListener('change', () => {
@@ -194,17 +206,25 @@ export default function decorate(block) {
         const symbol = document.createElement('i');
         symbol.className = `symbol symbol-${action}`;
         button.append(symbol);
+
         if (action === 'subtract') {
-          button.disabled = true;
+          button.disabled = !(getCartItemQuantity(squareProductId) > 0);
           cart.prepend(button);
-          button.addEventListener('click', () => decrement(total));
+          // Fetch catalog item by Id to display in new modal variations and mods to choose from.
+          button.addEventListener('click', () => decrement(total, squareProductId));
         } else {
           cart.append(button);
-          button.addEventListener('click', () => increment(total));
+          button.addEventListener('click', () => increment(total, squareProductId));
         }
       });
       li.append(cart);
     } else {
+      const modal = document.createElement('div');
+      modal.classList.add('customize', `customize-${squareProductId}`);
+      modal.dataset.id = squareProductId;
+      createModal(modal);
+      li.append(modal);
+
       // build customize button
       const button = document.createElement('button');
       button.className = 'button customize';
@@ -213,9 +233,17 @@ export default function decorate(block) {
       button.setAttribute('aria-label', 'customize item');
       button.textContent = 'customize';
       button.addEventListener('click', () => {
-        // TODO: open customize menu
+        if (squareProductId) {
+          const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;
+          toggleModal(modal, cardItemTitle, refreshCustomizeContent);
+        }
       });
       li.append(button);
+    }
+
+    if (variants.includes('actionless')) {
+      const cardActions = li.querySelector('.cards-card-cart');
+      cardActions.remove();
     }
 
     // assemble card

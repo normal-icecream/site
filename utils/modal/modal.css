@@ -1,0 +1,29 @@
+.modal {
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background-color: var(--white);
+    padding: var(--spacing-xl);
+}
+
+.modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--heading-size-xl);
+    font-family: var(--heading-font-family);
+}
+
+.modal .modal-content {
+    display: flex;
+    flex-flow: column;
+}
+
+.modal .modal-close-btn {
+    color: var(--blue);
+    cursor: pointer;
+}

@@ -1,0 +1,55 @@
+.payments .form-checkbox {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.payments .payment-success-container {
+    align-self: center;
+    margin: var(--spacing-xxl);
+    padding: var(--spacing-xxl);
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.payments .payment-success-message {
+    width: 300px;
+    text-align: center;
+    padding: var(--spacing-xxl) 0;
+    text-transform: lowercase;
+}
+
+.payments span.icon img {
+    height: 250px;
+    width: 250px;
+    color: var(--blue);
+}
+
+.payments .payment-failure {
+    align-self: center;
+    color: var(--red);
+    padding: var(--spacing-m);
+    text-transform: lowercase;
+}
+
+.payments .payment-back-button {
+    text-transform: lowercase;
+    color: var(--white);
+    background-color: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-m);
+    line-height: 0;
+    min-height: 50px;
+    min-width: 300px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.payments.modal .cart .cart-content-wrapper > .cart-quantity-wrapper button {
+    display: none;
+}

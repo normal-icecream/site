@@ -32,6 +32,7 @@
     font-family: var(--heading-font-family);
     color: var(--blue);
     margin: 0;
+    text-transform: lowercase;
 }
 
 .form label.label-invalid {
@@ -65,6 +66,11 @@ textarea::placeholder {
     display: block;
 }
 
+.form .form-checkbox label {
+   display: flex;
+   align-items: center;
+}
+
 .form .form-checkbox input {
    height: 20px;
    width: 20px;
@@ -72,7 +78,8 @@ textarea::placeholder {
 }
 
 .form .form-submit {
-    align-self: center;
+    display: flex;
+    justify-content: center;
 }
 
 .form .form-submit button {
