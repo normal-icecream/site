@@ -268,7 +268,7 @@ function populateFormFields(formFields, key, modal) {
 }
 
 export function wholesaleOrderForm(wholesaleData, modal) {
-  loadCSS(`${window.hlx.codeBasePath}/utils/orderForm/orderForm.css`);
+  loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   modal.classList.add('order');
   const env = getEnvironment();
   const orderFormFields = getOrderFormData();

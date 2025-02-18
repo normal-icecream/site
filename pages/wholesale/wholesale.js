@@ -2,7 +2,7 @@
 import { removeLeadingZero } from '../../helpers/helpers.js';
 import { buildBlock, loadCSS } from '../../scripts/aem.js';
 import { toggleModal } from '../../utils/modal/modal.js';
-import { wholesaleOrderForm } from '../../utils/orderForm/orderForm.js';
+import { wholesaleOrderForm } from '../../utils/order/order.js';
 import { createLineItem } from '../cart/cart.js';
 
 function createSubmitButton() {

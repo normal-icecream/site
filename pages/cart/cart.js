@@ -2,7 +2,7 @@
 import { formatCurrency, stringExistsInAnother } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
-import { orderForm } from '../../utils/orderForm/orderForm.js';
+import { orderForm } from '../../utils/order/order.js';
 
 export const allowedCartPages = Object.freeze([
   'store',

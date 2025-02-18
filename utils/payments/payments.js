@@ -11,7 +11,7 @@ import {
   createCartTotalContent,
   getLastCartKey,
 } from '../../pages/cart/cart.js';
-import { resetOrderForm } from '../orderForm/orderForm.js';
+import { resetOrderForm } from '../order/order.js';
 import { SquarePayment } from '../../constructors/constructors.js';
 import { getTotals } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';

@@ -25,6 +25,7 @@ function checkInput() {
 
 export default async function decorate(block) {
   const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+  block.classList.add('wholesale');
 
   // If a block has a url in the data-src attribute
   if (block.hasAttribute('data-src') && wholesale) {
@@ -74,13 +75,19 @@ export default async function decorate(block) {
         pricePTag.textContent = 'price';
         priceTh.append(pricePTag);
 
+        // create price header
+        const availableTh = document.createElement('th');
+        const availablePTag = document.createElement('p');
+        availablePTag.textContent = 'available';
+        availableTh.append(availablePTag);
+
         // create quantity header
         const quantityTh = document.createElement('th');
         const quantityPTag = document.createElement('p');
         quantityPTag.textContent = 'quantity';
         quantityTh.append(quantityPTag);
 
-        labelRow.append(productTh, priceTh, quantityTh);
+        labelRow.append(productTh, availableTh, priceTh, quantityTh);
         tbody.append(labelRow);
 
         // Loop over each product within the group and add table row and data
@@ -119,6 +126,11 @@ export default async function decorate(block) {
             productCell.append(imageWrapper);
           }
 
+          const availableCell = document.createElement('td');
+          const available = document.createElement('h4');
+          available.textContent = product.AVAILABLE;
+          availableCell.append(available);
+
           const priceCell = document.createElement('td');
           const price = document.createElement('h4');
           price.textContent = product.PRICE;
@@ -142,7 +154,7 @@ export default async function decorate(block) {
             quantityCell.append(quantityInput);
           }
           // Append product and quantity cells to the row.
-          productRow.append(productCell, priceCell, quantityCell);
+          productRow.append(productCell, availableCell, priceCell, quantityCell);
           tbody.append(productRow);
         });
         // Append the tbody for this group to the table.
