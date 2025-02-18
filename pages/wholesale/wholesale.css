@@ -29,6 +29,5 @@
     text-transform: lowercase;
 }
 
-/* TODO - apply this logic to how we are hiding items in payment cart screen :) */
-.wholesale-modal .cart .cart-content-wrapper > .cart-quantity-wrapper button {
+.wholesale.modal .cart .cart-content-wrapper > .cart-quantity-wrapper button {
 display: none;}

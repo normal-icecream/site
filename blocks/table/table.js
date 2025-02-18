@@ -136,7 +136,6 @@ export default async function decorate(block) {
             quantityInput.type = 'number';
             quantityInput.id = product.ID;
             quantityInput.dataset.itemName = product.ITEM;
-            quantityInput.value = 0;
             quantityInput.min = 0;
             quantityInput.max = product.AVAILABLE;
             quantityInput.addEventListener('input', () => checkInput());
