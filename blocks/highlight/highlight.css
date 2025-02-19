@@ -2,10 +2,6 @@
     margin: var(--spacing-xxl) 0;
 }
 
-.highlight.borderless > div > div p.img-wrapper picture img {
-    border: none;
-}
-
 .highlight > div > div {
     height: 525px;
     display: flex;
@@ -29,6 +25,10 @@
     height: 250px;
     width: 250px;
     object-fit: cover;
+}
+
+.highlight.borderless > div > div p.img-wrapper picture img {
+    border: none;
 }
 
 .highlight > div > div p.button-wrapper {
