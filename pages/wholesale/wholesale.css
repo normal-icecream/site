@@ -1,3 +1,19 @@
+.wholesale .columns > div {
+    /* flex-flow: column-reverse; */
+    align-items: normal;
+}
+
+.wholesale .columns > div > div:first-of-type {
+    /* background-color: tomato; */
+    /* text-align: center; */
+}
+
+/* TODO - should be first on mobile */
+.wholesale .columns > div > div:last-of-type {
+    /* background-color: aquamarine; */
+    /* text-align: center;  */
+}
+
 .wholesale .table-form-submit-wrapper {
     display: flex;
     flex-flow: column;

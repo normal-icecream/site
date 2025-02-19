@@ -25,7 +25,6 @@ function checkInput() {
 
 export default async function decorate(block) {
   const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
-  block.classList.add('wholesale');
 
   // If a block has a url in the data-src attribute
   if (block.hasAttribute('data-src') && wholesale) {
