@@ -1,13 +1,31 @@
 .highlight > div {
     margin: var(--spacing-xxl) 0;
+    text-transform: lowercase;
 }
 
 .highlight > div > div {
+    height: 540px;
     display: flex;
     flex-flow: column;
-    justify-content: center;
     align-items: center;
     width: 326px;
+    position: relative;
+}
+
+.highlight > div > div h2 {
+   padding: var(--spacing-m);
+}
+
+.highlight > div > div p {
+    text-align: center;
+}
+
+.highlight > div > div p:nth-of-type(3):not(.button-wrapper) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .highlight > div > div p.img-wrapper picture img {
@@ -18,9 +36,20 @@
     object-fit: cover;
 }
 
-.highlight > div > div p:last-of-type {
-    text-align: center;
-    text-transform: lowercase;
+.highlight.borderless > div > div p.img-wrapper picture img {
+    border: none;
+}
+
+.highlight > div > div p.button-wrapper {
+    margin-top: auto;
+    position: absolute;
+    bottom: 0;
+}
+
+.highlight > div > div p.button-wrapper a {
+    padding: 12px 20px;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-s);
 }
 
 @media (width >= 900px) {
