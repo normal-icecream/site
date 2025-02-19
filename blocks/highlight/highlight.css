@@ -1,5 +1,6 @@
 .highlight > div {
     margin: var(--spacing-xxl) 0;
+    text-transform: lowercase;
 }
 
 .highlight > div > div {
@@ -39,7 +40,6 @@
 
 .highlight > div > div p.button-wrapper a {
     padding: 12px 20px;
-    text-transform: lowercase;
     font-family: var(--heading-font-family);
     font-size: var(--heading-size-s);
 }
