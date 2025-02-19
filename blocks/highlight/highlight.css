@@ -26,7 +26,6 @@
     -webkit-line-clamp: 5;
     text-overflow: ellipsis;
     overflow: hidden;
-    background-color: aquamarine;
 }
 
 .highlight > div > div p.img-wrapper picture img {
