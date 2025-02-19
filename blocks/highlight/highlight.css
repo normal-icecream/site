@@ -2,12 +2,25 @@
     margin: var(--spacing-xxl) 0;
 }
 
+.highlight.borderless > div > div p.img-wrapper picture img {
+    border: none;
+}
+
 .highlight > div > div {
+    height: 525px;
     display: flex;
     flex-flow: column;
-    justify-content: center;
     align-items: center;
     width: 326px;
+    position: relative;
+}
+
+.highlight > div > div h2 {
+   padding: var(--spacing-m);
+}
+
+.highlight > div > div p {
+    text-align: center;
 }
 
 .highlight > div > div p.img-wrapper picture img {
@@ -18,9 +31,17 @@
     object-fit: cover;
 }
 
-.highlight > div > div p:last-of-type {
-    text-align: center;
+.highlight > div > div p.button-wrapper {
+    margin-top: auto;
+    position: absolute;
+    bottom: 0;
+}
+
+.highlight > div > div p.button-wrapper a {
+    padding: 12px 20px;
     text-transform: lowercase;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-s);
 }
 
 @media (width >= 900px) {
