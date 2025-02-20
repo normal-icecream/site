@@ -46,6 +46,11 @@
   object-fit: contain;
 }
 
+.cards .cards-card-image .icon svg {
+  width: 120px;
+  height: 120px;
+}
+
 @media (width >= 600px) {
   .cards .cards-card-image,
   .cards .cards-card-image img {
