@@ -1,15 +1,13 @@
-.carousel-container {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-  }
 
-  .carousel-wrapper {
+.carousel-wrapper {
     margin: 0 !important;
     padding: 0 !important;
   }
-
-.carousel {
+  
+  .carousel {
     position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
 }
 
 .carousel .carousel-fixed-content {
