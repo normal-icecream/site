@@ -170,7 +170,11 @@ main {
   }
 
   main {
-    margin: 112px auto 0;
+    margin: 96px auto 0;
+  }
+
+  main > div.section:first-of-type:not(.carousel-container) {
+    margin-top: 150px;
   }
 }
 
