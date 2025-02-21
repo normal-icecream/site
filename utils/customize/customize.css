@@ -56,10 +56,6 @@
     display: flex;
 }
 
-.customize .customize-form fieldset .customize-actions input {
-    padding-right: 1.4ch;
-}
-
 .customize .customize-form .customize-submit-wrapper {
     display: flex;
     flex-flow: column;
