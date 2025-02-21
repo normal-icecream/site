@@ -1,4 +1,8 @@
 .wholesale .columns > div {
+   text-transform: lowercase;
+}
+
+.wholesale .columns > div {
     align-items: normal;
 }
 

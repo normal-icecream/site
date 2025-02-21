@@ -4,6 +4,7 @@
   padding: 0;
   display: grid;
   gap: var(--horizontal-spacing);
+  text-transform: lowercase;
 }
 
 @media (width >= 600px) {
