@@ -21,9 +21,28 @@ function splitParens(str) {
 }
 
 export default function decorate(block) {
+  const variants = [...block.classList];
   // simplify dom structure
   const [title, price] = block.firstElementChild.children;
   title.replaceWith(...title.children);
+
+  if (variants.includes('bundled')) {
+    const bundledContainer = document.createElement('div');
+    bundledContainer.className = 'title-bundled-container';
+
+    const complexPrice = block.querySelector('div > h2:nth-of-type(2)');
+    const splitPriceArray = complexPrice.textContent.split('|');
+    splitPriceArray.forEach((item) => {
+      const priceText = document.createElement('h3');
+      priceText.innerHTML = item.trim();
+      bundledContainer.append(priceText);
+    });
+
+    complexPrice.remove();
+
+    const titleContainer = block.querySelector('div');
+    titleContainer.append(bundledContainer);
+  }
 
   // decorate price, if available
   if (price) {
