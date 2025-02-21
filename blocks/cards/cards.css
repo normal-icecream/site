@@ -9,6 +9,7 @@
 @media (width >= 600px) {
   .cards > ul {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    margin-bottom: 100px;
   }
 }
 
