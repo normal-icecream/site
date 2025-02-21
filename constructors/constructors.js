@@ -230,7 +230,6 @@ export class SquareInvoice {
 
   build() {
     return {
-      // idempotency_key: this.idempotency_key,
       location_id: this.location_id,
       order_id: this.order_id,
       delivery_method: this.delivery_method,
