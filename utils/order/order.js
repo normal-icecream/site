@@ -168,7 +168,6 @@ function getOrderFormData() {
 }
 
 function addDiscountToOrder(order, orderFormData) {
-  if (orderFormData.discountCode && orderFormData.discountCode.trim() !== '') {
     const discounts = [];
     const discountData = window.catalog.discounts[orderFormData.discountCode].id;
     const discount = window.catalog.byId[discountData];
@@ -182,7 +181,6 @@ function addDiscountToOrder(order, orderFormData) {
       }
       order.discounts = discounts;
     }
-  }
 }
 
 function populateFormFields(formFields, key, modal) {
@@ -279,7 +277,11 @@ export function wholesaleOrderForm(wholesaleData, modal) {
   async function createSquareWholesaleOrder() {
     const orderData = new SquareOrderData(wholesaleData, window.taxList[0]).build();
 
-    addDiscountToOrder(orderData, orderFormFields);
+    if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
+      addDiscountToOrder(orderData, orderFormFields);
+    }
+      console.log("orderFormFields:", orderFormFields);
+      console.log("orderData:", orderData);
 
     const note = [];
     if (wholesaleData.note) note.push(wholesaleData.note);
@@ -372,7 +374,11 @@ export function orderForm(cartData) {
   async function createSquareOrder() {
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
 
-    addDiscountToOrder(orderData, orderFormFields);
+    console.log("orderFormFields:", orderFormFields);
+    console.log("orderData:", orderData);
+    if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
+      addDiscountToOrder(orderData, orderFormFields);
+    }
 
     const note = [];
     if (orderFormFields.pickupdate && orderFormFields.pickupdate?.trim() !== '') {
