@@ -26,9 +26,9 @@ export default function decorate(block) {
   const [title, price] = block.firstElementChild.children;
   title.replaceWith(...title.children);
   
-  if (variants.includes('complex-pricing')) {
+  if (variants.includes('bundled')) {
     const complexPriceContainer = document.createElement('div');
-    complexPriceContainer.className = 'title-complex-price-container';
+    complexPriceContainer.className = 'title-bundled-container';
   
     const complexPrice = block.querySelector('div > h2:nth-of-type(2)');
     complexPrice.textContent;
