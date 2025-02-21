@@ -1,8 +1,8 @@
 /* eslint-disable import/no-cycle */
-import { formatCurrency } from '../../helpers/helpers.js';
+import { formatCurrency, stringExistsInAnother } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
-import { orderForm } from '../../utils/orderForm/orderForm.js';
+import { orderForm } from '../../utils/order/order.js';
 
 export const allowedCartPages = Object.freeze([
   'store',
@@ -22,13 +22,19 @@ export function getLocalStorageCart() {
 }
 
 export function getCartLocation() {
-  const cartkey = getLastCartKey();
-  const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
   let currentLocation = '';
-  if (cartkey === 'merch') {
-    currentLocation = getItShipped ? 'shipping' : 'store';
+  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+
+  if (wholesale) {
+    currentLocation = 'wholesale';
   } else {
-    currentLocation = cartkey;
+    const cartkey = getLastCartKey();
+    const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
+    if (cartkey === 'merch') {
+      currentLocation = getItShipped ? 'shipping' : 'store';
+    } else {
+      currentLocation = cartkey;
+    }
   }
   return currentLocation;
 }
@@ -67,7 +73,7 @@ export function getCartQuantity() {
   return quantity;
 }
 
-function createLineItem(catalogItemId, quantity) {
+export function createLineItem(catalogItemId, quantity) {
   const squareItem = window.catalog.byId[catalogItemId];
   const lineItemData = {
     catalog_object_id: squareItem.id,
@@ -80,7 +86,7 @@ function createLineItem(catalogItemId, quantity) {
     name: squareItem.item_data.name,
     item_type: squareItem.type,
   };
-  return new SquareOrderLineItem(lineItemData);
+  return new SquareOrderLineItem(lineItemData).build();
 }
 
 function updateCartQuantityUI() {
@@ -174,6 +180,10 @@ export function createCartTotalContent(title, amount) {
   return total;
 }
 
+function removeWholesalePrefix(str) {
+  return str.startsWith('wholesale - ') ? str.replace('wholesale - ', '') : str;
+}
+
 export function getCartCard(cartItems) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
@@ -222,7 +232,7 @@ export function getCartCard(cartItems) {
 
     const name = document.createElement('h4');
     name.className = 'cart-name';
-    name.textContent = item.name;
+    name.textContent = removeWholesalePrefix(item.name);
     descriptionWrapper.append(name);
 
     if (item.variation_name) {
@@ -243,6 +253,16 @@ export function getCartCard(cartItems) {
       descriptionWrapper.append(itemMods);
     }
 
+    if (item.note) {
+      const isNoteInTitle = stringExistsInAnother(item.name, item.note);
+
+      if (!isNoteInTitle) {
+        const itemNote = document.createElement('div');
+        itemNote.append(item.note);
+        descriptionWrapper.append(itemNote);
+      }
+    }
+
     cartContentWrapper.append(descriptionWrapper);
     cartCard.append(cartContentWrapper);
 
@@ -255,7 +275,7 @@ export function getCartCard(cartItems) {
   });
   // Create wrapper for total section
   const totalWrapper = document.createElement('div');
-  totalWrapper.className = 'cart-total-wrapper';
+  totalWrapper.className = 'total-wrapper';
 
   const totalContent = createCartTotalContent('total', getCartTotals(cartItems));
 

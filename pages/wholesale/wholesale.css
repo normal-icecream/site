@@ -1,4 +1,8 @@
-.table-form-submit-wrapper {
+.wholesale .columns > div {
+    align-items: normal;
+}
+
+.wholesale .table-form-submit-wrapper {
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -6,7 +10,7 @@
     margin: 20px 0;
 }
 
-.table-form-submit-wrapper button {
+.wholesale .table-form-submit-wrapper button {
     height: 50px;
     width: 300px;
     background-color: var(--blue);
@@ -20,11 +24,23 @@
     transition: background-color 0.3s ease;
 }
 
-.table-form-submit-wrapper.invalid button {
+.wholesale .table-form-submit-wrapper.invalid button {
     background-color: var(--red);
 }
 
-.error-messages {
+.wholesale .error-messages {
     color: var(--red);
     text-transform: lowercase;
+}
+
+.wholesale tbody th:not(:first-child) {
+    text-align: center;
+}
+
+.wholesale tbody td:not(:first-child) {
+    text-align: center;
+}
+
+.wholesale.modal .cart .cart-content-wrapper > .cart-quantity-wrapper button {
+    display: none;
 }

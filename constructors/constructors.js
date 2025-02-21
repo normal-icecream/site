@@ -1,5 +1,17 @@
 /* eslint-disable max-classes-per-file */
+/* eslint-disable camelcase */
 import { formatPhoneNumberToE164 } from '../helpers/helpers.js';
+
+function getDueDate() {
+  const today = new Date();
+  today.setDate(today.getDate() + 14); // Add 14 days (2 weeks)
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(today.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 export class SquareBasePriceMoney {
   constructor(data) {
@@ -191,6 +203,52 @@ export class SquarePayment {
       location_id: this.location_id,
       order_id: this.order_id,
       shipping_address: this.shipping_address,
+    };
+  }
+}
+
+export class SquareInvoice {
+  constructor(orderData) {
+    this.idempotency_key = orderData.idempotency_key;
+    this.location_id = orderData.order.location_id;
+    this.order_id = orderData.order.id;
+    this.delivery_method = 'EMAIL';
+    this.payment_requests = [
+      {
+        tipping_enabled: true,
+        request_type: 'BALANCE',
+        due_date: getDueDate(),
+      },
+    ];
+    this.accepted_payment_methods = {
+      card: true,
+      square_gift_card: true,
+      // TODO - check what payment methods they current accept
+      // bank_account: true,
+    };
+  }
+
+  build() {
+    return {
+      location_id: this.location_id,
+      order_id: this.order_id,
+      delivery_method: this.delivery_method,
+      payment_requests: this.payment_requests,
+      accepted_payment_methods: this.accepted_payment_methods,
+    };
+  }
+}
+
+export class SquareInvoiceWrapper {
+  constructor(data, idempotency_key) {
+    this.invoice = data;
+    this.idempotency_key = idempotency_key;
+  }
+
+  build() {
+    return {
+      invoice: this.invoice,
+      idempotency_key: this.idempotency_key,
     };
   }
 }

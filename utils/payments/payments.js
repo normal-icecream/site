@@ -5,11 +5,15 @@ import { createPayment } from '../../api/square/payments.js';
 import { loadScript, loadCSS } from '../../scripts/aem.js';
 import buildForm from '../forms/forms.js';
 import {
-  getLocalStorageCart, resetCart, getCartCard, createCartTotalContent, getLastCartKey,
+  getLocalStorageCart,
+  resetCart,
+  getCartCard,
+  createCartTotalContent,
+  getLastCartKey,
 } from '../../pages/cart/cart.js';
-import { resetOrderForm } from '../orderForm/orderForm.js';
+import { resetOrderForm } from '../order/order.js';
 import { SquarePayment } from '../../constructors/constructors.js';
-import { formatCurrency } from '../../helpers/helpers.js';
+import { getTotals } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';
 
 async function createSquarePayment(token, orderData, element) {
@@ -20,7 +24,9 @@ async function createSquarePayment(token, orderData, element) {
   const SquarePaymentDataJson = JSON.stringify(squarePaymentData);
 
   try {
-    const payment = env === 'sandbox' ? await hitSandbox(createPayment, SquarePaymentDataJson) : await createPayment(SquarePaymentDataJson);
+    const payment = env === 'sandbox'
+      ? await hitSandbox(createPayment, SquarePaymentDataJson)
+      : await createPayment(SquarePaymentDataJson);
     if (payment.payment.status === 'COMPLETED') {
       element.innerHTML = '';
 
@@ -149,14 +155,7 @@ export async function getCardPaymentForm(element, orderData) {
   const currentCart = getCartCard(cartData);
   element.append(currentCart);
 
-  const totalWrapper = element.querySelector('.cart .cart-total-wrapper');
-  if (totalWrapper) totalWrapper.innerHTML = '';
-
-  const tax = createCartTotalContent('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
-  totalWrapper.append(tax);
-
-  const total = createCartTotalContent('total', formatCurrency(orderData.order.net_amount_due_money.amount));
-  totalWrapper.append(total);
+  getTotals(element, orderData, createCartTotalContent);
 
   const form = buildForm(fields, handleSubmit, element);
   form.classList.add('payment-form');

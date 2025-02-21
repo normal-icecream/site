@@ -79,3 +79,22 @@ export function formatPhoneNumberToE164(phoneNumber, countryCode = '1') {
   }
   return `+${countryCode}${digits}`;
 }
+
+export function getTotals(element, orderData, format) {
+  const totalWrapper = element.querySelector('.total-wrapper');
+  if (totalWrapper) totalWrapper.innerHTML = '';
+
+  const tax = format('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
+  totalWrapper.append(tax);
+
+  const total = format('total', formatCurrency(orderData.order.net_amount_due_money.amount));
+  totalWrapper.append(total);
+}
+
+export function stringExistsInAnother(stringOne, stringTwo) {
+  return stringOne.toLowerCase().includes(stringTwo.toLowerCase());
+}
+
+export function removeLeadingZero(numString) {
+  return String(numString).replace(/^0+/, '');
+}

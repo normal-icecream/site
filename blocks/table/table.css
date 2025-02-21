@@ -32,36 +32,28 @@
     background-color: var(--blue-lightest);
 }
 
-.table table thead tr th:first-child {
+.table table tbody tr th {
     text-align: left;
     border-right: 2px solid var(--blue);
 }
 
-.table table tbody tr th:first-child {
+.table table thead tr th:first-child {
     text-align: left;
-    border-right: 2px solid var(--blue);
+}
+
+.table table tbody tr th:last-of-type {
+    border-right: none;
 }
 
 .table table thead tr th:last-child {
     width: 125px;
 }
 
-.table table tbody tr th:last-child {
-    width: 125px;
-}
-
 .table table tbody tr td {
     padding: 16px 12px;
     border-bottom: 2px solid var(--blue);
-}
-
-.table table tbody tr td:first-child {
     border-right: 2px solid var(--blue);
     position: relative;
-}
-
-.table table tbody tr td:first-child h4 {
-    padding-right: var(--spacing-l);
 }
 
 .table table tbody tr td:first-child p:first-child {
@@ -105,6 +97,7 @@
     font-size: var(--heading-size-l);
     font-family: var(--heading-font-family);
     margin: 0;
+    border-right: none;
 }
 
 .table table tbody tr td:last-child input {
