@@ -25,13 +25,12 @@ export default function decorate(block) {
   // simplify dom structure
   const [title, price] = block.firstElementChild.children;
   title.replaceWith(...title.children);
-  
+
   if (variants.includes('bundled')) {
     const bundledContainer = document.createElement('div');
     bundledContainer.className = 'title-bundled-container';
-  
+
     const complexPrice = block.querySelector('div > h2:nth-of-type(2)');
-    complexPrice.textContent;
     const splitPriceArray = complexPrice.textContent.split('|');
     splitPriceArray.forEach((item) => {
       const priceText = document.createElement('h3');
@@ -49,7 +48,6 @@ export default function decorate(block) {
   if (price) {
     price.className = 'title-price';
     const lines = [...price.querySelectorAll('p')].map((p) => p.textContent.trim());
-    console.log("lines:", lines);
     price.innerHTML = '';
     lines.forEach((line) => {
       const wrapper = createEl('p');
@@ -72,7 +70,6 @@ export default function decorate(block) {
           wrapper.append(label);
         });
       }
-      console.log("wrapper:", wrapper);
       price.append(wrapper);
     });
   }
