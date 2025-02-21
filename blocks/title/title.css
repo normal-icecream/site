@@ -96,7 +96,6 @@
   display: flex;
   flex-flow: column;
   text-align: right;
-  /* justify-content: center; */
 }
 
 .title .title-bundled-container h3 {
