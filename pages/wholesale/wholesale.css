@@ -42,4 +42,5 @@
 }
 
 .wholesale.modal .cart .cart-content-wrapper > .cart-quantity-wrapper button {
-display: none;}
+    display: none;
+}
