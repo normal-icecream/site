@@ -105,7 +105,7 @@ const fields = [
     name: 'referralSource',
     placeholder: 'e.g., friend, social media, etc.',
   },
-]
+];
 
 const passwordFields = [
   {
@@ -119,7 +119,7 @@ const passwordFields = [
     type: 'submit',
     label: 'enter password',
   },
-]
+];
 
 /**
 * Sets up wholesale static table block structure
@@ -131,22 +131,28 @@ export async function decorateWholesale(main) {
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/pages/wholesale/wholesale.css`);
 
-  function handleBecomeWholesaler(formData) {
-    console.log("formData:", formData);
-    console.log('hit become wholesaler function');
-  }
+  function handleBecomeWholesaler() {}
+  // function handleBecomeWholesaler(formData) {
+  // console.log('formData:', formData);
+  // console.log('hit become wholesaler function');
+  // }
 
-  function handleLoginWholesaler(formData) {
-    console.log("formData:", formData);
-    console.log('hit login wholesaler function');
-  }
+  function handleLoginWholesaler() {}
+  // function handleLoginWholesaler(formData) {
+  // console.log('formData:', formData);
+  // console.log('hit login wholesaler function');
+  // }
 
   const becomeWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:first-of-type');
   const becomeWholesalerForm = buildForm(fields, handleBecomeWholesaler, becomeWholesalerSection);
   becomeWholesalerSection.append(becomeWholesalerForm);
 
   const alreadyWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:last-of-type');
-  const alreadyWholesalerForm = buildForm(passwordFields, handleLoginWholesaler, alreadyWholesalerSection);
+  const alreadyWholesalerForm = buildForm(
+    passwordFields,
+    handleLoginWholesaler,
+    alreadyWholesalerSection,
+  );
   alreadyWholesalerSection.append(alreadyWholesalerForm);
 
   const link = main.querySelector('a[href]');
