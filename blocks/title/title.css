@@ -54,6 +54,11 @@
   grid-template-rows: auto;
   gap: 0 var(--spacing-s);
   max-width: 100%;
+  align-self: center;
+  justify-content: center;
+  /* display: flex;
+  align-items: center;
+  justify-content: space-between; */
 }
 
 .title > div > * {
@@ -90,6 +95,12 @@
 
 .title .title-price .title-price-extra {
   display: none;
+}
+
+.title .title-complex-price-container {
+  display: flex;
+  flex-flow: column;
+  text-align: right;
 }
 
 @media (width >= 600px) {

@@ -21,14 +21,35 @@ function splitParens(str) {
 }
 
 export default function decorate(block) {
+  const variants = [...block.classList];
   // simplify dom structure
   const [title, price] = block.firstElementChild.children;
   title.replaceWith(...title.children);
+  
+  if (variants.includes('complex-pricing')) {
+    const complexPriceContainer = document.createElement('div');
+    complexPriceContainer.className = 'title-complex-price-container';
+  
+    const complexPrice = block.querySelector('div > h2:nth-of-type(2)');
+    complexPrice.textContent;
+    const splitPriceArray = complexPrice.textContent.split('|');
+    splitPriceArray.forEach((item) => {
+      const priceText = document.createElement('h3');
+      priceText.innerHTML = item.trim();
+      complexPriceContainer.append(priceText);
+    });
+
+    complexPrice.remove();
+
+    const titleContainer = block.querySelector('div');
+    titleContainer.append(complexPriceContainer);
+  }
 
   // decorate price, if available
   if (price) {
     price.className = 'title-price';
     const lines = [...price.querySelectorAll('p')].map((p) => p.textContent.trim());
+    console.log("lines:", lines);
     price.innerHTML = '';
     lines.forEach((line) => {
       const wrapper = createEl('p');
@@ -51,6 +72,7 @@ export default function decorate(block) {
           wrapper.append(label);
         });
       }
+      console.log("wrapper:", wrapper);
       price.append(wrapper);
     });
   }
