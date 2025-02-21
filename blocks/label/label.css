@@ -25,6 +25,10 @@
     padding: 40px;
 }
 
+.label.fill > div > div a {
+    color: var(--white);
+}
+
 .label > div > div > h1,
 .label > div > div > div > h1 {
     font-size: 80px;

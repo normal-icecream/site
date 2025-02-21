@@ -57,7 +57,7 @@
 }
 
 .title > div > * {
-  align-self: end;
+  align-self: center;
 }
 
 .title .title-price {
@@ -90,6 +90,16 @@
 
 .title .title-price .title-price-extra {
   display: none;
+}
+
+.title .title-bundled-container {
+  display: flex;
+  flex-flow: column;
+  text-align: right;
+}
+
+.title .title-bundled-container h3 {
+  font-size: var(--heading-size-m);
 }
 
 @media (width >= 600px) {
@@ -127,6 +137,10 @@
     font-size: var(--body-size-s);
     display: unset;
     max-width: 80px;
+  }
+
+  .title .title-bundled-container h3 {
+    font-size: var(--heading-size-l);
   }
 }
 
