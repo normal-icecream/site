@@ -43,7 +43,6 @@ function showSlide(block, slideIndex = 0) {
 }
 
 function bindEvents(block) {
-  const variants = [...block.classList];
   const slideIndicators = block.querySelector('.carousel-slide-indicators');
   if (!slideIndicators) return;
 
@@ -65,7 +64,7 @@ function bindEvents(block) {
     showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
   });
 
-  if (variants.includes('automatic-slide')) setInterval(slideCarouselImage, 5000);
+  setInterval(slideCarouselImage, 5000);
 
   const slideObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -98,19 +97,16 @@ function createSlide(row, slideIndex, carouselId) {
 
 let carouselId = 0;
 export default async function decorate(block) {
-  const variants = [...block.classList];
   carouselId += 1;
   block.setAttribute('id', `carousel-${carouselId}`);
   let rows = block.querySelectorAll(':scope > div');
   //   console.log("rows:", rows);
   const isSingleSlide = rows.length < 2;
 
-  if (variants.includes('fixed-message')) {
-    const rowArray = Array.from(rows);
-    const fixedMessageElement = rowArray.shift();
-    fixedMessageElement.classList.add('carousel-fixed-content');
-    rows = rowArray;
-  }
+  const rowArray = Array.from(rows);
+  const fixedMessageElement = rowArray.shift();
+  fixedMessageElement.classList.add('carousel-fixed-content');
+  rows = rowArray;
 
   const placeholders = await fetchPlaceholders();
 
