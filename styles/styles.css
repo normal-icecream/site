@@ -372,6 +372,12 @@ var {
   background-color: var(--layer-depth);
 }
 
+sup {
+  font-family: var(--body-font-family);
+  line-height: 0;
+  vertical-align: 0.1em;
+}
+
 .detail {
   margin-top: 1.125em;
   margin-bottom: 0.25em;
