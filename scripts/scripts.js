@@ -112,6 +112,13 @@ function decorateImages(main) {
   });
 }
 
+function decorateLabels(main) {
+  main.querySelectorAll('h2 .icon').forEach((icon) => {
+    const label = icon.closest('h2');
+    label.classList.add('label');
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -120,6 +127,7 @@ function decorateImages(main) {
 export function decorateMain(main) {
   decorateIcons(main);
   decorateImages(main);
+  decorateLabels(main);
   // buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
