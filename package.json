@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/normal-icecream/site/issues"
   },
-  "homepage": "https://main--site--normal-icecream.hlx.live/",
+  "homepage": "https://main--site--normal-icecream.aem.live/",
   "devDependencies": {
     "@babel/eslint-parser": "7.24.7",
     "concurrently": "^9.1.2",
