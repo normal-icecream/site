@@ -2,11 +2,24 @@
    text-transform: lowercase;
 }
 
-.wholesale .columns > div {
-    align-items: normal;
+.wholesale .default-content-wrapper {
+   display: flex;
+   justify-content: center;
+   flex-flow: column;
+   align-items: center;
 }
 
-.wholesale .table-form-submit-wrapper {
+.wholesale .columns > div {
+    display: flex;
+    flex-flow: column;
+}
+
+.wholesale .columns > div > div {
+    width: 100%;
+}
+
+.wholesale .table-form-submit-wrapper,
+.wholesale .wholesale-password-form.invalid .form-submit {
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -28,7 +41,8 @@
     transition: background-color 0.3s ease;
 }
 
-.wholesale .table-form-submit-wrapper.invalid button {
+.wholesale .table-form-submit-wrapper.invalid button,
+.wholesale .wholesale-password-form.invalid button {
     background-color: var(--red);
 }
 

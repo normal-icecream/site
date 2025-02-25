@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { removeLeadingZero } from '../../helpers/helpers.js';
-import { buildBlock, loadCSS } from '../../scripts/aem.js';
+import { buildBlock, decorateBlock, loadBlock, loadCSS } from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';
 import { toggleModal } from '../../utils/modal/modal.js';
 import { wholesaleOrderForm } from '../../utils/order/order.js';
@@ -121,43 +121,9 @@ const passwordFields = [
   },
 ];
 
-/**
-* Sets up wholesale static table block structure
-*/
-export async function decorateWholesale(main) {
-  const wholesaleContainer = main.querySelector('div');
-  wholesaleContainer.classList.add('wholesale');
-
-  // Load styles for form
-  loadCSS(`${window.hlx.codeBasePath}/pages/wholesale/wholesale.css`);
-
-  function handleBecomeWholesaler() {}
-  // function handleBecomeWholesaler(formData) {
-  // console.log('formData:', formData);
-  // console.log('hit become wholesaler function');
-  // }
-
-  function handleLoginWholesaler() {}
-  // function handleLoginWholesaler(formData) {
-  // console.log('formData:', formData);
-  // console.log('hit login wholesaler function');
-  // }
-
-  const becomeWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:first-of-type');
-  const becomeWholesalerForm = buildForm(fields, handleBecomeWholesaler, becomeWholesalerSection);
-  becomeWholesalerSection.append(becomeWholesalerForm);
-
-  const alreadyWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:last-of-type');
-  const alreadyWholesalerForm = buildForm(
-    passwordFields,
-    handleLoginWholesaler,
-    alreadyWholesalerSection,
-  );
-  alreadyWholesalerSection.append(alreadyWholesalerForm);
-
-  const link = main.querySelector('a[href]');
-  if (link.href.endsWith('wholesale.json')) {
-    const parentDiv = link.closest('div');
+async function buildWholesale(main, link) {
+  const path = new URL(link).pathname;
+    const blockParent = main.querySelector('div');
 
     const form = document.createElement('form');
     form.classList.add('table-form', 'wholesale-form');
@@ -193,19 +159,126 @@ export async function decorateWholesale(main) {
     });
 
     const block = buildBlock('table', '');
-    block.dataset.src = link.href;
-
-    block.append(form);
-    parentDiv.append(block);
-
+    block.dataset.src = `${window.location.origin}${path}`;
+    const blockContentSection = block.querySelector('.block > div > div');
+    blockParent.append(block);
+    decorateBlock(block);
+    
+    blockContentSection.append(form);
     const submitButton = createSubmitButton();
     form.append(submitButton);
 
-    const unusedDivs = document.querySelector('.table > div');
-    unusedDivs.remove();
+    await loadBlock(block);
+}
 
-    const p = link.closest('p');
-    // Remove link
-    p.remove();
+async function fetchWholesaleKey(main, key) {
+  const url = `${window.location.origin}/admin/wholesale-locations.json`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+  
+      const json = await response.json();
+      if (json.data) {
+        const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
+        if (wholesaleItem) {
+          buildWholesale(main, wholesaleItem.LINK);
+          const columnsWrapper = main.querySelector('.columns-wrapper');
+          columnsWrapper.style.display = 'none';
+
+          const contactUs = main.querySelector('.default-content-wrapper:not(:first-of-type)');
+          contactUs.style.display = 'none';
+        }
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
+}
+
+function handleError(input, message) {
+  const inputParent = input.closest('form');
+  const submitButton = inputParent.querySelector('.form-submit');
+  const errorMessage = submitButton.querySelector('p');
+  if (!errorMessage) {
+    inputParent.classList.add('invalid');
+    const error = document.createElement('p');
+    error.classList.add('error-messages')
+    error.textContent = message;
+    submitButton.append(error);
+
+    input.addEventListener("input", function clearError() {
+      inputParent.classList.remove("invalid");
+      if (error) error.remove();
+      input.removeEventListener("input", clearError); // Remove event to avoid multiple triggers
+    });
   }
+}
+
+/**
+* Sets up wholesale static table block structure
+*/
+export async function decorateWholesale(main) {
+  const wholesaleContainer = main.querySelector('div');
+  wholesaleContainer.classList.add('wholesale');
+
+  const key = JSON.parse(localStorage.getItem('wholesaleKey'));
+  if (key) fetchWholesaleKey(main, key);
+
+  // Load styles for form
+  loadCSS(`${window.hlx.codeBasePath}/pages/wholesale/wholesale.css`);
+
+  function handleBecomeWholesaler(formData) {
+    const name = formData.find((data) => data.field === 'name').value;
+    const businessName = formData.find((data) => data.field === 'businessName').value;
+    const location = formData.find((data) => data.field === 'location').value;
+    const email = formData.find((data) => data.field === 'email').value;
+    const referralSource = formData.find((data) => data.field === 'referralSource').value;
+
+    const subject = encodeURIComponent("Hi! I'd like to become a wholesaler");
+    const body = encodeURIComponent(
+      `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`
+    );
+
+    const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
+  }
+
+  async function handleLoginWholesaler(formData) {
+    const url = `${window.location.origin}/admin/wholesale-locations.json`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+  
+      const json = await response.json();
+      if (json.data) {
+        const passwordField = main.querySelector('.form-password input');
+        const correctPasswordItem = json.data.find((item) => item.PASSWORD === formData[0].value);
+        if (correctPasswordItem) {
+          buildWholesale(main, correctPasswordItem.LINK);
+          localStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
+          window.location.reload();
+        } else {
+          handleError(passwordField, "Please enter a valid password")
+        }
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  const alreadyWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:first-of-type');
+  const alreadyWholesalerForm = buildForm(
+    passwordFields,
+    handleLoginWholesaler,
+    alreadyWholesalerSection,
+  );
+  alreadyWholesalerForm.classList.add('wholesale-password-form');
+  alreadyWholesalerSection.append(alreadyWholesalerForm);
+
+  const becomeWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:last-of-type');
+  const becomeWholesalerForm = buildForm(fields, handleBecomeWholesaler, becomeWholesalerSection);
+  becomeWholesalerSection.append(becomeWholesalerForm);
 }
