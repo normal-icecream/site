@@ -57,13 +57,15 @@ main > .section > div.carousel-wrapper {
   justify-content: center;
   text-align: center;
   pointer-events: none;
-  transition: transform 0.3s, opacity 0.3s;
+  transition: bottom 0.3s, color 0.3s, opacity 0.3s, transform 0.3s;
   z-index: 1;
 }
 
 .carousel:hover .carousel-overlay {
-  opacity: 0;
-  transform: scale(2);
+  bottom: -66%;
+  color: var(--color-background);
+  opacity: 0.6;
+  transform: scale(0.5);
 }
 
 .carousel .carousel-overlay h1 {
@@ -89,17 +91,21 @@ main > .section > div.carousel-wrapper {
   stroke: var(--color-background);
   color: var(--color-background);
   opacity: 0.6;
-  transform: rotate(0);
+  transition: opacity 0.3s;
   z-index: -1;
   animation: spin 39s linear infinite;
 }
 
+.carousel:hover .carousel-overlay svg {
+  opacity: 0;
+}
+
 @keyframes spin {
-  0% {
+  from {
     transform: rotate(0);
   }
 
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
