@@ -59,7 +59,10 @@ export function swapIcons() {
  * @param {HTMLElement} main The main container element
  */
 function decoratePageType(main) {
-  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+  const { pathname } = window.location;
+  main.classList.add(pathname.replace('/', '') || 'home'); // label page based on path;
+
+  const wholesale = pathname.split('/').some((path) => path === 'wholesale');
 
   try {
     if (wholesale) decorateWholesale(main);

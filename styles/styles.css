@@ -161,25 +161,21 @@ footer .footer[data-block-status='loaded'] {
 
 main {
   margin-top: calc(var(--header-height) + var(--horizontal-spacing));
-  max-width: var(--site-width);
+}
+
+main.home {
+  margin-top: var(--header-height);
 }
 
 @media (width >= 900px) {
   body {
     min-height: 100dvh;
   }
-
-  main {
-    margin: 96px auto 0;
-  }
-
-  main > div.section:first-of-type:not(.carousel-container) {
-    margin-top: 150px;
-  }
 }
 
 /* sections */
 main > .section > div {
+  max-width: var(--site-width);
   margin: var(--horizontal-spacing) auto;
   padding: 0 var(--horizontal-spacing);
 }
