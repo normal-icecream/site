@@ -282,9 +282,8 @@ async function buildWholesale(main, link) {
 
     blockContentSection.append(form);
     const submitButton = createSubmitButton();
-    form.append(submitButton);
-
     await loadBlock(block);
+    form.append(submitButton);
   } else {
     const wholesaleContentSection = main.querySelector('.wholesale');
 

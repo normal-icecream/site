@@ -130,6 +130,7 @@ input[type='number']::-webkit-inner-spin-button {
 
     .table table tbody tr td {
         padding: 16px 12px;
+        width: 600px;
     }
 
     .table table tbody tr td h4 {
