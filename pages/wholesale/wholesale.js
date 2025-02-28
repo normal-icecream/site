@@ -1,9 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 import { removeLeadingZero } from '../../helpers/helpers.js';
 import {
-  buildBlock, 
-  decorateBlock, 
-  loadBlock, 
+  buildBlock,
+  decorateBlock,
+  loadBlock,
   loadCSS,
 } from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';

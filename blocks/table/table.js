@@ -23,15 +23,6 @@ function checkInput() {
   submitButton.disabled = !hasAddedQuantity;
 }
 
-function extractAndRemoveColons(str) {
-  const matches = [];
-  const modifiedString = str.replace(/:(.*?):/g, (match, p1) => {
-    matches.push(p1); // Store extracted value without colons
-    return ''; // Remove match from string
-  }).trim(); // Remove extra spaces
-  return { modifiedString, matches };
-}
-
 export default async function decorate(block) {
   const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
 
@@ -111,14 +102,17 @@ export default async function decorate(block) {
           // Add product name, description, and dietary icons if they exist.
           if (product.ITEM) {
             const item = document.createElement('h4');
-            const titleInfo = extractAndRemoveColons(product.ITEM);
-            item.textContent = titleInfo.modifiedString;
-            titleInfo.matches.forEach((icon) => {
-              const iconSpan = document.createElement('span');
-              iconSpan.className = `icon icon-${icon}`;
-              item.append(iconSpan);
-            });
-            decorateIcons(item);
+            item.textContent = product.ITEM;
+
+            if (product.DIETARY) {
+              const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
+              dietaryArray.forEach((icon) => {
+                const iconSpan = document.createElement('span');
+                iconSpan.className = `icon icon-${icon}`;
+                item.append(iconSpan);
+              });
+              decorateIcons(item);
+            }
             productCell.append(item);
           }
 
