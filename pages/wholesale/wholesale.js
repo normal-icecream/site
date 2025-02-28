@@ -1,9 +1,15 @@
 /* eslint-disable import/prefer-default-export */
 import { removeLeadingZero } from '../../helpers/helpers.js';
-import { buildBlock, decorateBlock, loadBlock, loadCSS } from '../../scripts/aem.js';
+import {
+  buildBlock, 
+  decorateBlock, 
+  loadBlock, 
+  loadCSS,
+} from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';
 import { toggleModal } from '../../utils/modal/modal.js';
-import { wholesaleOrderForm } from '../../utils/order/order.js';
+// eslint-disable-next-line import/no-cycle
+import { wholesaleOrderForm, resetOrderForm } from '../../utils/order/order.js';
 import { createLineItem } from '../cart/cart.js';
 
 function createSubmitButton() {
@@ -121,8 +127,113 @@ const passwordFields = [
   },
 ];
 
+function convertDecimalToTime(decimalTime) {
+  const totalMinutes = decimalTime * 24 * 60; // Convert day fraction to minutes
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = Math.round(totalMinutes % 60);
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+function combineDayHours(data) {
+  const combined = {};
+  data.forEach(({ day, type, time }) => {
+    if (!combined[day]) {
+      combined[day] = { open: null, close: null };
+    }
+
+    if (type === 'open') {
+      combined[day].open = time;
+    } else if (type === 'close') {
+      combined[day].close = time;
+    }
+  });
+  return combined;
+}
+
+function convertToTotalMinutes(timeString) {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  return hours * 60 + (minutes || 0); // Convert hours/minutes into total minutes
+}
+
+function shouldDisplayWholesaleForm(open, close, currentTime) {
+  if (open === 'true' && close === 'false') {
+    return true;
+  }
+
+  if (open === 'false' && close === 'false') {
+    return false;
+  }
+
+  if (open !== 'true' && open !== 'false') {
+    const openTime = convertToTotalMinutes(open);
+    return currentTime > openTime;
+  }
+
+  if (close !== 'true' && close !== 'false') {
+    const closeTime = convertToTotalMinutes(close);
+    return currentTime <= closeTime;
+  }
+
+  return false;
+}
+
+async function fetchWholesaleHours() {
+  const url = `${window.location.origin}/admin/store-hours.json`;
+  let shouldDisplay = false;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const reformattedData = [];
+      const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const status = ['open', 'close'];
+      json.data.forEach((item) => {
+        const day = days.find((key) => (item.TIME.includes(key) ? key : ''));
+        const type = status.find((key) => (item.TIME.includes(key) ? key : ''));
+
+        reformattedData.push({
+          day,
+          type,
+          // eslint-disable-next-line no-restricted-globals
+          time: isNaN(item.WHOLESALE)
+            ? item.WHOLESALE
+            : convertDecimalToTime(parseFloat(item.WHOLESALE)),
+        });
+      });
+
+      const operatingHours = combineDayHours(reformattedData);
+      const now = new Date();
+      const dayName = days[now.getDay()];
+
+      // TODO - remove this when site goes live!!
+      // eslint-disable-next-line prefer-const
+      let { open, close } = operatingHours[dayName];
+      // open = '15:00';
+      // close = '15:00';
+      open = 'true';
+      // close = 'false';
+
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
+  return shouldDisplay;
+}
+
 async function buildWholesale(main, link) {
-  const path = new URL(link).pathname;
+  const showOrderWholesaleForm = await fetchWholesaleHours();
+
+  if (showOrderWholesaleForm) {
+    const path = new URL(link).pathname;
     const blockParent = main.querySelector('div');
 
     const form = document.createElement('form');
@@ -137,13 +248,14 @@ async function buildWholesale(main, link) {
         const inputs = form.querySelectorAll('input[type="number"]');
 
         const lineItems = [];
-        inputs.forEach(({ id, value, dataset }) => {
+        inputs.forEach((input) => {
           // If input value isn't empty or zero, add to formData
-          if (value > 0) {
-            const item = window.catalog.byId[id];
-            const lineItem = createLineItem(item.id, removeLeadingZero(value));
+          if (input.value > 0) {
+            const item = window.catalog.byId[input.id];
+            const lineItem = createLineItem(item.id, removeLeadingZero(input.value));
             lineItems.push(lineItem);
-            lineItem.note = dataset.itemName;
+            lineItem.note = input.dataset.itemName;
+            lineItem.type = input.dataset.itemType;
           }
         });
         const wholesaleModal = document.querySelector('.wholesale.modal');
@@ -152,6 +264,10 @@ async function buildWholesale(main, link) {
         function refreshWholesaleContent(element) {
           const modalContentSection = element.querySelector('.modal-content');
           modalContentSection.innerHTML = '';
+
+          const modalErrorContainer = element.querySelector('.modal-wholesale-content-container');
+          if (modalErrorContainer) modalErrorContainer.remove();
+
           wholesaleOrderForm({ line_items: lineItems }, wholesaleModal);
         }
         toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
@@ -163,37 +279,123 @@ async function buildWholesale(main, link) {
     const blockContentSection = block.querySelector('.block > div > div');
     blockParent.append(block);
     decorateBlock(block);
-    
+
     blockContentSection.append(form);
     const submitButton = createSubmitButton();
     form.append(submitButton);
 
     await loadBlock(block);
+  } else {
+    const wholesaleContentSection = main.querySelector('.wholesale');
+
+    const closedContainer = document.createElement('div');
+    closedContainer.className = 'wholesale-closed-container';
+
+    const closedMessage = document.createElement('h3');
+    closedMessage.className = 'wholesale-closed-message';
+    closedMessage.textContent = 'Wholesale orders are closed right now';
+    closedContainer.append(closedMessage);
+
+    const closedMessageContext = document.createElement('p');
+    closedMessageContext.className = 'wholesale-closed-message';
+    closedMessageContext.textContent = 'Orders open every tuesday at 3pm and close every saturday at 3pm :)';
+    closedContainer.append(closedMessageContext);
+
+    wholesaleContentSection.append(closedContainer);
+  }
 }
 
 async function fetchWholesaleKey(main, key) {
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-  
-      const json = await response.json();
-      if (json.data) {
-        const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
-        if (wholesaleItem) {
-          buildWholesale(main, wholesaleItem.LINK);
-          const columnsWrapper = main.querySelector('.columns-wrapper');
-          columnsWrapper.style.display = 'none';
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
 
-          const contactUs = main.querySelector('.default-content-wrapper:not(:first-of-type)');
-          contactUs.style.display = 'none';
+    const json = await response.json();
+    if (json.data) {
+      const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
+      if (wholesaleItem) {
+        buildWholesale(main, wholesaleItem.LINK);
+        const columnsWrapper = main.querySelector('.columns-wrapper');
+        columnsWrapper.style.display = 'none';
+
+        const contactUs = main.querySelector('.default-content-wrapper:not(:first-of-type)');
+        contactUs.style.display = 'none';
+      }
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
+}
+
+export function buildGQs(params) {
+  let qs = '';
+  Object.keys(params).forEach((key) => {
+    if (key in params) {
+      if (key === 'line_items') {
+        qs += `${key}=${encodeURIComponent(JSON.stringify(params[key]))}`;
+      } else {
+        qs += `${key}=${encodeURIComponent(params[key])}`;
+      }
+      qs += '&';
+    }
+  });
+  return qs;
+}
+
+export async function updateWholesaleGoogleSheet(orderData, orderFormFields, invoiceId) {
+  const url = `${window.location.origin}/admin/wholesale-locations.json`;
+  const key = JSON.parse(localStorage.getItem('wholesaleKey'));
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
+      if (wholesaleItem) {
+        const params = {
+          business_name: orderFormFields.businessName,
+          business_note: orderFormFields.businessNote,
+          business_method: orderFormFields.getItShipped ? 'shipping' : 'pickup',
+          reference_id: invoiceId,
+          line_items: orderData.line_items,
+        };
+
+        params.line_items.forEach((p) => {
+          p.name = p.note;
+        });
+
+        try {
+          const qs = buildGQs(params);
+          const inventoryUpdateRes = await fetch(`${wholesaleItem.SCRIPT_LINK}?${qs}`, { method: 'POST' });
+          if (!inventoryUpdateRes.ok) throw new Error('Inventory update failed.');
+
+          const path = new URL(wholesaleItem.LINK).pathname;
+          const previewUpdateRes = await fetch(`https://admin.hlx.page/preview/normal-icecream/site/main/${path}`, { method: 'POST' });
+          if (!previewUpdateRes.ok) throw new Error('Preview update failed.');
+
+          const publishUpdateRes = await fetch(`https://admin.hlx.page/live/normal-icecream/site/main/${path}`, { method: 'POST' });
+          if (!publishUpdateRes.ok) throw new Error('Publish update failed.');
+
+          // Reset form
+          resetOrderForm();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error updating inventory:', error);
         }
       }
-    } catch (error) {
-      console.error(error.message);
     }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
 }
 
 function handleError(input, message) {
@@ -203,14 +405,14 @@ function handleError(input, message) {
   if (!errorMessage) {
     inputParent.classList.add('invalid');
     const error = document.createElement('p');
-    error.classList.add('error-messages')
+    error.classList.add('error-messages');
     error.textContent = message;
     submitButton.append(error);
 
-    input.addEventListener("input", function clearError() {
-      inputParent.classList.remove("invalid");
+    input.addEventListener('input', function clearPasswordError() {
+      inputParent.classList.remove('invalid');
       if (error) error.remove();
-      input.removeEventListener("input", clearError); // Remove event to avoid multiple triggers
+      input.removeEventListener('input', clearPasswordError); // Remove event to avoid multiple triggers
     });
   }
 }
@@ -237,7 +439,7 @@ export async function decorateWholesale(main) {
 
     const subject = encodeURIComponent("Hi! I'd like to become a wholesaler");
     const body = encodeURIComponent(
-      `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`
+      `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
     );
 
     const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
@@ -251,7 +453,7 @@ export async function decorateWholesale(main) {
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
-  
+
       const json = await response.json();
       if (json.data) {
         const passwordField = main.querySelector('.form-password input');
@@ -261,10 +463,11 @@ export async function decorateWholesale(main) {
           localStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
           window.location.reload();
         } else {
-          handleError(passwordField, "Please enter a valid password")
+          handleError(passwordField, 'Please enter a valid password');
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error.message);
     }
   }

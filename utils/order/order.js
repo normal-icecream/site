@@ -21,13 +21,21 @@ import {
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
-import { loadCSS } from '../../scripts/aem.js';
+import { loadCSS, decorateIcons } from '../../scripts/aem.js';
+import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
 
 const alwaysVisibleFields = [
   'name',
   'phone',
   'email',
   'discountCode',
+];
+
+const wholesaleSpecificFields = [
+  'businessName',
+  'businessNote',
+  'businessSpecialReqs',
+  'businessMethod',
 ];
 
 const addressFields = [
@@ -50,6 +58,21 @@ const fields = [
     name: 'name',
     placeholder: 'your name',
     required: true,
+    validation: ['no-nums'],
+  },
+  {
+    type: 'input',
+    label: 'Your Business Name',
+    name: 'businessName',
+    placeholder: 'your business name',
+    required: true,
+    validation: ['no-nums'],
+  },
+  {
+    type: 'textarea',
+    label: 'Notes',
+    name: 'businessNote',
+    placeholder: 'Notes',
     validation: ['no-nums'],
   },
   {
@@ -133,24 +156,13 @@ const fields = [
   },
 ];
 
-export function resetOrderForm() {
-  const orderData = JSON.parse(localStorage.getItem('orderFormData'));
-
-  if (orderData) {
-    orderData.pickupdate = '';
-    orderData.pickuptime = '';
-    orderData.discountCode = '';
-    orderData.getItShipped = false;
-  }
-
-  localStorage.setItem('orderFormData', JSON.stringify(orderData));
-}
-
-function getOrderFormData() {
+export function getOrderFormData() {
   const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
   if (!orderFormData) {
     localStorage.setItem('orderFormData', JSON.stringify({
       name: '',
+      businessName: '',
+      businessNote: '',
       phone: '',
       email: '',
       discountCode: '',
@@ -167,6 +179,20 @@ function getOrderFormData() {
   return orderFormData;
 }
 
+export function resetOrderForm() {
+  const orderData = getOrderFormData();
+
+  if (orderData) {
+    orderData.pickupdate = '';
+    orderData.pickuptime = '';
+    orderData.discountCode = '';
+    orderData.businessNote = '';
+    orderData.getItShipped = false;
+  }
+
+  localStorage.setItem('orderFormData', JSON.stringify(orderData));
+}
+
 function addDiscountToOrder(order, orderFormData) {
   const discounts = [];
   const discountData = window.catalog.discounts[orderFormData.discountCode].id;
@@ -181,6 +207,69 @@ function addDiscountToOrder(order, orderFormData) {
     }
     order.discounts = discounts;
   }
+}
+
+function populateWholesaleFormFields(formFields, modal, wholesaleData) {
+  const orderFormFields = getOrderFormData();
+  const fieldsToDisplay = [];
+
+  const visibleFields = [];
+  alwaysVisibleFields.forEach((field) => {
+    const visibleField = formFields.find((f) => f.name === field);
+    if (visibleField) visibleFields.push(visibleField);
+  });
+  visibleFields.forEach((field) => fieldsToDisplay.push(field));
+
+  const wholesaleFields = [];
+  wholesaleSpecificFields.forEach((field) => {
+    const wholesaleField = formFields.find((f) => f.name === field);
+    if (wholesaleField) wholesaleFields.push(wholesaleField);
+  });
+  wholesaleFields.forEach((field) => fieldsToDisplay.push(field));
+
+  const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
+  fieldsToDisplay.push(shouldShipField);
+
+  const shouldShip = getOrderFormData().getItShipped;
+  if (shouldShip) {
+    const shippingFields = [];
+    addressFields.forEach((field) => {
+      const addressField = formFields.find((f) => f.name === field);
+      if (addressField) shippingFields.push(addressField);
+    });
+    shippingFields.forEach((field) => fieldsToDisplay.push(field));
+  } else {
+    const forPickupFields = [];
+    pickupFields.forEach((field) => {
+      const pickupField = formFields.find((f) => f.name === field);
+      if (pickupField) forPickupFields.push(pickupField);
+    });
+    forPickupFields.forEach((field) => fieldsToDisplay.push(field));
+  }
+
+  return fieldsToDisplay.map((field) => {
+    const value = orderFormFields[field.name] || '';
+    return {
+      ...field,
+      value,
+      checked: field.type === 'checkbox' ? Boolean(orderFormFields[field.name]) : undefined,
+      oninput: (event) => {
+        if (event.target.type === 'checkbox') {
+          orderFormFields[field.name] = event.target.checked;
+          localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
+
+          // Clearing modal content so we can display the form with the correct shouldShip fields
+          const modalContentSection = modal.querySelector('.modal-content');
+          modalContentSection.innerHTML = '';
+          // eslint-disable-next-line no-use-before-define
+          wholesaleOrderForm(wholesaleData, modal);
+        } else {
+          orderFormFields[field.name] = event.target.value;
+          localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
+        }
+      },
+    };
+  });
 }
 
 function populateFormFields(formFields, key, modal) {
@@ -209,13 +298,11 @@ function populateFormFields(formFields, key, modal) {
     storeFields.forEach((field) => fieldsToDisplay.push(field));
   } else if (key === 'shipping') {
     shippingFields.forEach((field) => fieldsToDisplay.push(field));
-  } else if (key === 'wholesale') {
-    shippingFields.forEach((field) => fieldsToDisplay.push(field));
   } else if (key === 'merch') {
     const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
     fieldsToDisplay.push(shouldShipField);
 
-    const shouldShip = JSON.parse(localStorage.getItem('orderFormData')).getItShipped;
+    const shouldShip = getOrderFormData().getItShipped;
 
     if (shouldShip) {
       pickupFields.forEach((field) => {
@@ -269,30 +356,15 @@ export function wholesaleOrderForm(wholesaleData, modal) {
   loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   modal.classList.add('order');
   const env = getEnvironment();
-  const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
-  if (!orderFormData) {
-    localStorage.setItem('orderFormData', JSON.stringify({
-      name: '',
-      phone: '',
-      email: '',
-      discountCode: '',
-      pickupdate: '',
-      pickuptime: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      zipcode: '',
-      getItShipped: false,
-    }));
-  }
+  getOrderFormData();
+
   const modalContent = modal.querySelector('.modal-content');
   const wholesaleCartCard = getCartCard(wholesaleData);
   modalContent.append(wholesaleCartCard);
 
   async function createSquareWholesaleOrder() {
     const orderData = new SquareOrderData(wholesaleData, window.taxList[0]).build();
-    const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
+    const orderFormFields = getOrderFormData();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);
@@ -306,7 +378,10 @@ export function wholesaleOrderForm(wholesaleData, modal) {
     });
 
     if (env === 'sandbox') {
-      orderData.line_items.forEach((item) => delete item.catalog_object_id);
+      orderData.line_items.forEach((item) => {
+        item.id = item.catalog_object_id;
+        delete item.catalog_object_id;
+      });
     }
 
     const orderWrapper = new SquareOrderWrapper(orderData).build();
@@ -336,18 +411,40 @@ export function wholesaleOrderForm(wholesaleData, modal) {
             ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
             : await createInvoice(JSON.stringify(invoice));
 
+          // Show loading screen
+          wholesaleModalContent.innerHTML = ''; // Clear previous content
+          const loadingContainer = document.createElement('div');
+          loadingContainer.className = 'modal-wholesale-content-container';
+
+          const iconContainer = document.createElement('div');
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'icon icon-pints';
+          iconContainer.append(iconSpan);
+          decorateIcons(iconContainer);
+          loadingContainer.append(iconContainer);
+
+          const loadingMessage = document.createElement('h4');
+          loadingMessage.className = 'wholesale-loading-message';
+          loadingMessage.textContent = 'We are processing your order... :)';
+          loadingContainer.append(loadingMessage);
+
+          wholesaleModalContent.append(loadingContainer);
+
           if (newInvoice) {
+            // update google sheet
+            await updateWholesaleGoogleSheet(orderData, orderFormFields, newInvoice.invoice.id);
+
             wholesaleModalContent.innerHTML = '';
 
             const successContainer = document.createElement('div');
-            successContainer.className = 'wholesale-success-container';
+            successContainer.className = 'modal-wholesale-content-container';
 
-            const iconContainer = document.createElement('div');
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'icon icon-logo';
-            iconContainer.append(iconSpan);
-
-            successContainer.append(iconContainer);
+            const successIconContainer = document.createElement('div');
+            const successIconSpan = document.createElement('span');
+            successIconSpan.className = 'icon icon-logo';
+            successIconContainer.append(successIconSpan);
+            decorateIcons(successIconContainer);
+            successContainer.append(successIconContainer);
 
             const successMessage = document.createElement('h4');
             successMessage.className = 'wholesale-success-message';
@@ -357,25 +454,56 @@ export function wholesaleOrderForm(wholesaleData, modal) {
             const backButton = document.createElement('button');
             backButton.textContent = 'back to wholesale';
             backButton.className = 'wholesale-button';
-            backButton.addEventListener('click', () => toggleModal(modal));
+            backButton.addEventListener('click', () => {
+              toggleModal(modal);
+              window.location.reload();
+            });
             successContainer.append(backButton);
             modal.append(successContainer);
 
             document.querySelector('.wholesale-form').reset();
           }
         } catch (error) {
-          const errorMessage = 'Create invoice failed.';
-          throw new Error(errorMessage);
+          // eslint-disable-next-line no-console
+          console.error('Error processing order:', error);
+
+          // Replace loading screen with error message
+          wholesaleModalContent.innerHTML = '';
+
+          const errorContainer = document.createElement('div');
+          errorContainer.className = 'modal-wholesale-content-container';
+
+          const iconContainer = document.createElement('div');
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'icon icon-error';
+          iconContainer.append(iconSpan);
+          decorateIcons(iconContainer);
+          errorContainer.append(iconContainer);
+
+          const errorMessage = document.createElement('h4');
+          errorMessage.className = 'wholesale-error-message';
+          errorMessage.textContent = 'Oops! Something went wrong while placing your wholesale order. Please try again.';
+          errorContainer.append(errorMessage);
+
+          const retryButton = document.createElement('button');
+          retryButton.textContent = 'Try Again';
+          retryButton.className = 'wholesale-button';
+          retryButton.addEventListener('click', () => {
+            toggleModal(modal);
+          });
+
+          errorContainer.append(retryButton);
+          modal.append(errorContainer);
+          // throw new Error(errorMessage);
         }
       });
       wholesaleModalContent.append(createInvoiceButton);
     } else {
-      // throw user an error
       // eslint-disable-next-line no-console
       console.log('error with creating an order');
     }
   }
-  const populatedFields = populateFormFields(fields, 'wholesale', modal);
+  const populatedFields = populateWholesaleFormFields(fields, modal, wholesaleData);
   const form = buildForm(populatedFields, createSquareWholesaleOrder, modal);
   form.className = 'form wholesale-order-form';
   modalContent.append(form);
@@ -384,27 +512,11 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 export function orderForm(cartData) {
   const env = getEnvironment();
   const modal = document.querySelector('.modal.cart');
-  const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
-  if (!orderFormData) {
-    localStorage.setItem('orderFormData', JSON.stringify({
-      name: '',
-      phone: '',
-      email: '',
-      discountCode: '',
-      pickupdate: '',
-      pickuptime: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      zipcode: '',
-      getItShipped: false,
-    }));
-  }
+  getOrderFormData();
 
   async function createSquareOrder() {
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
-    const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
+    const orderFormFields = getOrderFormData();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);

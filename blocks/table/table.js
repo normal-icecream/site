@@ -23,6 +23,15 @@ function checkInput() {
   submitButton.disabled = !hasAddedQuantity;
 }
 
+function extractAndRemoveColons(str) {
+  const matches = [];
+  const modifiedString = str.replace(/:(.*?):/g, (match, p1) => {
+    matches.push(p1); // Store extracted value without colons
+    return ''; // Remove match from string
+  }).trim(); // Remove extra spaces
+  return { modifiedString, matches };
+}
+
 export default async function decorate(block) {
   const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
 
@@ -36,23 +45,26 @@ export default async function decorate(block) {
       const res = await fetch(link);
       const data = await res.json();
       const jsonData = data.data;
+      jsonData.splice(0, 2);
 
       const table = document.createElement('table');
 
       const wholesaleMap = {};
       jsonData.forEach((product) => {
-        // Standardize key name format into one word, no spaces
-        const formattedProduct = {};
-        Object.keys(product).forEach((key) => {
-          const trimmedKey = key.replace(/\s/g, '');
-          formattedProduct[trimmedKey] = product[key];
-        });
+        if (product.HIDE !== 'x') {
+          // Standardize key name format into one word, no spaces
+          const formattedProduct = {};
+          Object.keys(product).forEach((key) => {
+            const trimmedKey = key.replace(/\s/g, '');
+            formattedProduct[trimmedKey] = product[key];
+          });
 
-        // Add key to map if it doesn't already exist otherwise add product to key
-        if (!wholesaleMap[formattedProduct.TYPE]) {
-          wholesaleMap[formattedProduct.TYPE] = [formattedProduct];
-        } else {
-          wholesaleMap[formattedProduct.TYPE].push(formattedProduct);
+          // Add key to map if it doesn't already exist otherwise add product to key
+          if (!wholesaleMap[formattedProduct.TYPE]) {
+            wholesaleMap[formattedProduct.TYPE] = [formattedProduct];
+          } else {
+            wholesaleMap[formattedProduct.TYPE].push(formattedProduct);
+          }
         }
       });
 
@@ -99,7 +111,14 @@ export default async function decorate(block) {
           // Add product name, description, and dietary icons if they exist.
           if (product.ITEM) {
             const item = document.createElement('h4');
-            item.textContent = product.ITEM;
+            const titleInfo = extractAndRemoveColons(product.ITEM);
+            item.textContent = titleInfo.modifiedString;
+            titleInfo.matches.forEach((icon) => {
+              const iconSpan = document.createElement('span');
+              iconSpan.className = `icon icon-${icon}`;
+              item.append(iconSpan);
+            });
+            decorateIcons(item);
             productCell.append(item);
           }
 
@@ -107,22 +126,6 @@ export default async function decorate(block) {
             const description = document.createElement('p');
             description.textContent = product.DESCRIPTION;
             productCell.append(description);
-          }
-
-          if (product.DIETARY) {
-            const dietaryArray = product.DIETARY.toLowerCase().split(/\s*,\s*(?:,\s*)*/);
-
-            const imageWrapper = document.createElement('p');
-            imageWrapper.className = 'img-wrapper';
-
-            // for every icon create a span and add a classname that matches the dietary item name
-            dietaryArray.forEach((item) => {
-              const iconSpan = document.createElement('span');
-              iconSpan.className = `icon icon-${item}`;
-              imageWrapper.append(iconSpan);
-            });
-            decorateIcons(imageWrapper);
-            productCell.append(imageWrapper);
           }
 
           const availableCell = document.createElement('td');
@@ -147,6 +150,7 @@ export default async function decorate(block) {
             quantityInput.type = 'number';
             quantityInput.id = product.ID;
             quantityInput.dataset.itemName = product.ITEM;
+            quantityInput.dataset.itemType = product.TYPE;
             quantityInput.min = 0;
             quantityInput.max = product.AVAILABLE;
             quantityInput.addEventListener('input', () => checkInput());
