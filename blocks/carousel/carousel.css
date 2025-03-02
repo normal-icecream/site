@@ -34,7 +34,7 @@ main > .section > div.carousel-wrapper {
   scroll-snap-align: start;
   position: relative;
   width: 100%;
-  height: calc(100dvh - var(--header-height) - var(--horizontal-spacing));
+  height: calc(82.5dvh - var(--header-height) - var(--horizontal-spacing));
   max-height: var(--site-width);
 }
 
