@@ -10,10 +10,13 @@ import {
   loadSections,
   loadCSS,
   sampleRUM,
+  getMetadata,
+  toClassName,
 } from './aem.js';
 // eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
+import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -62,7 +65,11 @@ export function swapIcons() {
  */
 function decoratePageType(main) {
   const { pathname } = window.location;
+  const cartPath = toClassName(pathname.replace('/', '') || 'home');
   main.classList.add(pathname.replace('/', '') || 'home'); // label page based on path;
+
+  const template = getMetadata('template');
+  if (template === 'cart') setLastCart(cartPath);
 
   const wholesale = pathname.split('/').some((path) => path === 'wholesale');
 
@@ -146,6 +153,9 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+
+  createLocalStorageCart();
+
   const main = doc.querySelector('main');
   decoratePageType(main);
   if (main) {

@@ -5,8 +5,6 @@ import { createModal, toggleModal } from '../../utils/modal/modal.js';
 import {
   getCart,
   getLastCartKey,
-  allowedCartPages,
-  setLastCart,
   refreshCartContent,
   getCartQuantity,
 } from '../../pages/cart/cart.js';
@@ -122,11 +120,6 @@ export default async function decorate(block) {
     const clone = ul.cloneNode(true);
     wrapper.append(clone);
     [...clone.children].forEach((li, i) => {
-      const isCartPage = allowedCartPages.some((cartPage) => li.textContent === cartPage);
-      li.addEventListener('click', () => {
-        if (isCartPage) setLastCart(li.textContent);
-      });
-
       const subsection = li.querySelector('ul');
       if (subsection) {
         li.className = 'subsection';
