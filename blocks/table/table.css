@@ -13,6 +13,9 @@
 .table {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
+    padding: 0 !important;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch;
 }
 
 .table table {
@@ -45,15 +48,24 @@
     border-right: none;
 }
 
-.table table thead tr th:last-child {
-    width: 125px;
-}
-
 .table table tbody tr td {
     padding: 16px 12px;
     border-bottom: 2px solid var(--blue);
     border-right: 2px solid var(--blue);
     position: relative;
+}
+
+.table table tbody tr td h4 {
+    font-size: var(--heading-size-xs);
+    display: flex;
+}
+
+.table table tbody tr td h4 span {
+    padding-left: 2px;
+}
+
+.table table tbody tr td p {
+    font-size: var(--body-size-s);
 }
 
 .table table tbody tr td:first-child p:first-child {
@@ -71,27 +83,6 @@
     border-bottom: 2px solid var(--blue);
 }
 
-.table table tbody tr td:first-child .img-wrapper {
-    position: absolute;
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    top: 50%;
-    right: 0;
-    bottom: 50%;
-}
-
-.table table tbody tr td:first-child .img-wrapper svg {
-    height: 24px;
-    width: auto;
- }
-
-.table table tbody tr td:first-child .img-wrapper span:first-of-type {
-    padding-bottom: 6px
-}
-
 .table table tbody tr td:last-child {
     text-align: center;
     font-size: var(--heading-size-l);
@@ -104,6 +95,7 @@
     background-color: var(--white);
     border: none;
     text-align: center;
+    padding: 10px 0;
 }
 
 
@@ -112,10 +104,11 @@ input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
     /* stylelint-disable-next-line property-no-vendor-prefix */
     -webkit-appearance: none;
+    color: var(--blue);
     margin: 0;
 }
 
-.table table tbody:last-of-type tr:last-child td{
+.table table tbody:last-of-type tr:last-child td {
    border-bottom: none;
 }
 
@@ -133,5 +126,18 @@ input[type='number']::-webkit-inner-spin-button {
     .table table {
         border-right: 2px solid var(--blue);
         border-left: 2px solid var(--blue);
+    }
+
+    .table table tbody tr td {
+        padding: 16px 12px;
+        width: 600px;
+    }
+
+    .table table tbody tr td h4 {
+        font-size: var(--heading-size-m);
+    }
+
+    .table table tbody tr td h4 span {
+        padding-left: 6px;
     }
 }

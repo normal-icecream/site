@@ -1,4 +1,4 @@
-.order .wholesale-success-container {
+.order .modal-wholesale-content-container {
     align-self: center;
     margin: var(--spacing-xxl);
     padding: var(--spacing-xxl);
@@ -11,17 +11,17 @@
 .order .wholesale-success-message {
     width: 300px;
     text-align: center;
-    padding: var(--spacing-xxl) 0;
     text-transform: lowercase;
 }
 
-.order span.icon img {
+.order img {
     height: 250px;
     width: 250px;
-    color: var(--blue);
+    margin-bottom: var(--spacing-xxl);
 }
 
 .order .wholesale-button {
+    margin-top: var(--spacing-xxl);
     text-transform: lowercase;
     color: var(--white);
     background-color: var(--blue);
