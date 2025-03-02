@@ -50,6 +50,28 @@ function toggleHamburger(hamburger, nav) {
   else document.body.removeAttribute('data-scroll');
 }
 
+function buildModals(block, button) {
+  const modal = document.createElement('div');
+  modal.classList.add('cart');
+  createModal(modal, '', getCart(getLastCartKey()));
+  block.append(modal);
+
+  const paymentModal = document.createElement('div');
+  paymentModal.classList.add('payments');
+  createModal(paymentModal);
+  block.append(paymentModal);
+
+  const wholesaleModal = document.createElement('div');
+  wholesaleModal.classList.add('wholesale', 'modal');
+  createModal(wholesaleModal);
+  block.append(wholesaleModal);
+
+  toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
+  button.addEventListener('click', () => {
+    toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
+  });
+}
+
 /**
  * loads and decorates the header
  * @param {Element} block The header block element
@@ -137,21 +159,6 @@ export default async function decorate(block) {
   // decorate cart
   const cart = nav.querySelector('.nav-cart');
   if (cart) {
-    const modal = document.createElement('div');
-    modal.classList.add('cart');
-    createModal(modal, '', getCart(getLastCartKey()));
-    block.append(modal);
-
-    const paymentModal = document.createElement('div');
-    paymentModal.classList.add('payments');
-    createModal(paymentModal);
-    block.append(paymentModal);
-
-    const wholesaleModal = document.createElement('div');
-    wholesaleModal.classList.add('wholesale', 'modal');
-    createModal(wholesaleModal);
-    block.append(wholesaleModal);
-
     // build button
     const icon = cart.querySelector('.icon');
     const wrapper = icon.closest('p');
@@ -159,8 +166,8 @@ export default async function decorate(block) {
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
     button.addEventListener('click', () => {
-      toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
-    });
+      buildModals(block, button);
+    }, { once: true });
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');
