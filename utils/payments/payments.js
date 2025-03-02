@@ -11,7 +11,7 @@ import {
   createCartTotalContent,
   getLastCartKey,
 } from '../../pages/cart/cart.js';
-import { resetOrderForm } from '../order/order.js';
+import { resetOrderForm, getOrderFormData } from '../order/order.js';
 import { SquarePayment } from '../../constructors/constructors.js';
 import { getTotals } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';
@@ -19,7 +19,7 @@ import { toggleModal } from '../modal/modal.js';
 async function createSquarePayment(token, orderData, element) {
   const env = getEnvironment();
 
-  const formData = JSON.parse(localStorage.getItem('orderFormData'));
+  const formData = getOrderFormData();
   const squarePaymentData = new SquarePayment(orderData, formData, token).build();
   const SquarePaymentDataJson = JSON.stringify(squarePaymentData);
 
@@ -59,8 +59,7 @@ async function createSquarePayment(token, orderData, element) {
       resetOrderForm();
     }
   } catch (error) {
-    const errorMessage = 'Create payment failed.';
-    throw new Error(errorMessage);
+    throw new Error('Create payment failed.');
   }
 }
 
