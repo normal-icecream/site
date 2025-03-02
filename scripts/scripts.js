@@ -11,6 +11,7 @@ import {
   loadCSS,
   sampleRUM,
 } from './aem.js';
+// eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
 
@@ -31,6 +32,7 @@ async function loadFonts() {
  */
 export function swapIcons() {
   document.querySelectorAll('span.icon > img').forEach((icon) => {
+    if (icon.dataset.hasObserver) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
@@ -42,14 +44,14 @@ export function swapIcons() {
           // check if svg has inline styles
           let style = svg.querySelector('style');
           if (style) style = style.textContent.toLowerCase().includes('currentcolor');
-          let fill = svg.querySelector('[fill]');
-          if (fill) fill = fill.getAttribute('fill').toLowerCase().includes('currentcolor');
+          const fill = [...svg.querySelectorAll('[fill]')].some((s) => s.getAttribute('fill').toLowerCase().includes('currentcolor'));
           // replace image with SVG, ensuring color inheritance
           if ((style || fill) || (!style && !fill)) icon.replaceWith(svg);
           observer.disconnect();
         }
       });
     }, { threshold: 0 });
+    icon.dataset.hasObserver = true;
     observer.observe(icon);
   });
 }

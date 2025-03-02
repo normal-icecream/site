@@ -21,6 +21,7 @@ import {
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
+import { swapIcons } from '../../scripts/scripts.js';
 import { loadCSS, decorateIcons } from '../../scripts/aem.js';
 import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
 
@@ -420,8 +421,14 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           const iconSpan = document.createElement('span');
           iconSpan.className = 'icon icon-pints';
           iconContainer.append(iconSpan);
-          decorateIcons(iconContainer);
           loadingContainer.append(iconContainer);
+
+          // add container to DOM first
+          wholesaleModalContent.append(loadingContainer);
+          // then decorate icons
+          decorateIcons(wholesaleModalContent);
+          // then swap icons
+          swapIcons();
 
           const loadingMessage = document.createElement('h4');
           loadingMessage.className = 'wholesale-loading-message';
@@ -443,8 +450,14 @@ export function wholesaleOrderForm(wholesaleData, modal) {
             const successIconSpan = document.createElement('span');
             successIconSpan.className = 'icon icon-logo';
             successIconContainer.append(successIconSpan);
-            decorateIcons(successIconContainer);
             successContainer.append(successIconContainer);
+
+            // add to DOM first
+            wholesaleModalContent.append(successContainer);
+            // then decorate
+            decorateIcons(wholesaleModalContent);
+            // then swap
+            swapIcons();
 
             const successMessage = document.createElement('h4');
             successMessage.className = 'wholesale-success-message';
@@ -477,8 +490,9 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           const iconSpan = document.createElement('span');
           iconSpan.className = 'icon icon-error';
           iconContainer.append(iconSpan);
-          decorateIcons(iconContainer);
           errorContainer.append(iconContainer);
+          decorateIcons(iconContainer);
+          swapIcons();
 
           const errorMessage = document.createElement('h4');
           errorMessage.className = 'wholesale-error-message';
