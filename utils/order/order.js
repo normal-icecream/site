@@ -291,7 +291,7 @@ function populateFormFields(formFields, key, modal) {
     if (shippingField) shippingFields.push(shippingField);
   });
 
-  if (key === 'store') {
+  if (key === 'pickup') {
     pickupFields.forEach((field) => {
       const pickupField = formFields.find((f) => f.name === field);
       if (pickupField) storeFields.push(pickupField);
