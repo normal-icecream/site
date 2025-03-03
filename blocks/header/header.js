@@ -59,11 +59,6 @@ function buildModals(block, button) {
   createModal(paymentModal);
   block.append(paymentModal);
 
-  const wholesaleModal = document.createElement('div');
-  wholesaleModal.classList.add('wholesale', 'modal');
-  createModal(wholesaleModal);
-  block.append(wholesaleModal);
-
   toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
   button.addEventListener('click', () => {
     toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
