@@ -268,6 +268,7 @@ async function buildWholesale(main, link) {
           }
         });
         const wholesaleModal = document.querySelector('.wholesale.modal');
+        /* eslint-disable-next-line no-inner-declarations */
         function refreshWholesaleContent(element) {
           const modalContentSection = element.querySelector('.modal-content');
           modalContentSection.innerHTML = '';
