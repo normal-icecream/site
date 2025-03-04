@@ -1,4 +1,5 @@
-.order .modal-wholesale-content-container {
+.order .modal-wholesale-content-container,
+.order .order-content-container {
     align-self: center;
     margin: var(--spacing-xxl);
     padding: var(--spacing-xxl);

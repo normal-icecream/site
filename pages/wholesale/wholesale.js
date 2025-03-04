@@ -18,7 +18,7 @@ function buildModal(element, refresh) {
   createModal(wholesaleModal);
   element.append(wholesaleModal);
 
-  toggleModal(wholesaleModal, `your wholesale order`, refresh);
+  toggleModal(wholesaleModal, 'your wholesale order', refresh);
 }
 
 function createSubmitButton() {
@@ -280,7 +280,7 @@ async function buildWholesale(main, link) {
         }
 
         if (!wholesaleModal) {
-          buildModal(main, refreshWholesaleContent)
+          buildModal(main, refreshWholesaleContent);
         } else {
           toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
         }

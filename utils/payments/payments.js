@@ -2,7 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createPayment } from '../../api/square/payments.js';
-import { loadScript, loadCSS } from '../../scripts/aem.js';
+import { loadScript, loadCSS, decorateIcons } from '../../scripts/aem.js';
 import buildForm from '../forms/forms.js';
 import {
   getLocalStorageCart,
@@ -15,6 +15,7 @@ import { resetOrderForm, getOrderFormData } from '../order/order.js';
 import { SquarePayment } from '../../constructors/constructors.js';
 import { getTotals } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';
+import { swapIcons } from '../../scripts/scripts.js';
 
 async function createSquarePayment(token, orderData, element) {
   const env = getEnvironment();
@@ -27,18 +28,23 @@ async function createSquarePayment(token, orderData, element) {
     const payment = env === 'sandbox'
       ? await hitSandbox(createPayment, SquarePaymentDataJson)
       : await createPayment(SquarePaymentDataJson);
+
     if (payment.payment.status === 'COMPLETED') {
       element.innerHTML = '';
 
       const paymentSuccessContainer = document.createElement('div');
-      paymentSuccessContainer.className = 'payment-success-container';
+      paymentSuccessContainer.className = 'payment-content-container';
 
       const iconContainer = document.createElement('div');
       const iconSpan = document.createElement('span');
       iconSpan.className = 'icon icon-logo';
       iconContainer.append(iconSpan);
-
       paymentSuccessContainer.append(iconContainer);
+      element.append(paymentSuccessContainer);
+      // then decorate icons
+      decorateIcons(element);
+      // then swap icons
+      swapIcons();
 
       const successMessage = document.createElement('h4');
       successMessage.className = 'payment-success-message';
@@ -53,13 +59,32 @@ async function createSquarePayment(token, orderData, element) {
         window.location.reload();
       });
       paymentSuccessContainer.append(backButton);
-      element.append(paymentSuccessContainer);
 
       resetCart();
       resetOrderForm();
     }
   } catch (error) {
-    throw new Error('Create payment failed.');
+    const errorMessages = error.responseMessages;
+    const errorContainer = element.querySelector('.payment-error-container');
+    if (errorContainer) {
+      errorContainer.innerHTML = '';
+      errorMessages.forEach((message) => {
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'payment-error';
+        errorMessage.textContent = message;
+        errorContainer.append(errorMessage);
+      });
+    } else {
+      const newErrorContainer = document.createElement('div');
+      newErrorContainer.className = 'payment-error-container';
+      errorMessages.forEach((message) => {
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'payment-error';
+        errorMessage.textContent = message;
+        newErrorContainer.append(errorMessage);
+      });
+      element.append(newErrorContainer);
+    }
   }
 }
 
@@ -97,8 +122,9 @@ export async function getCardPaymentForm(element, orderData) {
   const paymentsSdkUrl = env === 'sandbox' ? 'https://sandbox.web.squarecdn.com/v1/square.js' : 'https://web.squarecdn.com/v1/square.js';
 
   await loadScript(paymentsSdkUrl);
-
   const payments = window.Square.payments(orderData.applicationId, orderData.order.location_id);
+  let card;
+  let giftCard;
 
   async function handleSubmit(formData) {
     const errorMessage = element.querySelector('.payment-failure');
@@ -108,73 +134,50 @@ export async function getCardPaymentForm(element, orderData) {
       try {
         // eslint-disable-next-line no-use-before-define
         const result = await giftCard.tokenize();
-        if (result.status === 'OK') {
-          await createSquarePayment(result.token, orderData, element);
-        } else {
-          let gcErrorMessage = `Tokenization failed with status: ${result.status}`;
-          if (result.errors) {
-            gcErrorMessage += ` and errors: ${JSON.stringify(
-              result.errors,
-            )}`;
-          }
-          throw new Error(gcErrorMessage);
-        }
+        if (result.status === 'OK') await createSquarePayment(result.token, orderData, element);
       } catch (error) {
-        const errorMessageDiv = document.createElement('div');
-        errorMessageDiv.className = 'payment-failure';
-        errorMessageDiv.textContent = 'Payment failed, try again!';
-        element.append(errorMessageDiv);
+        // eslint-disable-next-line no-console
+        console.log('error:', error);
       }
     } else {
       try {
         // eslint-disable-next-line no-use-before-define
         const result = await card.tokenize();
-        if (result.status === 'OK') {
-          await createSquarePayment(result.token, orderData, element);
-        } else {
-          let ccErrorMessage = `Tokenization failed with status: ${result.status}`;
-          if (result.errors) {
-            ccErrorMessage += ` and errors: ${JSON.stringify(
-              result.errors,
-            )}`;
-          }
-
-          throw new Error(ccErrorMessage);
-        }
+        if (result.status === 'OK') await createSquarePayment(result.token, orderData, element);
       } catch (error) {
-        const errorMessageDiv = document.createElement('div');
-        errorMessageDiv.classList.add('payments', 'payment-failure');
-        errorMessageDiv.textContent = 'oh no! Payment failed, please try again.';
-        element.append(errorMessageDiv);
+        // eslint-disable-next-line no-console
+        console.log('error:', error);
       }
     }
   }
 
-  const cartData = getLocalStorageCart();
-  const currentCart = getCartCard(cartData);
-  element.append(currentCart);
+  element.innerHTML = ''; // Clear previous content
 
-  getTotals(element, orderData, createCartTotalContent);
+  const loadingContainer = document.createElement('div');
+  loadingContainer.className = 'payment-content-container';
 
-  const form = buildForm(fields, handleSubmit, element);
-  form.classList.add('payment-form');
+  const iconContainer = document.createElement('div');
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'icon icon-wholesale';
+  iconContainer.append(iconSpan);
+  loadingContainer.append(iconContainer);
 
-  const creditCardForm = document.createElement('div');
-  creditCardForm.className = 'card-payment-form';
-  creditCardForm.id = 'card';
+  // add container to DOM first
+  element.append(loadingContainer);
+  // then decorate icons
+  decorateIcons(element);
+  // then swap icons
+  swapIcons();
 
-  const giftCardForm = document.createElement('div');
-  giftCardForm.className = 'gift-card-payment-form';
-  giftCardForm.id = 'gift-card';
-  giftCardForm.style.display = 'none';
+  const loadingMessage = document.createElement('h4');
+  loadingMessage.className = 'payment-loading-message';
+  loadingMessage.textContent = 'We are processing your order :)';
+  loadingContainer.append(loadingMessage);
 
-  form.prepend(creditCardForm);
-  form.prepend(giftCardForm);
-
-  element.append(form);
+  element.append(loadingContainer);
 
   // https://developer.squareup.com/docs/web-payments/customize-styles
-  const cartStyles = {
+  const cardStyles = {
     '.input-container': {
       borderColor: '#C1C8FF',
     },
@@ -183,16 +186,50 @@ export async function getCardPaymentForm(element, orderData) {
       color: '#0B21E0',
     },
   };
+  try {
+    card = await payments.card({
+      style: cardStyles,
+    });
 
-  const card = await payments.card({
-    style: cartStyles,
-  });
-  await card.attach('#card');
+    giftCard = await payments.giftCard({
+      style: cardStyles,
+    });
 
-  const giftCard = await payments.giftCard({
-    style: cartStyles,
-  });
-  await giftCard.attach('#gift-card');
+    if (card) {
+      element.innerHTML = ''; // Clear previous content
+
+      const cartData = getLocalStorageCart();
+      const currentCart = getCartCard(cartData);
+      element.append(currentCart);
+
+      getTotals(element, orderData, createCartTotalContent);
+
+      const form = buildForm(fields, handleSubmit, element);
+      form.classList.add('payment-form');
+
+      const creditCardForm = document.createElement('div');
+      creditCardForm.className = 'card-payment-form';
+      creditCardForm.id = 'card';
+
+      form.prepend(creditCardForm);
+
+      if (giftCard) {
+        const giftCardForm = document.createElement('div');
+        giftCardForm.className = 'gift-card-payment-form';
+        giftCardForm.id = 'gift-card';
+        giftCardForm.style.display = 'none';
+
+        form.prepend(giftCardForm);
+      }
+
+      element.append(form);
+      await card.attach('#card');
+      await giftCard.attach('#gift-card');
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
 }
 
 // Function to refresh the cart content
