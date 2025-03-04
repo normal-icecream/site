@@ -310,7 +310,18 @@ async function buildWholesale(main, link) {
 
     const closedMessageContext = document.createElement('p');
     closedMessageContext.className = 'wholesale-closed-message';
-    closedMessageContext.textContent = 'Orders open every tuesday at 3pm and close every saturday at 3pm :)';
+
+    const email = 'hi@normal.club';
+    const subject = 'Wholesale Ice Cream Inquiry!';
+
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+
+    const linkElement = document.createElement('a');
+    linkElement.href = mailtoLink;
+    linkElement.textContent = 'hi@normal.club';
+    
+    closedMessageContext.textContent = `are you having an ice cream emergency? email us, we'll do whatever we can to assist :) `;
+    closedMessageContext.append(linkElement);
     closedContainer.append(closedMessageContext);
 
     wholesaleContentSection.append(closedContainer);
