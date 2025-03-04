@@ -4,7 +4,7 @@
     padding: 12px 0;
 }
 
-.payments .payment-success-container {
+.payments .payment-content-container {
     align-self: center;
     margin: var(--spacing-xxl);
     padding: var(--spacing-xxl);
@@ -14,14 +14,16 @@
     align-items: center;
 }
 
-.payments .payment-success-message {
+.payments .payment-success-message,
+.payments .payment-error-message {
     width: 300px;
     text-align: center;
     padding: var(--spacing-xxl) 0;
     text-transform: lowercase;
 }
 
-.payments span.icon img {
+.payments span.icon img,
+.payments .icon svg {
     height: 250px;
     width: 250px;
     color: var(--blue);
@@ -34,7 +36,22 @@
     text-transform: lowercase;
 }
 
-.payments .payment-back-button {
+.payments .payment-error-container {
+    align-self: center;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.payments .payment-error {
+    align-self: center;
+    color: var(--red);
+    text-transform: lowercase;
+}
+
+.payments .payment-back-button,
+.payments .payment-retry-button {
     text-transform: lowercase;
     color: var(--white);
     background-color: var(--blue);

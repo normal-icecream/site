@@ -32,7 +32,10 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
 
   // Check if the response status indicates an error
   if (!response.ok) {
-    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+    const errorData = response.json();
+    const error = new Error(`API Error: ${response.status} - ${response.statusText}`);
+    error.responseData = errorData;
+    throw error;
   }
 
   // Parse and return the JSON response

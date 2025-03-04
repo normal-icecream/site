@@ -10,9 +10,13 @@ import {
   loadSections,
   loadCSS,
   sampleRUM,
+  getMetadata,
+  toClassName,
 } from './aem.js';
+// eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
+import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -31,6 +35,7 @@ async function loadFonts() {
  */
 export function swapIcons() {
   document.querySelectorAll('span.icon > img').forEach((icon) => {
+    if (icon.dataset.hasObserver) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
@@ -42,14 +47,14 @@ export function swapIcons() {
           // check if svg has inline styles
           let style = svg.querySelector('style');
           if (style) style = style.textContent.toLowerCase().includes('currentcolor');
-          let fill = svg.querySelector('[fill]');
-          if (fill) fill = fill.getAttribute('fill').toLowerCase().includes('currentcolor');
+          const fill = [...svg.querySelectorAll('[fill]')].some((s) => s.getAttribute('fill').toLowerCase().includes('currentcolor'));
           // replace image with SVG, ensuring color inheritance
           if ((style || fill) || (!style && !fill)) icon.replaceWith(svg);
           observer.disconnect();
         }
       });
     }, { threshold: 0 });
+    icon.dataset.hasObserver = true;
     observer.observe(icon);
   });
 }
@@ -59,7 +64,14 @@ export function swapIcons() {
  * @param {HTMLElement} main The main container element
  */
 function decoratePageType(main) {
-  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+  const { pathname } = window.location;
+  const cartPath = toClassName(pathname.replace('/', '') || 'home');
+  main.classList.add(pathname.replace('/', '') || 'home'); // label page based on path;
+
+  const template = getMetadata('template');
+  if (template === 'cart') setLastCart(cartPath);
+
+  const wholesale = pathname.split('/').some((path) => path === 'wholesale');
 
   try {
     if (wholesale) decorateWholesale(main);
@@ -141,6 +153,9 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+
+  createLocalStorageCart();
+
   const main = doc.querySelector('main');
   decoratePageType(main);
   if (main) {

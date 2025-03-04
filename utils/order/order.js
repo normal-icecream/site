@@ -21,6 +21,7 @@ import {
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
+import { swapIcons } from '../../scripts/scripts.js';
 import { loadCSS, decorateIcons } from '../../scripts/aem.js';
 import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
 
@@ -290,7 +291,7 @@ function populateFormFields(formFields, key, modal) {
     if (shippingField) shippingFields.push(shippingField);
   });
 
-  if (key === 'store') {
+  if (key === 'pickup') {
     pickupFields.forEach((field) => {
       const pickupField = formFields.find((f) => f.name === field);
       if (pickupField) storeFields.push(pickupField);
@@ -420,12 +421,18 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           const iconSpan = document.createElement('span');
           iconSpan.className = 'icon icon-pints';
           iconContainer.append(iconSpan);
-          decorateIcons(iconContainer);
           loadingContainer.append(iconContainer);
+
+          // add container to DOM first
+          wholesaleModalContent.append(loadingContainer);
+          // then decorate icons
+          decorateIcons(wholesaleModalContent);
+          // then swap icons
+          swapIcons();
 
           const loadingMessage = document.createElement('h4');
           loadingMessage.className = 'wholesale-loading-message';
-          loadingMessage.textContent = 'We are processing your order... :)';
+          loadingMessage.textContent = 'We are processing your order :)';
           loadingContainer.append(loadingMessage);
 
           wholesaleModalContent.append(loadingContainer);
@@ -443,8 +450,14 @@ export function wholesaleOrderForm(wholesaleData, modal) {
             const successIconSpan = document.createElement('span');
             successIconSpan.className = 'icon icon-logo';
             successIconContainer.append(successIconSpan);
-            decorateIcons(successIconContainer);
             successContainer.append(successIconContainer);
+
+            // add to DOM first
+            wholesaleModalContent.append(successContainer);
+            // then decorate
+            decorateIcons(wholesaleModalContent);
+            // then swap
+            swapIcons();
 
             const successMessage = document.createElement('h4');
             successMessage.className = 'wholesale-success-message';
@@ -477,8 +490,8 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           const iconSpan = document.createElement('span');
           iconSpan.className = 'icon icon-error';
           iconContainer.append(iconSpan);
-          decorateIcons(iconContainer);
           errorContainer.append(iconContainer);
+          decorateIcons(wholesaleModalContent);
 
           const errorMessage = document.createElement('h4');
           errorMessage.className = 'wholesale-error-message';
@@ -487,14 +500,10 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
           const retryButton = document.createElement('button');
           retryButton.textContent = 'Try Again';
-          retryButton.className = 'wholesale-button';
-          retryButton.addEventListener('click', () => {
-            toggleModal(modal);
-          });
+          retryButton.addEventListener('click', () => toggleModal(modal));
 
           errorContainer.append(retryButton);
           modal.append(errorContainer);
-          // throw new Error(errorMessage);
         }
       });
       wholesaleModalContent.append(createInvoiceButton);
@@ -510,6 +519,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 }
 
 export function orderForm(cartData) {
+  loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   const env = getEnvironment();
   const modal = document.querySelector('.modal.cart');
   getOrderFormData();
@@ -558,8 +568,6 @@ export function orderForm(cartData) {
 
     const orderWrapper = new SquareOrderWrapper(orderData).build();
     const cartLocation = getCartLocation();
-
-    // TODO - make sure that this location qp is sending/switching properly in prod env's
     const newOrder = env === 'sandbox'
       ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
       : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
@@ -571,9 +579,37 @@ export function orderForm(cartData) {
       const paymentsModal = document.querySelector('.modal.payments');
       toggleModal(paymentsModal, `your ${getLastCartKey()} order`, refreshPaymentsContent, newOrder);
     } else {
-      // throw user an error
       // eslint-disable-next-line no-console
       console.log('error with creating an order');
+      const cartModal = document.querySelector('.modal.cart');
+      cartModal.classList.add('order');
+      const cartModalContent = modal.querySelector('.modal-content');
+
+      // Show loading screen
+      cartModalContent.innerHTML = ''; // Clear previous content
+
+      const errorContainer = document.createElement('div');
+      errorContainer.className = 'order-content-container';
+
+      const iconContainer = document.createElement('div');
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'icon icon-error';
+      iconContainer.append(iconSpan);
+      errorContainer.append(iconContainer);
+      decorateIcons(iconContainer);
+
+      const errorMessage = document.createElement('h4');
+      errorMessage.className = 'wholesale-error-message';
+      errorMessage.textContent = 'Oops! Something went wrong while placing your order. Please try again :)';
+      errorContainer.append(errorMessage);
+
+      const retryButton = document.createElement('button');
+      retryButton.textContent = 'Try Again';
+      retryButton.className = 'wholesale-button';
+      retryButton.addEventListener('click', () => toggleModal(modal));
+
+      errorContainer.append(retryButton);
+      cartModalContent.append(errorContainer);
     }
   }
 

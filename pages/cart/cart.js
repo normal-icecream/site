@@ -5,14 +5,32 @@ import { loadCSS } from '../../scripts/aem.js';
 import { orderForm } from '../../utils/order/order.js';
 
 export const allowedCartPages = Object.freeze([
-  'store',
+  'pickup',
   'shipping',
   'merch',
 ]);
 
+export function createLocalStorageCart() {
+  const cartData = JSON.parse(localStorage.getItem('carts'));
+  if (!cartData) {
+    localStorage.setItem('carts', JSON.stringify({
+      pickup: {
+        line_items: [],
+      },
+      shipping: {
+        line_items: [],
+      },
+      merch: {
+        line_items: [],
+      },
+      lastcart: '',
+    }));
+  }
+}
+
 export function getLastCartKey() {
   const cart = JSON.parse(localStorage.getItem('carts'));
-  return cart ? cart.lastcart : 'store';
+  return cart ? cart.lastcart : 'pickup';
 }
 
 export function getLocalStorageCart() {
@@ -31,7 +49,7 @@ export function getCartLocation() {
     const cartkey = getLastCartKey();
     const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
     if (cartkey === 'merch') {
-      currentLocation = getItShipped ? 'shipping' : 'store';
+      currentLocation = getItShipped ? 'shipping' : 'pickup';
     } else {
       currentLocation = cartkey;
     }
@@ -64,12 +82,10 @@ export function getCartQuantity() {
   if (currentCart) {
     const cartQuantity = currentCart.line_items
       .reduce((total, item) => total + item.quantity, 0);
-
     if (cartQuantity > 0) {
       return cartQuantity;
     }
   }
-
   return quantity;
 }
 
@@ -292,18 +308,7 @@ export async function getCart() {
   let cart = [];
   const cartData = JSON.parse(localStorage.getItem('carts'));
   if (!cartData) {
-    localStorage.setItem('carts', JSON.stringify({
-      store: {
-        line_items: [],
-      },
-      shipping: {
-        line_items: [],
-      },
-      merch: {
-        line_items: [],
-      },
-      lastcart: '',
-    }));
+    createLocalStorageCart();
     cart = await getEmptyCartMessage();
   } else if (cartData.lastcart.length > 0) {
     const currentCartData = cartData[cartData.lastcart];

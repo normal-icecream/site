@@ -7,10 +7,19 @@ import {
   loadCSS,
 } from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';
-import { toggleModal } from '../../utils/modal/modal.js';
 // eslint-disable-next-line import/no-cycle
 import { wholesaleOrderForm, resetOrderForm } from '../../utils/order/order.js';
 import { createLineItem } from '../cart/cart.js';
+import { createModal, toggleModal } from '../../utils/modal/modal.js';
+
+function buildModal(element, refresh) {
+  const wholesaleModal = document.createElement('div');
+  wholesaleModal.classList.add('wholesale', 'modal');
+  createModal(wholesaleModal);
+  element.append(wholesaleModal);
+
+  toggleModal(wholesaleModal, 'your wholesale order', refresh);
+}
 
 function createSubmitButton() {
   // Create submit button wrapper
@@ -259,7 +268,6 @@ async function buildWholesale(main, link) {
           }
         });
         const wholesaleModal = document.querySelector('.wholesale.modal');
-
         /* eslint-disable-next-line no-inner-declarations */
         function refreshWholesaleContent(element) {
           const modalContentSection = element.querySelector('.modal-content');
@@ -268,9 +276,14 @@ async function buildWholesale(main, link) {
           const modalErrorContainer = element.querySelector('.modal-wholesale-content-container');
           if (modalErrorContainer) modalErrorContainer.remove();
 
-          wholesaleOrderForm({ line_items: lineItems }, wholesaleModal);
+          wholesaleOrderForm({ line_items: lineItems }, element);
         }
-        toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
+
+        if (!wholesaleModal) {
+          buildModal(main, refreshWholesaleContent);
+        } else {
+          toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
+        }
       }
     });
 
@@ -281,7 +294,7 @@ async function buildWholesale(main, link) {
     decorateBlock(block);
 
     blockContentSection.append(form);
-    const submitButton = createSubmitButton();
+    const submitButton = createSubmitButton(main);
     await loadBlock(block);
     form.append(submitButton);
   } else {
@@ -297,7 +310,18 @@ async function buildWholesale(main, link) {
 
     const closedMessageContext = document.createElement('p');
     closedMessageContext.className = 'wholesale-closed-message';
-    closedMessageContext.textContent = 'Orders open every tuesday at 3pm and close every saturday at 3pm :)';
+
+    const email = 'hi@normal.club';
+    const subject = 'Wholesale Ice Cream Inquiry!';
+
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+
+    const linkElement = document.createElement('a');
+    linkElement.href = mailtoLink;
+    linkElement.textContent = 'hi@normal.club';
+    
+    closedMessageContext.textContent = `are you having an ice cream emergency? email us, we'll do whatever we can to assist :) `;
+    closedMessageContext.append(linkElement);
     closedContainer.append(closedMessageContext);
 
     wholesaleContentSection.append(closedContainer);
