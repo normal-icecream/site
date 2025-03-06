@@ -216,8 +216,9 @@ header .nav-sections [aria-expanded='true'] i.symbol-chevron::after {
   
   header .nav-sections nav > ul li button[aria-expanded='true'] + ul {
     position: absolute;
-    top: 100%;
+    top: 68px;
     padding: var(--spacing-m) 0;
+    border: 2px solid var(--blue);
   }
 
   header .nav-sections nav > ul li button[aria-expanded='true'] + ul > li + li {
