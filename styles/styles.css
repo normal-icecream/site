@@ -320,6 +320,7 @@ h5,
 h6 {
   scroll-margin: 1em;
   font-family: var(--heading-font-family);
+  font-style: normal;
   font-weight: var(--weight-extrabold);
   line-height: var(--line-height-s);
   text-transform: lowercase;
