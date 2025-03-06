@@ -243,7 +243,8 @@ async function buildWholesale(main, link) {
 
   if (showOrderWholesaleForm) {
     const path = new URL(link).pathname;
-    const blockParent = main.querySelector('div');
+    const wholesaleHeroHeader = main.querySelector('div');
+    console.log("wholesaleHeroHeader:", wholesaleHeroHeader);
 
     const form = document.createElement('form');
     form.classList.add('table-form', 'wholesale-form');
@@ -289,16 +290,19 @@ async function buildWholesale(main, link) {
 
     const block = buildBlock('table', '');
     block.dataset.src = `${window.location.origin}${path}`;
+    block.classList.add('section');
     const blockContentSection = block.querySelector('.block > div > div');
-    blockParent.append(block);
+    wholesaleHeroHeader.after(block);
     decorateBlock(block);
 
     blockContentSection.append(form);
+    
     const submitButton = createSubmitButton(main);
     await loadBlock(block);
     form.append(submitButton);
   } else {
-    const wholesaleContentSection = main.querySelector('.wholesale');
+    const wholesaleHeroHeader = main.querySelector('.hero-header');
+    console.log("wholesaleHeroHeader:", wholesaleHeroHeader);
 
     const closedContainer = document.createElement('div');
     closedContainer.className = 'wholesale-closed-container';
@@ -319,16 +323,18 @@ async function buildWholesale(main, link) {
     const linkElement = document.createElement('a');
     linkElement.href = mailtoLink;
     linkElement.textContent = 'hi@normal.club';
-    
-    closedMessageContext.textContent = `are you having an ice cream emergency? email us, we'll do whatever we can to assist :) `;
+
+    closedMessageContext.textContent = 'are you having an ice cream emergency? email us, we\'ll do whatever we can to assist :) ';
     closedMessageContext.append(linkElement);
     closedContainer.append(closedMessageContext);
 
-    wholesaleContentSection.append(closedContainer);
+    wholesaleHeroHeader.after(closedContainer);
   }
 }
 
 async function fetchWholesaleKey(main, key) {
+  console.log("key:", key);
+  console.log("main:", main);
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
   try {
     const response = await fetch(url);
@@ -343,9 +349,6 @@ async function fetchWholesaleKey(main, key) {
         buildWholesale(main, wholesaleItem.LINK);
         const columnsWrapper = main.querySelector('.columns-wrapper');
         columnsWrapper.style.display = 'none';
-
-        const contactUs = main.querySelector('.default-content-wrapper:not(:first-of-type)');
-        contactUs.style.display = 'none';
       }
     }
   } catch (error) {
@@ -444,8 +447,15 @@ function handleError(input, message) {
 * Sets up wholesale static table block structure
 */
 export async function decorateWholesale(main) {
-  const wholesaleContainer = main.querySelector('div');
-  wholesaleContainer.classList.add('wholesale');
+  console.log("main:", main);
+  // if (main) {
+    const wholesaleContainer = main.querySelector('.columns');
+    console.log("wholesaleContainer:", wholesaleContainer);
+
+  // }
+  // const wholesaleContainer = main.querySelector('.columns-container');
+  // console.log("wholesaleContainer:", wholesaleContainer);
+  // wholesaleContainer.classList.add('wholesale');
 
   const key = JSON.parse(localStorage.getItem('wholesaleKey'));
   if (key) fetchWholesaleKey(main, key);

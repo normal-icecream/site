@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
+ /* stylelint-disable no-descending-specificity */
 @import url('colors.css');
 @import url('containers.css');
 @import url('typography.css');
@@ -60,6 +61,8 @@
   --code-font-family: monospace;
 
   /* spacing */
+  --spacing-xxxxl: var(--spacing-800);
+  --spacing-xxxl: var(--spacing-700);
   --spacing-xxl: var(--spacing-600);
   --spacing-xl:  var(--spacing-500);
   --spacing-l:   var(--spacing-400);
@@ -186,6 +189,36 @@ main .section.light {
 
 main .section.dark {
   background-color: var(--gray-600);
+}
+
+main .section.hero-header-l > div {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding: var(--spacing-xxl) 0;
+}
+
+main .section.hero-header-l > div > h1 {
+  font-size: var(--heading-size-xxxl);
+}
+
+main .section.hero-header > div {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-xxl) 0;
+}
+
+@media (width >= 900px) {
+  main .section.hero-header-l > div > h1 {
+    font-size: var(--heading-size-xxxxl);
+  }
+  
+  main .section.hero-header-l > div > p {
+    font-size: var(--heading-size-m);
+  }
 }
 
 /* images and icons */
