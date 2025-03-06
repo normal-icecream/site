@@ -208,7 +208,7 @@ main .section.hero-header > div {
   flex-flow: column;
   align-items: center;
   text-align: center;
-  padding: var(--spacing-xxl) 0;
+  padding: var(--spacing-xxl) var(--horizontal-spacing);
 }
 
 @media (width >= 900px) {
