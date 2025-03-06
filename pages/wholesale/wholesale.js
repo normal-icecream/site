@@ -244,7 +244,6 @@ async function buildWholesale(main, link) {
   if (showOrderWholesaleForm) {
     const path = new URL(link).pathname;
     const wholesaleHeroHeader = main.querySelector('div');
-    console.log("wholesaleHeroHeader:", wholesaleHeroHeader);
 
     const form = document.createElement('form');
     form.classList.add('table-form', 'wholesale-form');
@@ -296,13 +295,12 @@ async function buildWholesale(main, link) {
     decorateBlock(block);
 
     blockContentSection.append(form);
-    
+
     const submitButton = createSubmitButton(main);
     await loadBlock(block);
     form.append(submitButton);
   } else {
     const wholesaleHeroHeader = main.querySelector('.hero-header');
-    console.log("wholesaleHeroHeader:", wholesaleHeroHeader);
 
     const closedContainer = document.createElement('div');
     closedContainer.className = 'wholesale-closed-container';
@@ -333,8 +331,6 @@ async function buildWholesale(main, link) {
 }
 
 async function fetchWholesaleKey(main, key) {
-  console.log("key:", key);
-  console.log("main:", main);
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
   try {
     const response = await fetch(url);
@@ -447,15 +443,7 @@ function handleError(input, message) {
 * Sets up wholesale static table block structure
 */
 export async function decorateWholesale(main) {
-  console.log("main:", main);
-  // if (main) {
-    const wholesaleContainer = main.querySelector('.columns');
-    console.log("wholesaleContainer:", wholesaleContainer);
-
-  // }
-  // const wholesaleContainer = main.querySelector('.columns-container');
-  // console.log("wholesaleContainer:", wholesaleContainer);
-  // wholesaleContainer.classList.add('wholesale');
+  const wholesaleContainer = main.querySelector('.columns');
 
   const key = JSON.parse(localStorage.getItem('wholesaleKey'));
   if (key) fetchWholesaleKey(main, key);

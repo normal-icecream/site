@@ -11,6 +11,7 @@
 }
 
 .modal .modal-header {
+    align-self: center;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -19,6 +20,7 @@
 }
 
 .modal .modal-content {
+    align-self: center;
     display: flex;
     flex-flow: column;
 }
@@ -26,4 +28,19 @@
 .modal .modal-close-btn {
     color: var(--blue);
     cursor: pointer;
+}
+
+@media (width >= 900px) {
+    .modal > div {
+        display: flex;
+        flex-flow: column;
+    }
+
+    .modal .modal-header {
+        width: var(--site-width);
+    }
+    
+    .modal .modal-content {
+        width: var(--site-width);
+    }
 }
