@@ -8,7 +8,6 @@
     display: flex;
     flex-flow: column;
     align-items: center;
-    width: 326px;
     position: relative;
 }
 
@@ -18,14 +17,6 @@
 
 .highlight > div > div p {
     text-align: center;
-}
-
-.highlight > div > div p:nth-of-type(3):not(.button-wrapper) {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 
 .highlight > div > div p.img-wrapper picture img {
@@ -55,11 +46,17 @@
 @media (width >= 900px) {
     .highlight {
         display: flex;
-        justify-content: center;
         flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    
+    .highlight > div {
+        width: 200px;
+        margin: var(--horizontal-spacing);
     }
 
-    .highlight > div > div {
-        margin: 0 var(--spacing-l);
+    .highlight > div > div p.img-wrapper picture img {
+        height: 200px;
+        width: 200px;
     }
 }
