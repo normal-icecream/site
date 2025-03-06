@@ -172,6 +172,7 @@ main.home {
 @media (width >= 900px) {
   body {
     min-height: 100dvh;
+    font-style: normal;
   }
 }
 
