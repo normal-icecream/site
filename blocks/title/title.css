@@ -115,10 +115,6 @@
     grid-column: 2;
     grid-row: 1 / span 2;
   }
-
-  .title > div > * {
-    align-self: unset;
-  }
   
   .title .title-price p {
     display: flex;

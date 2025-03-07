@@ -11,6 +11,14 @@
     margin-top: var(--spacing-xxl);
 }
 
+.customize .customize-form.customize-variation label {
+    font-size: var(--heading-size-l);
+}
+
+.customize .customize-form.customize-variation fieldset label {
+    font-size: var(--heading-size-m);
+}
+
 .customize .customize-form fieldset {
     display: flex;
     flex-flow: column;
