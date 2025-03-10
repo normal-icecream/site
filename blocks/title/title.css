@@ -1,7 +1,7 @@
 .title-wrapper.sticky {
   position: sticky;
   top: calc(var(--header-height) - 1px);
-  padding-top: var(--spacing-s);
+  padding-top: var(--spacing-l);
   padding-bottom: var(--spacing-l);
   background-color: var(--layer-base);
   z-index: 1;
