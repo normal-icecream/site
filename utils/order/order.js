@@ -18,12 +18,15 @@ import {
   SquareOrderData,
   SquareInvoice,
   SquareInvoiceWrapper,
+  SquareCustomerWrapper,
+  SquareCustomer,
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
 import { swapIcons } from '../../scripts/scripts.js';
 import { loadCSS, decorateIcons } from '../../scripts/aem.js';
 import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
+import { createCustomer, findCustomer } from '../../api/square/customer.js';
 
 const alwaysVisibleFields = [
   'name',
@@ -353,6 +356,49 @@ function populateFormFields(formFields, key, modal) {
   });
 }
 
+export async function handleNewCustomer(idempotencyKey, orderFormData) {
+  const env = getEnvironment();
+  const cartLocation = getCartLocation();
+  const customerWrapper = new SquareCustomerWrapper(orderFormData.email).build();
+
+  const customer = env === 'sandbox'
+    ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
+    : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
+
+  async function createSquareCustomer() {
+    try {
+      const squareCustomer = new SquareCustomer({
+        idempotency_key: idempotencyKey,
+        orderFormData,
+      }).build();
+
+      if (env === 'sandbox') {
+        await hitSandbox(createCustomer, JSON.stringify(squareCustomer), '?location=sandbox');
+      } else {
+        await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error creating customer:', error);
+      throw new Error(`Failed to create customer: ${error.message}`);
+    }
+  }
+
+  // If multiple customers share the same email,
+  // check if their name or business name matches the order form.
+  if (customer.customers) {
+    let hasMatch = false;
+    if (customer.customers.length > 1) {
+      hasMatch = customer.customers.some((c) => (c.given_name === orderFormData.name)
+      || (c.company_name === orderFormData.businessName));
+    }
+    if (!hasMatch) await createSquareCustomer();
+  } else {
+    // otherwise create a customer if there isn't one
+    await createSquareCustomer();
+  }
+}
+
 export function wholesaleOrderForm(wholesaleData, modal) {
   loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   modal.classList.add('order');
@@ -411,6 +457,9 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           const newInvoice = env === 'sandbox'
             ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
             : await createInvoice(JSON.stringify(invoice));
+
+          // Create a new custoner if they haven't already been added
+          await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
 
           // Show loading screen
           wholesaleModalContent.innerHTML = ''; // Clear previous content

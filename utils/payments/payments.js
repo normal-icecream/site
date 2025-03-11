@@ -11,7 +11,11 @@ import {
   createCartTotalContent,
   getLastCartKey,
 } from '../../pages/cart/cart.js';
-import { resetOrderForm, getOrderFormData } from '../order/order.js';
+import {
+  resetOrderForm,
+  getOrderFormData,
+  handleNewCustomer,
+} from '../order/order.js';
 import { SquarePayment } from '../../constructors/constructors.js';
 import { getTotals } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';
@@ -30,6 +34,9 @@ async function createSquarePayment(token, orderData, element) {
       : await createPayment(SquarePaymentDataJson);
 
     if (payment.payment.status === 'COMPLETED') {
+      // Create a new custoner if they haven't already been added
+      await handleNewCustomer(orderData.idempotency_key, formData);
+
       element.innerHTML = '';
 
       const paymentSuccessContainer = document.createElement('div');
