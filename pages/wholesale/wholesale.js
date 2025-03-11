@@ -225,8 +225,9 @@ async function fetchWholesaleHours() {
       let { open, close } = operatingHours[dayName];
       // open = '15:00';
       // close = '15:00';
+      // TODO - Delete this when we go live on prod!!
       open = 'true';
-      // close = 'false';
+      close = 'false';
 
       const currentTime = now.getHours() * 60 + now.getMinutes();
       shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);

@@ -95,20 +95,22 @@ export default function decorate(block) {
         }
       });
 
-      const prevDimens = previousWrapper.getBoundingClientRect();
-      const currDimens = currentWrapper.getBoundingClientRect();
-
-      // If prev title and curr title are at top of screen,
-      // hide prev one so it's not visible behind curr one.
-      if (
-        (previousWrapper && prevDimens.top <= headerHeight)
-        && (currentWrapper && currDimens.top <= headerHeight)
-      ) {
-        previousWrapper.style.display = 'none';
-        currentWrapper.dataset.sticky = true;
-      } else {
-        previousWrapper.style.display = '';
-        currentWrapper.dataset.sticky = false;
+      if (previousWrapper) {
+        const prevDimens = previousWrapper.getBoundingClientRect();
+        const currDimens = currentWrapper.getBoundingClientRect();
+  
+        // If prev title and curr title are at top of screen,
+        // hide prev one so it's not visible behind curr one.
+        if (
+          (previousWrapper && prevDimens.top <= headerHeight)
+          && (currentWrapper && currDimens.top <= headerHeight)
+        ) {
+          previousWrapper.style.display = 'none';
+          currentWrapper.dataset.sticky = true;
+        } else {
+          previousWrapper.style.display = '';
+          currentWrapper.dataset.sticky = false;
+        }
       }
     });
   }
