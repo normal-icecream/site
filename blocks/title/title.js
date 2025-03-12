@@ -98,7 +98,7 @@ export default function decorate(block) {
       if (previousWrapper) {
         const prevDimens = previousWrapper.getBoundingClientRect();
         const currDimens = currentWrapper.getBoundingClientRect();
-  
+
         // If prev title and curr title are at top of screen,
         // hide prev one so it's not visible behind curr one.
         if (

@@ -229,9 +229,8 @@ export default function decorate(block) {
       const button = document.createElement('button');
       button.className = 'button customize';
       button.type = 'button';
-      // TODO: write more dynamic button label
       button.setAttribute('aria-label', 'customize item');
-      button.textContent = 'customize';
+      button.textContent = 'select your size';
       button.addEventListener('click', () => {
         if (squareProductId) {
           const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;

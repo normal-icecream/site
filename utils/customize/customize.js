@@ -377,6 +377,12 @@ export function getCustomize(element) {
       field.options.push(option);
     });
     fields.push(field);
+    fields.push(
+      {
+        type: 'submit',
+        label: 'add to cart',
+      },
+    );
 
     // eslint-disable-next-line no-inner-declarations
     function handleSubmit(formData) {
@@ -391,7 +397,7 @@ export function getCustomize(element) {
       toggleModal(customizeModal);
     }
 
-    form = buildForm([field], handleSubmit, element);
+    form = buildForm(fields, handleSubmit, element);
     form.classList.add('form', 'customize-form', 'customize-variation');
   }
   return form;

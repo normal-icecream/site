@@ -48,9 +48,10 @@
   object-fit: contain;
 }
 
-.cards .cards-card-image .icon svg {
-  width: 120px;
-  height: 120px;
+.cards .cards-card-body .icon svg {
+  width: 20px;
+  height: 20px;
+  margin-left: 6px;
 }
 
 @media (width >= 600px) {
@@ -60,7 +61,6 @@
   }
 }
 
-.cards .cards-card-dietary,
 .cards .cards-card-price,
 .cards .cards-card-badge {
   position: absolute;
@@ -72,15 +72,6 @@
   background-color: var(--transparent-white-400);
   font-size: var(--body-size-xxl);
   text-align: center;
-}
-
-.cards .cards-card-dietary {
-  top: var(--border-s);
-  right: var(--border-s);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0 0.2ch;
 }
 
 .cards .cards-card-badge {
@@ -107,7 +98,7 @@
   .cards .cards-card-body h3 ~ p:not([class]) {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: var(--line-clamp);
+    -webkit-line-clamp: 4;
     text-overflow: ellipsis;
     overflow: hidden;
   }
@@ -150,7 +141,6 @@
 /* PRICE VARIANT */
 .cards.price .cards-card-price {
   top: var(--rounding-m);
-  right: var(--rounding-m);
   display: grid;
   font-size: var(--body-size-xxl);
   font-weight: bold;

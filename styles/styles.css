@@ -191,6 +191,19 @@ main .section.dark {
   background-color: var(--gray-600);
 }
 
+main .section-divider {
+  border-top: 2px solid var(--blue);
+  max-width: var(--site-width);
+  margin: var(--spacing-xxxxl) var(--horizontal-spacing);
+}
+
+main .section.hero-header-m > div {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding: var(--spacing-m) 0;
+}
+
 main .section.hero-header-l > div {
   display: flex;
   flex-flow: column;
@@ -218,6 +231,10 @@ main .section.hero-header > div {
   
   main .section.hero-header-l > div > p {
     font-size: var(--heading-size-m);
+  }
+
+  main .section-divider {
+    margin: var(--spacing-xxxxl) auto;
   }
 }
 
@@ -359,6 +376,7 @@ pre,
 blockquote {
   margin-top: 0.75em;
   margin-bottom: 0.75em;
+  text-transform: lowercase;
 }
 
 pre,
