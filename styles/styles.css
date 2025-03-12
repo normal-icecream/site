@@ -197,24 +197,6 @@ main .section-divider {
   margin: var(--spacing-xxxxl) var(--horizontal-spacing);
 }
 
-main .section.hero-header-m > div {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  padding: var(--spacing-m) 0;
-}
-
-main .section.hero-header-l > div {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  padding: var(--spacing-xxl) 0;
-}
-
-main .section.hero-header-l > div > h1 {
-  font-size: var(--heading-size-xxxl);
-}
-
 main .section.hero-header > div {
   display: flex;
   justify-content: center;
@@ -225,12 +207,8 @@ main .section.hero-header > div {
 }
 
 @media (width >= 900px) {
-  main .section.hero-header-l > div > h1 {
+  main .section.hero-header > div > h1 {
     font-size: var(--heading-size-xxxxl);
-  }
-  
-  main .section.hero-header-l > div > p {
-    font-size: var(--heading-size-m);
   }
 
   main .section-divider {
