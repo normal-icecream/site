@@ -663,7 +663,7 @@ export function orderForm(cartData) {
   }
 
   const populatedFields = populateFormFields(fields, getLastCartKey(), modal);
-  const form = buildForm(populatedFields, createSquareOrder, modal);
+  const form = buildForm(populatedFields, createSquareOrder, modal, 'place order');
   form.className = 'form cart-order-form';
   return form;
 }

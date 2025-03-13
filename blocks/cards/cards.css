@@ -127,8 +127,6 @@
 }
 
 .cards form input {
-  /* stylelint-disable-next-line property-no-vendor-prefix */
-  -moz-appearance: textfield;
   flex: 0 0 33%;
   border: 0;
   padding: 0.5ch 0 0 1.4ch;
@@ -137,6 +135,15 @@
   font-size: var(--heading-size-m);
   line-height: 0;
   text-align: center;
+}
+
+.cards form input[type='number']::-webkit-inner-spin-button,
+.cards form input[type='number']::-webkit-outer-spin-button {
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -moz-appearance: textfield;
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-appearance: none !important;
+  margin: 0;
 }
 
 .cards form input:focus {

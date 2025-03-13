@@ -654,7 +654,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
  * @param {Function} handleSubmit - A callback function to handle the form data on submission.
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
-export default function buildForm(fields, handleSubmit, scopedElement) {
+export default function buildForm(fields, handleSubmit, scopedElement, buttonLabel = 'submit') {
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
 
@@ -673,7 +673,7 @@ export default function buildForm(fields, handleSubmit, scopedElement) {
   if (!hasSubmit) {
     fields.push({
       type: 'submit',
-      label: 'Submit',
+      label: buttonLabel,
     });
   }
 
