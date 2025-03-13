@@ -192,7 +192,7 @@ main .section.dark {
 }
 
 main .section-divider {
-  border-top: 2px solid var(--blue);
+  border-top: 1px solid var(--blue);
   max-width: var(--site-width);
   margin: var(--spacing-xxxxl) var(--horizontal-spacing);
 }
@@ -206,9 +206,17 @@ main .section.hero-header > div {
   padding: var(--spacing-xxl) var(--horizontal-spacing);
 }
 
+main .section.hero-header > div > h1 > span {
+  padding-bottom: var(--spacing-m);
+}
+
 @media (width >= 900px) {
   main .section.hero-header > div > h1 {
     font-size: var(--heading-size-xxxxl);
+  }
+
+  main .section.hero-header > div > p {
+    font-size: var(--body-size-l);
   }
 
   main .section-divider {

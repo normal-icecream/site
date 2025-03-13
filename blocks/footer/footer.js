@@ -18,7 +18,7 @@ export default async function decorate(block) {
   footer.id = 'footer';
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'contact', 'legal'];
+  const classes = ['brand', 'contact', 'socials', 'legal'];
   classes.forEach((c, i) => {
     const section = footer.children[i];
     if (section) {
@@ -35,7 +35,12 @@ export default async function decorate(block) {
       btn.removeAttribute('class');
       btn.closest('p').removeAttribute('class');
     });
-    const ul = contact.querySelector('ul');
+  }
+
+  // decorate socials
+  const socials = footer.querySelector('.footer-socials');
+  if (socials) {
+    const ul = socials.querySelector('ul');
     ul.className = 'button-wrapper';
     ul.querySelectorAll('a[href]').forEach((a) => {
       const { host } = new URL(a.href);

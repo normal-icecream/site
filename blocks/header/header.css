@@ -120,6 +120,10 @@ header .nav-sections nav > ul li {
   overflow: hidden;
 }
 
+header .nav-sections nav > ul li.subsection {
+  border-radius: 12px;
+}
+
 header .nav-sections nav > ul button,
 header .nav-sections nav > ul a {
   display: flex;
@@ -219,6 +223,7 @@ header .nav-sections [aria-expanded='true'] i.symbol-chevron::after {
     top: 68px;
     padding: var(--spacing-m) 0;
     border: 2px solid var(--blue);
+    border-radius: 0 0 12px 12px;
   }
 
   header .nav-sections nav > ul li button[aria-expanded='true'] + ul > li + li {
