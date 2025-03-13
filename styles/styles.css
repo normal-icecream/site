@@ -207,7 +207,13 @@ main .section.hero-header > div {
 }
 
 main .section.hero-header > div > h1 > span {
-  padding-bottom: var(--spacing-m);
+  height: 1.5em;
+  width: 1.5em;
+}
+
+main .section.hero-header > div > h1 > span > svg {
+  height: 1.5em;
+  width: 1.5em;
 }
 
 @media (width >= 900px) {
@@ -504,6 +510,7 @@ a.button.emphasis,
 button.button.emphasis {
   padding-top: 0.5em;
   font-family: var(--heading-font-family);
+  font-size: large;
 }
 
 a.button.emphasis:hover,

@@ -28,13 +28,13 @@
 
 .customize .customize-form fieldset .customize-group-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding-bottom: var(--spacing-m);
 }
 
-.customize .customize-form fieldset .customize-group-header .customize-count-wrapper{
+.customize .customize-form fieldset .customize-group-header .customize-count-wrapper {
     display: flex;
+    padding-left: var(--spacing-m);
 }
 
 .customize .customize-form fieldset .customize-items {
