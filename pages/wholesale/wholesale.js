@@ -239,8 +239,30 @@ async function fetchWholesaleHours() {
   return shouldDisplay;
 }
 
+// eslint-disable-next-line consistent-return
+async function fetchWholesaleDeliveryMethods() {
+  const url = `${window.location.origin}/admin/wholesale-locations.json`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const wholesaleKey = JSON.parse(localStorage.getItem('wholesaleKey'));
+      const deliverMethods = json.data.find((location) => location.LOCATION === wholesaleKey);
+      return deliverMethods.DELIVERY_METHOD;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
+}
+
 async function buildWholesale(main, link) {
   const showOrderWholesaleForm = await fetchWholesaleHours();
+  const wholesaleDeliveryMethods = await fetchWholesaleDeliveryMethods();
 
   if (showOrderWholesaleForm) {
     const path = new URL(link).pathname;
@@ -277,7 +299,10 @@ async function buildWholesale(main, link) {
           const modalErrorContainer = element.querySelector('.modal-wholesale-content-container');
           if (modalErrorContainer) modalErrorContainer.remove();
 
-          wholesaleOrderForm({ line_items: lineItems }, element);
+          wholesaleOrderForm({
+            line_items: lineItems,
+            deliveryMethods: wholesaleDeliveryMethods,
+          }, element);
         }
 
         if (!wholesaleModal) {

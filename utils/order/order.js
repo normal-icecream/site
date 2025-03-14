@@ -105,16 +105,12 @@ const fields = [
     type: 'date',
     label: 'pickup Date',
     name: 'pickupdate',
-    // min: '2024-10-01',
-    // max: '2024-12-31',
     required: true,
   },
   {
     type: 'time',
     label: 'pickup Time',
     name: 'pickuptime',
-    // min: '09:00', // Earliest allowable time
-    // max: '17:00', // Latest allowable time
     required: true,
   },
   {
@@ -231,14 +227,16 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   });
   wholesaleFields.forEach((field) => fieldsToDisplay.push(field));
 
-  const wholesaleKey = JSON.parse(localStorage.getItem('wholesaleKey'));
-  if (wholesaleKey !== 'LA') {
+  const methods = wholesaleData.deliveryMethods.split(',').map((item) => item.trim());
+  const pickupAllowed = methods.includes('pickup');
+
+  if (pickupAllowed) {
     const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
     fieldsToDisplay.push(shouldShipField);
   }
 
   const shouldShip = getOrderFormData().getItShipped;
-  if (shouldShip || wholesaleKey === 'LA') {
+  if (shouldShip || !pickupAllowed) {
     const shippingFields = [];
     addressFields.forEach((field) => {
       const addressField = formFields.find((f) => f.name === field);
