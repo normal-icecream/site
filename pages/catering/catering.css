@@ -1,0 +1,18 @@
+.catering .catering-container {
+    display: flex;
+    flex-flow: column;
+    align-items: normal;
+    gap: 0;
+}
+
+.catering .catering-container > div {
+    align-self: normal;
+    margin-top: var(--horizontal-spacing);
+    margin-bottom: 0;
+    text-align: left;
+    order: 0;
+}
+
+.catering .catering-container > form > div > label {
+    text-align: left;
+}

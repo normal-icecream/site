@@ -15,6 +15,7 @@ import {
 } from './aem.js';
 // eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
+import { decorateCatering } from '../pages/catering/catering.js';
 import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
 import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
@@ -72,9 +73,11 @@ function decoratePageType(main) {
   if (template === 'cart') setLastCart(cartPath);
 
   const wholesale = pathname.split('/').some((path) => path === 'wholesale');
+  const catering = pathname.split('/').some((path) => path === 'catering');
 
   try {
     if (wholesale) decorateWholesale(main);
+    if (catering) decorateCatering(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);

@@ -459,7 +459,7 @@ export async function decorateWholesale(main) {
     const email = formData.find((data) => data.field === 'email').value;
     const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
-    const subject = encodeURIComponent("Hi! I'd like to become a wholesaler");
+    const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
     const body = encodeURIComponent(
       `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
     );
