@@ -231,11 +231,14 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   });
   wholesaleFields.forEach((field) => fieldsToDisplay.push(field));
 
-  const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
-  fieldsToDisplay.push(shouldShipField);
+  const wholesaleKey = JSON.parse(localStorage.getItem('wholesaleKey'));
+  if (wholesaleKey !== 'LA') {
+    const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
+    fieldsToDisplay.push(shouldShipField);
+  }
 
   const shouldShip = getOrderFormData().getItShipped;
-  if (shouldShip) {
+  if (shouldShip || wholesaleKey === 'LA') {
     const shippingFields = [];
     addressFields.forEach((field) => {
       const addressField = formFields.find((f) => f.name === field);
