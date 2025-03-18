@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { formatCurrency, stringExistsInAnother } from '../../helpers/helpers.js';
+import { formatCurrency, stringExistsInAnother, convertEmailToLink } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 import { orderForm } from '../../utils/order/order.js';
@@ -200,7 +200,7 @@ function removeWholesalePrefix(str) {
   return str.startsWith('wholesale - ') ? str.replace('wholesale - ', '') : str;
 }
 
-export function getCartCard(cartItems) {
+export function getCartCard(cartItems, deliveryData) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
   cartCardWrapper.classList.add('cart', 'cart-card-wrapper');
@@ -297,13 +297,110 @@ export function getCartCard(cartItems) {
 
   // Append total container to wrapper
   totalWrapper.append(totalContent);
+
+  if (deliveryData) {
+    const shippingDetailsContainer = document.createElement('div');
+    shippingDetailsContainer.className = 'cart-shipping-details';
+
+    const shippingDeetsLabel = document.createElement('h3');
+    shippingDeetsLabel.textContent = `Estimated delivery date: ${deliveryData.DELIVERY_DATE}`;
+    shippingDetailsContainer.append(shippingDeetsLabel);
+
+    const shippingCopy = document.createElement('h4');
+    shippingCopy.textContent = deliveryData.TEXT;
+    shippingDetailsContainer.append(shippingCopy);
+
+    const shippingExtra = document.createElement('p');
+    shippingExtra.innerHTML = convertEmailToLink(deliveryData.HELPER_TEXT);
+    shippingDetailsContainer.append(shippingExtra);
+
+    totalWrapper.append(shippingDetailsContainer);
+  }
+
   cartCardWrapper.append(totalWrapper);
 
   return cartCardWrapper;
 }
 
+// eslint-disable-next-line consistent-return
+async function fetchDeliveryDetails() {
+  const url = `${window.location.origin}/admin/config.json`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const pathSegments = window.location.pathname.split('/');
+      const path = pathSegments.length > 1 ? pathSegments[1] : null;
+
+      let deliveryData = {};
+      deliveryData = json.data.find((item) => item.PAGE === path);
+
+      const today = new Date();
+      const currentDay = today.getDay();
+
+      if (path === 'shipping') {
+        // 3 = wednesday
+        const daysToNextShipDate = currentDay <= 3 ? 3 - currentDay : 7 - (currentDay - 3);
+
+        const nextShippingDate = new Date();
+        nextShippingDate.setDate(today.getDate() + daysToNextShipDate);
+
+        const deliveryDate = new Date();
+
+        // next shipping date + number of business days + weekend days
+        deliveryDate.setDate(
+          nextShippingDate.getDate()
+          + parseInt(deliveryData.DAYS_TO_DELIVER, 10)
+          + 2,
+        );
+
+        const deliveryMonth = deliveryDate.getMonth() + 1;
+        const deliverDateString = `${deliveryMonth}/${deliveryDate.getDate()}`;
+        deliveryData.DELIVERY_DATE = deliverDateString;
+        delete deliveryData.DAYS_TO_DELIVER;
+      }
+
+      if (path === 'merch') {
+        let numberOfDaysToDeliver = 0;
+
+        if (currentDay === 3 || currentDay === 4 || currentDay === 5) {
+          // + 2 days for the weekend
+          numberOfDaysToDeliver = parseInt(deliveryData.DAYS_TO_DELIVER, 10) + 2;
+        } else if (currentDay === 6) {
+          // +1 day for sun
+          numberOfDaysToDeliver = parseInt(deliveryData.DAYS_TO_DELIVER, 10) + 1;
+        } else {
+          numberOfDaysToDeliver = parseInt(deliveryData.DAYS_TO_DELIVER, 10);
+        }
+
+        const deliveryDate = new Date();
+
+        // today + number of business days to deliver
+        // (including extra days for weekends depending on the day the order is made)
+        deliveryDate.setDate(deliveryDate.getDate() + numberOfDaysToDeliver);
+
+        const deliveryMonth = deliveryDate.getMonth() + 1;
+        const deliverDateString = `${deliveryMonth}/${deliveryDate.getDate()}`;
+        deliveryData.DELIVERY_DATE = deliverDateString;
+        delete deliveryData.DAYS_TO_DELIVER;
+      }
+
+      return deliveryData;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
+}
+
 export async function getCart() {
   loadCSS(`${window.hlx.codeBasePath}/pages/cart/cart.css`);
+
+  const deliveryData = await fetchDeliveryDetails();
 
   let cart = [];
   const cartData = JSON.parse(localStorage.getItem('carts'));
@@ -313,7 +410,7 @@ export async function getCart() {
   } else if (cartData.lastcart.length > 0) {
     const currentCartData = cartData[cartData.lastcart];
     if (currentCartData.line_items.length > 0) {
-      cart = getCartCard(currentCartData);
+      cart = getCartCard(currentCartData, deliveryData);
     } else {
       cart = await getEmptyCartMessage();
     }

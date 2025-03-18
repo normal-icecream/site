@@ -98,3 +98,11 @@ export function stringExistsInAnother(stringOne, stringTwo) {
 export function removeLeadingZero(numString) {
   return String(numString).replace(/^0+/, '');
 }
+
+export function convertEmailToLink(text) {
+  // Regular expression to match an email address
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/g;
+
+  // Replace the email address with a mailto link
+  return text.replace(emailRegex, (email) => `<a href="mailto:${email}">${email}</a>`);
+}
