@@ -58,6 +58,8 @@
 
 .customize .customize-form fieldset .customize-item label {
     color: var(--blue);
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-m);
 }
 
 .customize .customize-form fieldset .customize-actions {
@@ -89,5 +91,19 @@
     text-align: center;
     padding: var(--spacing-l) 0;
     color: var(--red);
+}
+
+.customize .customize-actions input {
+    padding: 0 12px;
+}
+
+.customize .customize-item img,
+.customize .customize-item svg,
+.customize .customize-variation img,
+.customize .customize-variation svg {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    padding: var(--spacing-m) 0;
 }
 

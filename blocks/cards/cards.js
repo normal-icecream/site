@@ -225,12 +225,24 @@ export default function decorate(block) {
       createModal(modal);
       li.append(modal);
 
+      const pathSegments = window.location.pathname.split('/');
+      const path = pathSegments.length > 1 ? pathSegments[1] : null;
+
+      let buttonLabel;
+      if (path === 'merch') {
+        buttonLabel = 'select your size';
+      } else if (path === 'shipping') {
+        buttonLabel = 'pick your items';
+      } else {
+        buttonLabel = 'add to cart';
+      }
+
       // build customize button
       const button = document.createElement('button');
       button.className = 'button customize';
       button.type = 'button';
       button.setAttribute('aria-label', 'customize item');
-      button.textContent = 'select your size';
+      button.textContent = buttonLabel;
       button.addEventListener('click', () => {
         if (squareProductId) {
           const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;
