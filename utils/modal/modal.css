@@ -15,8 +15,10 @@
     top: 50%;
     left: 50%;
     transform:translate(-50%,-50%);
-    min-height: calc(100dvh - var(--spacing-xxl));
-    max-height: calc(100dvh - var(--spacing-xxl));
+    min-height: calc(100dvh - var(--spacing-xxxl));
+    max-height: calc(100dvh - var(--spacing-xxxl));
+    min-width: calc(100dvw - var(--spacing-xxxl));
+    max-width: calc(100dvw - var(--spacing-xxxl));
     overflow-y: auto;
     overflow: auto;
     background-color: var(--white);
@@ -36,7 +38,6 @@
     padding: var(--spacing-m) var(--spacing-xl) ;
     background-color: var(--layer-base);
     z-index: 1;
-    border-bottom: solid 2px var(--blue);
 }
 
 .modal .modal-content {
