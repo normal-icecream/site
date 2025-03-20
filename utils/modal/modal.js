@@ -39,6 +39,7 @@ export function createModal(element, content = '') {
   element.style.display = 'none';
 
   const modalContainer = document.createElement('div');
+  modalContainer.classList.add('modal-container');
   const modalHeader = document.createElement('div');
   modalHeader.classList.add('modal-header');
 

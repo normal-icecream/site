@@ -1,13 +1,27 @@
 .modal {
     position: fixed;
-    z-index: 10;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
+    background-color: #0B21E330;
+    z-index: 9;
+    display: none;
+}
+
+.modal .modal-container {
+    position: fixed;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%,-50%);
+    min-height: 750px;
+    max-height: 750px;
+    overflow-y: auto;
     overflow: auto;
     background-color: var(--white);
-    padding: var(--spacing-xl);
+    border: 2px solid var(--blue);
+    border-radius: 12px;
 }
 
 .modal .modal-header {
@@ -17,17 +31,30 @@
     align-items: center;
     font-size: var(--heading-size-xl);
     font-family: var(--heading-font-family);
+    position: sticky;
+    top: 0;
+    padding: var(--spacing-m) var(--spacing-xl) ;
+    background-color: var(--layer-base);
+    z-index: 1;
 }
 
 .modal .modal-content {
     align-self: center;
     display: flex;
     flex-flow: column;
+    padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
 }
 
 .modal .modal-close-btn {
     color: var(--blue);
     cursor: pointer;
+    height: 60px;
+    width: 60px;
+    border-radius: 100%;
+}
+
+.modal .modal-close-btn:hover {
+    background-color: var(--blue-lightest);
 }
 
 @media (width >= 900px) {
