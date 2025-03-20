@@ -36,6 +36,7 @@
     padding: var(--spacing-m) var(--spacing-xl) ;
     background-color: var(--layer-base);
     z-index: 1;
+    border-bottom: solid 2px var(--blue);
 }
 
 .modal .modal-content {
