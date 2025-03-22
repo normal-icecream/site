@@ -1,9 +1,10 @@
 import { loadCSS } from '../../scripts/aem.js';
+import { wrapRegisteredWithSup } from '../../helpers/helpers.js';
 
 function createModalTitle(title) {
   const modalTitle = document.createElement('div');
   modalTitle.className = 'modal-title';
-  modalTitle.textContent = title;
+  modalTitle.append(wrapRegisteredWithSup(title));
   return modalTitle;
 }
 

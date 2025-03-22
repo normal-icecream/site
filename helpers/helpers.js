@@ -106,3 +106,13 @@ export function convertEmailToLink(text) {
   // Replace the email address with a mailto link
   return text.replace(emailRegex, (email) => `<a href="mailto:${email}">${email}</a>`);
 }
+
+export function wrapRegisteredWithSup(str) {
+  const containsRegisteredTm = str.includes('®');
+  if (containsRegisteredTm) {
+    const span = document.createElement('span');
+    span.innerHTML = str.replace(/®/g, '<sup>®</sup>');
+    return span;
+  }
+  return str;
+}

@@ -1,5 +1,5 @@
 import { loadCSS } from '../../scripts/aem.js';
-import { toKebabCase } from '../../helpers/helpers.js';
+import { toKebabCase, wrapRegisteredWithSup } from '../../helpers/helpers.js';
 
 /**
  * Creates a label element for a form field, indicating if the field is required.
@@ -8,10 +8,10 @@ import { toKebabCase } from '../../helpers/helpers.js';
  */
 function buildLabel(field) {
   const label = document.createElement('label');
-
   // Add an asterisk if the field is required
-  label.textContent = field.required === true ? `${field.label} *` : field.label;
-
+  const labelRequired = field.required === true ? `${field.label} *` : field.label;
+  const labelString = wrapRegisteredWithSup(labelRequired);
+  label.append(labelString);
   return label; // Return the constructed label element
 }
 
