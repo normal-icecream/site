@@ -90,6 +90,10 @@
   font-size: var(--heading-size-m);
 }
 
+.title p span {
+  margin-right: 6px;
+}
+
 @media (width >= 600px) {
   .title > div {
     grid-template-rows: auto 1fr;
@@ -103,12 +107,6 @@
   .title p {
     grid-column: 1;
     font-size: var(--body-size-m);
-    display: flex;
-    align-items: center;
-  }
-
-  .title p span {
-    margin-right: 6px;
   }
 
   .title .title-price {
