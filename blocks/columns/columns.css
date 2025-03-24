@@ -29,6 +29,18 @@
   object-fit: cover;
 }
 
+.columns > div > .col-img-complex {
+  align-self: flex-start;
+}
+
+.columns > div > .col-img-complex img {
+  display: block;
+  height: auto;
+  border-radius: var(--rounding-xl);
+  object-fit: cover;
+  margin-bottom: var(--spacing-m);
+}
+
 .columns .button-wrapper {
   justify-content: center;
 }

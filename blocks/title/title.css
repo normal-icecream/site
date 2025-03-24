@@ -103,6 +103,12 @@
   .title p {
     grid-column: 1;
     font-size: var(--body-size-m);
+    display: flex;
+    align-items: center;
+  }
+
+  .title p span {
+    margin-right: 6px;
   }
 
   .title .title-price {
