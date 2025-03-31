@@ -1,7 +1,6 @@
 .form form {
     display: flex;
     flex-flow: column;
-    text-transform: lowercase;
 }
 
 .form div {
@@ -48,6 +47,7 @@ select {
     padding: 20px;
     margin-bottom: 6px;
     color: var(--blue);
+    text-transform: lowercase;
 } 
 
 .form 

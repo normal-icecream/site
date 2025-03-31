@@ -63,7 +63,8 @@ async function getEmptyCartMessage() {
 
   const noCartDiv = document.createElement('h4');
   noCartDiv.className = 'empty-cart-message';
-  noCartDiv.textContent = `Nothing is in your ${getLastCartKey()} cart! Go pick something!`;
+  noCartDiv.textContent = `Nothing is in your ${getLastCartKey()} cart, Go pick something!`;
+  noCartDiv.textContent = `your ${getLastCartKey()} cart is empty! fill ’er up!`;
 
   noItemsInCartContainer.appendChild(noCartDiv);
 
