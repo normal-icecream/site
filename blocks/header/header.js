@@ -120,7 +120,15 @@ export default async function decorate(block) {
         li.className = 'subsection';
         subsection.id = `subsection-${i + 1}`;
         subsection.setAttribute('role', 'menu');
-        [...subsection.children].forEach((subli) => subli.setAttribute('role', 'menuitem'));
+        [...subsection.children].forEach((subli) => {
+          const sup = subli.querySelector('sup');
+          if (sup) {
+            const aTag = subli.querySelector('a');
+            aTag.classList.add('header-link-tm');
+            aTag.append(sup);
+          }
+          subli.setAttribute('role', 'menuitem');
+        });
         const label = li.textContent.replace(subsection.textContent, '').trim();
         const button = document.createElement('button');
         button.setAttribute('aria-haspopup', true);

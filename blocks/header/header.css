@@ -138,6 +138,14 @@ header .nav-sections nav > ul a {
   cursor: pointer;
 }
 
+header .nav-sections nav > ul .header-link-tm {
+   gap: 0;
+  }
+  
+  header .nav-sections nav > ul .header-link-tm sup {
+  margin-bottom: 10px;
+}
+
 header .nav-sections nav > ul button:hover,
 header .nav-sections nav > ul button:focus {
   outline: 0;
@@ -221,7 +229,7 @@ header .nav-sections [aria-expanded='true'] i.symbol-chevron::after {
   
   header .nav-sections nav > ul li button[aria-expanded='true'] + ul {
     position: absolute;
-    top: 76px;
+    top: 76.5px;
     padding: var(--spacing-m) 0;
     border: 2px solid var(--blue);
     border-radius: 0 0 12px 12px;
