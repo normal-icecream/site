@@ -139,11 +139,23 @@ header .nav-sections nav > ul a {
 }
 
 header .nav-sections nav > ul .header-link-tm {
-   gap: 0;
-  }
+  gap: 0;
+}
   
-  header .nav-sections nav > ul .header-link-tm sup {
+header .nav-sections nav > ul .header-link-tm sup {
   margin-bottom: 10px;
+}
+
+@media (width >= 900px) {
+  header .nav-sections nav > ul .header-link-icon {
+    display: flex;
+    flex-flow: column;
+  }
+
+  header .nav-sections nav > ul .header-link-icon svg {
+    height: 2em;
+    width: 2em;
+  }
 }
 
 header .nav-sections nav > ul button:hover,
@@ -229,10 +241,12 @@ header .nav-sections [aria-expanded='true'] i.symbol-chevron::after {
   
   header .nav-sections nav > ul li button[aria-expanded='true'] + ul {
     position: absolute;
-    top: 76.5px;
+    top: 76px;
     padding: var(--spacing-m) 0;
     border: 2px solid var(--blue);
     border-radius: 0 0 12px 12px;
+    width: 275px !important;
+    left: -70px;
   }
 
   header .nav-sections nav > ul li button[aria-expanded='true'] + ul > li + li {

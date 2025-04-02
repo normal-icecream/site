@@ -8,6 +8,7 @@ import {
   refreshCartContent,
   getCartQuantity,
 } from '../../pages/cart/cart.js';
+import { wrapRegisteredWithSup } from '../../helpers/helpers.js';
 
 // media query match that indicates desktop width
 const isDesktop = window.matchMedia('(width >= 900px)');
@@ -121,11 +122,25 @@ export default async function decorate(block) {
         subsection.id = `subsection-${i + 1}`;
         subsection.setAttribute('role', 'menu');
         [...subsection.children].forEach((subli) => {
+          const span = subli.querySelector('span');
+          if (span) {
+            const aTag = subli.querySelector('a');
+            aTag.classList.add('header-link-icon');
+            aTag.prepend(span);
+          }
+
           const sup = subli.querySelector('sup');
           if (sup) {
             const aTag = subli.querySelector('a');
+            const textContent = subli.textContent;
+            aTag.innerHTML = '';
+            sup.remove();
+            
             aTag.classList.add('header-link-tm');
-            aTag.append(sup);
+            if (span) {aTag.append(span)};
+
+            const newSpan = wrapRegisteredWithSup(textContent);
+            aTag.append(newSpan);
           }
           subli.setAttribute('role', 'menuitem');
         });

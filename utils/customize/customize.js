@@ -132,6 +132,15 @@ export async function refreshCustomizeContent(element) {
   decorateIcons(modalContentSection);
   // then swap
   swapIcons();
+
+  const wrappers = element.querySelectorAll('fieldset');
+
+  if (wrappers.length > 0) {
+    wrappers.forEach((wrapper) => {
+      const header = wrapper.querySelector('.customize-group-header');
+      header.classList.add('sticky')
+    })
+  }
 }
 
 async function getImagesDocData() {

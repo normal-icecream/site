@@ -44,6 +44,13 @@
     gap: 10px;
 }
 
+.customize .customize-form fieldset .customize-group-header.sticky {
+  position: sticky;
+  top: 92px;
+  background-color: var(--layer-base);
+  z-index: 1;
+}
+
 .customize .customize-form fieldset .customize-item {
     display: flex;
     flex-flow: column;

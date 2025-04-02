@@ -63,9 +63,9 @@ export default function decorate(block) {
     wrapper.classList.add('sticky');
     window.addEventListener('scroll', () => {
       const headerHeight = document.querySelector('header').offsetHeight;
-      const parentTest = wrapper.closest('.section');
+      const wrapperParent = wrapper.closest('.section');
 
-      const allTitles = parentTest.querySelectorAll('.title-wrapper');
+      const allTitles = wrapperParent.querySelectorAll('.title-wrapper');
       let previousWrapper;
       let currentWrapper;
 
