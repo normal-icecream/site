@@ -138,8 +138,8 @@ export async function refreshCustomizeContent(element) {
   if (wrappers.length > 0) {
     wrappers.forEach((wrapper) => {
       const header = wrapper.querySelector('.customize-group-header');
-      header.classList.add('sticky')
-    })
+      header.classList.add('sticky');
+    });
   }
 }
 

@@ -132,12 +132,12 @@ export default async function decorate(block) {
           const sup = subli.querySelector('sup');
           if (sup) {
             const aTag = subli.querySelector('a');
-            const textContent = subli.textContent;
+            const { textContent } = subli;
             aTag.innerHTML = '';
             sup.remove();
-            
+
             aTag.classList.add('header-link-tm');
-            if (span) {aTag.append(span)};
+            if (span) { aTag.append(span); }
 
             const newSpan = wrapRegisteredWithSup(textContent);
             aTag.append(newSpan);
