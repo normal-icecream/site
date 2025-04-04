@@ -58,8 +58,8 @@ function getLimits(description) {
   return limits;
 }
 
-function updateCustomizeCountUI(action, groupName) {
-  const groupCount = document.querySelector(`.customize-${groupName} .customize-selected-amount`);
+function updateCustomizeCountUI(action, groupName, itemId) {
+  const groupCount = document.querySelector(`.customize-${itemId}-${groupName} .customize-selected-amount`);
   if (groupCount) {
     const currentCount = groupCount.textContent;
     if (action === 'increment') {
@@ -81,7 +81,7 @@ function clearFormErrors() {
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
  */
-function decrement(input, groupName, groupSelections) {
+function decrement(input, groupName, groupSelections, itemId) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
@@ -90,7 +90,7 @@ function decrement(input, groupName, groupSelections) {
     input.dispatchEvent(new Event('change'));
     groupSelections.set(groupName, groupSelections.get(groupName) - 1);
   }
-  updateCustomizeCountUI('decrement', groupName);
+  updateCustomizeCountUI('decrement', groupName, itemId);
   clearFormErrors();
 }
 
@@ -98,7 +98,7 @@ function decrement(input, groupName, groupSelections) {
    * Increases the value of an input element by 1 (while observing the max value).
    * @param {HTMLInputElement} input - Input element whose value will be incremented.
    */
-function increment(input, groupName, groupSelections) {
+function increment(input, groupName, groupSelections, itemId) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
@@ -106,7 +106,7 @@ function increment(input, groupName, groupSelections) {
     input.value = newTotal;
     input.dispatchEvent(new Event('change'));
     groupSelections.set(groupName, groupSelections.get(groupName) + 1);
-    updateCustomizeCountUI('increment', groupName);
+    updateCustomizeCountUI('increment', groupName, itemId);
     clearFormErrors();
   }
 }
@@ -221,7 +221,7 @@ async function createCustomizeForm(data, itemId, limits) {
 
   data.forEach((group) => {
     const fieldset = document.createElement('fieldset');
-    fieldset.classList.add('customize-group', `customize-${group.name}`);
+    fieldset.classList.add('customize-group', `customize-${itemId}-${group.name}`);
     fieldset.dataset.max = limits[group.name];
     fieldset.dataset.min = limits[group.name];
 
@@ -296,13 +296,13 @@ async function createCustomizeForm(data, itemId, limits) {
       decrementBtn.textContent = '-';
       decrementBtn.type = 'button';
       decrementBtn.disabled = true;
-      decrementBtn.addEventListener('click', () => decrement(total, group.name, groupSelections));
+      decrementBtn.addEventListener('click', () => decrement(total, group.name, groupSelections, itemId));
 
       const incrementBtn = document.createElement('button');
       incrementBtn.classList.add('button', 'add', `add-${option.id}`);
       incrementBtn.textContent = '+';
       incrementBtn.type = 'button';
-      incrementBtn.addEventListener('click', () => increment(total, group.name, groupSelections));
+      incrementBtn.addEventListener('click', () => increment(total, group.name, groupSelections, itemId));
 
       actions.append(decrementBtn, total, incrementBtn);
       wrapper.append(label, actions);
