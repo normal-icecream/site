@@ -89,7 +89,7 @@
     position: absolute;
     color: var(--blue);
     font-weight: 600;
-    z-index: 5;
+    z-index: 3;
 }
 
 .highlight > div:nth-child(2) > div > div svg {
