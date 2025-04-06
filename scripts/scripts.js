@@ -1,4 +1,6 @@
 import {
+  buildBlock,
+  decorateBlock,
   loadHeader,
   loadFooter,
   decorateIcons,
@@ -135,6 +137,39 @@ function decorateLabels(main) {
 }
 
 /**
+ * Creates accordion block from data-accordion sections
+ * @param {HTMLElement} main - Main container
+ */
+function createAccordionBlock(main) {
+  const accordions = main.querySelectorAll('.section[data-accordion]');
+  if (!accordions.length) return;
+
+  const firstSection = accordions[0];
+  const accordionContent = [];
+
+  // add each section's content to accordions array
+  accordions.forEach((accordion) => {
+    const title = accordion.dataset.accordion;
+    const content = document.createElement('div');
+    content.append(...accordion.children);
+    accordionContent.push([title, content]);
+    accordion.removeAttribute('data-accordion');
+  });
+
+  // create the accordions block and append to the first section
+  const wrapper = document.createElement('div');
+  const block = buildBlock('accordion', accordionContent);
+  wrapper.append(block);
+  firstSection.appendChild(wrapper);
+  decorateBlock(block);
+
+  // remove all other sections if empty
+  accordions.forEach((accordion) => {
+    if (!accordion.children.length) accordion.remove();
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
@@ -146,6 +181,7 @@ export function decorateMain(main) {
   // buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  createAccordionBlock(main);
   decorateButtons(main);
 }
 
