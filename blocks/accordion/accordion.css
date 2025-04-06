@@ -1,47 +1,63 @@
 .accordion summary {
   list-style: none;
   position: relative;
-  margin: 20px 0 30px;
-  scroll-margin-top: 20px;
+  scroll-margin-top: calc(var(--header-height) + 0.4em);
+  border: var(--border-m) solid;
+  border-radius: var(--rounding-m);
+  padding: 0.5em var(--spacing-m) 0.4em;
   font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-s);
-  line-height: 3.2rem;
+  font-size: var(--heading-size-l);
+  line-height: 1;
+  background-color: var(--blue-lightest);
   cursor: pointer;
+  text-transform: lowercase;
+  transition: background-color 0.3s;
+}
+
+.accordion summary:hover {
+  background-color: var(--blue-light);
 }
 
 .accordion summary::after {
   position: absolute;
   top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  content: "\e95e";
-  font-family: var(--icons-font-family);
-  color: var(--color-dark-charcoal);
+  right: calc(3px + var(--spacing-m));
+  transform: translateY(-50%) rotate(45deg);
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-right: var(--border-m) solid;
+  border-bottom: var(--border-m) solid;
   font-size: var(--body-font-size-xxxs);
+  transition: transform 0.3s;
 }
 
 .accordion summary::-webkit-details-marker {
   display: none;
 }
 
+.accordion details {
+  border-radius: var(--rounding-m);
+}
+
+.accordion details[open] {
+  border: var(--border-m) solid;
+}
+
+.accordion details + details {
+  margin-top: var(--horizontal-spacing);
+}
+
+.accordion details[open] summary {
+  border: 0;
+  border-bottom: var(--border-m) solid;
+  border-radius: var(--rounding-s) var(--rounding-s) 0 0;
+}
+
 .accordion details[open] summary::after {
-  content: "\e95d";
+  transform: translateY(0) rotate(-135deg);
 }
 
-.accordion .accordion-content h3 {
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--color-platinum);
-}
-
-.accordion .accordion-content p {
-  letter-spacing: 0.25px;
-  line-height: 1.75;
-}
-
-.accordion .accordion-content h3 + p {
-  margin-top: 30px;
-}
-
-.accordion .accordion-content > div + div {
-  margin-top: 50px;
+.accordion .accordion-content {
+  padding: 0.85em;
 }
