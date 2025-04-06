@@ -45,7 +45,7 @@ export function createModal(element, content = '') {
   modalHeader.classList.add('modal-header');
 
   const closeModalButton = document.createElement('button');
-  closeModalButton.textContent = 'x';
+  closeModalButton.textContent = '×';
   closeModalButton.className = 'modal-close-btn';
   closeModalButton.addEventListener('click', () => toggleModal(element));
   modalHeader.append(closeModalButton);

@@ -29,7 +29,7 @@ export default function decorate(block) {
 
   // Create and set up the close button
   const closeButton = document.createElement('button');
-  closeButton.textContent = 'x';
+  closeButton.textContent = '×';
   closeButton.classList.add('close-button');
   closeButton.addEventListener('click', () => {
     // Check the session storage for the key
