@@ -3,7 +3,7 @@ export default async function decorate(block) {
   const rows = [...block.children];
 
   // process each row as an accordion using details/summary
-  rows.forEach((row, i) => {
+  rows.forEach((row) => {
     const [title, content] = [...row.children];
 
     // create details element (accordion item)
