@@ -2,8 +2,7 @@
   list-style: none;
   position: relative;
   scroll-margin-top: calc(var(--header-height) + 0.4em);
-  border: var(--border-m) solid;
-  border-radius: var(--rounding-m);
+  border-radius: calc(var(--rounding-m) - var(--border-m));
   padding: 0.5em var(--spacing-m) 0.4em;
   font-family: var(--heading-font-family);
   font-size: var(--heading-size-l);
@@ -11,7 +10,7 @@
   background-color: var(--blue-lightest);
   cursor: pointer;
   text-transform: lowercase;
-  transition: background-color 0.3s;
+  transition: border-radius 0.1s, background-color 0.3s;
 }
 
 .accordion summary:hover {
@@ -37,6 +36,7 @@
 }
 
 .accordion details {
+  border: var(--border-m) solid;
   border-radius: var(--rounding-m);
 }
 
@@ -51,7 +51,7 @@
 .accordion details[open] summary {
   border: 0;
   border-bottom: var(--border-m) solid;
-  border-radius: var(--rounding-s) var(--rounding-s) 0 0;
+  border-radius: calc(var(--rounding-m) - var(--border-m)) calc(var(--rounding-m) - var(--border-m)) 0 0;
 }
 
 .accordion details[open] summary::after {

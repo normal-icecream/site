@@ -1,12 +1,10 @@
 export default async function decorate(block) {
   // get all rows in the block
   const rows = [...block.children];
-  const anchors = [];
 
   // process each row as an accordion using details/summary
   rows.forEach((row, i) => {
-    const [title, content, fullTitle] = [...row.children];
-    if (fullTitle) anchors.push(fullTitle.textContent.trim());
+    const [title, content] = [...row.children];
 
     // create details element (accordion item)
     const details = document.createElement('details');
@@ -23,7 +21,6 @@ export default async function decorate(block) {
 
     // replace row with details element
     details.append(summary, contentContainer);
-    if (!i) details.setAttribute('open', '');
     row.replaceWith(details);
 
     // scroll open summary into view
