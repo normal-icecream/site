@@ -14,7 +14,9 @@ export default function decorate(block) {
       } else if (col.children.length > 1) {
         const pic = col.querySelector('picture');
         const icon = col.querySelector('.icon');
-        if (pic || icon) {
+
+        const iconTitle = col.querySelector('h2 > span');
+        if (!iconTitle && (pic || icon)) {
           col.classList.add('col-img-complex');
         }
       }
