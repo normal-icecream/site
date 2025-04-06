@@ -59,5 +59,5 @@
 }
 
 .accordion .accordion-content {
-  padding: 0.85em;
+  padding: var(--horizontal-spacing);
 }

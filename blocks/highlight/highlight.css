@@ -43,14 +43,6 @@
     padding-top: var(--horizontal-spacing);
 }
 
-.highlight > div:nth-child(1) > div:nth-child(2) h3 {
-    display: flex;
-}
-
-.highlight > div:nth-child(1) > div:nth-child(2) h3 span {
-    padding: 0 var(--spacing-xs);
-}
-
 .highlight > div:nth-child(1) > div > p.button-wrapper {
    display: flex;
    justify-content: center;

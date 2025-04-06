@@ -417,6 +417,15 @@ sup {
   vertical-align: 0.1em;
 }
 
+.icon.icon-gf,
+.icon.icon-nf,
+.icon.icon-df,
+.icon.icon-v {
+  /* background-color: tomato; */
+  font-size: 75%;
+  margin-left: 6px;
+}
+
 .detail {
   margin-top: 1.125em;
   margin-bottom: 0.25em;

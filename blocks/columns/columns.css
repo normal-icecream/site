@@ -11,6 +11,11 @@
   text-align: center;
 }
 
+.columns div h2,
+.columns div p {
+  text-align: left;
+}
+
 .columns > div > div {
   order: 1;
   padding: var(--spacing-m) 0;
@@ -35,14 +40,20 @@
 
 .columns > div > .col-img-complex img {
   display: block;
-  height: auto;
+  max-height: 225px;
   border-radius: var(--rounding-xl);
-  object-fit: cover;
+  object-fit: contain;
   margin-bottom: var(--spacing-m);
 }
 
 .columns .button-wrapper {
   justify-content: center;
+}
+
+.columns > div > .col-img-complex > .img-wrapper svg {
+  height: 225px;
+  width: 225px;
+  margin-bottom: var(--spacing-m);
 }
 
 @media (width >= 600px) {
@@ -66,6 +77,20 @@
 
   .columns > div > div + div {
     margin-top: 0;
+  }
+
+  .columns div:has(.col-img-complex) {
+    gap: 0;
+  }
+
+  .columns > div > .col-img-complex {
+    display: flex;
+    flex-flow: column;
+    flex-wrap: wrap;
+    max-width: 33%;
+    padding: 10px;
+    align-items: flex-start;
+    gap: 0;
   }
 
   .columns .button-wrapper {
