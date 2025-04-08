@@ -62,8 +62,11 @@ async function createSquarePayment(token, orderData, element) {
       backButton.textContent = `back to ${getLastCartKey()}`;
       backButton.className = 'payment-back-button';
       backButton.addEventListener('click', () => {
-        toggleModal(element.parentElement);
-        window.location.reload();
+        const paymentsModal = document.querySelector('.modal.payments');
+        if (paymentsModal) {
+          toggleModal(paymentsModal);
+          window.location.reload();
+        }
       });
       paymentSuccessContainer.append(backButton);
 
