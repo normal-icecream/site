@@ -59,5 +59,13 @@ export function createModal(element, content = '') {
   modalContainer.append(modalContent);
   element.append(modalContainer);
 
+  element.addEventListener('click', (event) => {
+    const isModalBackdrop = event.target.matches('.modal');
+
+    if (isModalBackdrop) {
+      toggleModal(element);
+    }
+  }, false);
+
   return element;
 }

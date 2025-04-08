@@ -44,8 +44,7 @@ header section[data-expanded='true'] {
     'title hamburger cart' auto
     'sections sections sections' 1fr / 1fr 1fr 1fr;
   gap: var(--horizontal-spacing);
-  height: calc(100dvh - (2 * var(--spacing-m)));
-  max-height: calc(100dvh - (2 * var(--spacing-m)));
+  height: 100dvh;
 }
 
 header section > [aria-hidden='true'] {

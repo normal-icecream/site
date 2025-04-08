@@ -76,6 +76,34 @@ export default async function decorate(block) {
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/header';
   const fragment = await loadFragment(navPath);
 
+  // Initialize counter, this is used to track the number of interactions with an open submenu
+  let menuOpenCount = 0;
+  // Add an event listener to the document to detect clicks outside the nav-section submenu
+  document.addEventListener('click', (event) => {
+    // Select all nav-section submenu buttons that are currently expanded
+    const expandedNavSection = document.querySelectorAll('.nav-sections .subsection button[aria-expanded="true"]');
+
+    // Check if there is at least one open submenu
+    if (expandedNavSection.length > 0) {
+      // Increment the counter to track the current interaction
+      menuOpenCount += 1;
+
+      // If the menu has been opened 3 or more times, proceed to close it on click outside
+      if (menuOpenCount >= 3) {
+        // Check if the click happened outside the menu (outside 'header' and the submenu itself)
+        if (!event.target.matches('header') || !event.target.closest('.section ul li ul')) {
+          // If the click is outside the submenu, close it by setting 'aria-expanded' to false
+          const expandedButton = document.querySelector('.nav-sections .subsection button[aria-expanded="true"]');
+          // Close the expanded menu
+          expandedButton.setAttribute('aria-expanded', 'false');
+        }
+
+        // Reset count so that the logic can be triggered again on the next interaction
+        menuOpenCount = 0;
+      }
+    }
+  });
+
   // decorate nav DOM
   block.textContent = '';
   const nav = document.createElement('section');
@@ -152,10 +180,15 @@ export default async function decorate(block) {
         button.textContent = label;
         button.addEventListener('click', () => {
           const expanded = button.getAttribute('aria-expanded') === 'true';
+
           if (isDesktop.matches) {
             wrapper.querySelectorAll('[aria-expanded="true"]').forEach((ex) => ex.setAttribute('aria-expanded', false));
           }
           button.setAttribute('aria-expanded', !expanded);
+
+          // Reset menuOpenCount to 1 so that the logic for detecting outside menu clicks
+          // can be triggered again on the next interaction
+          menuOpenCount = 1;
         });
         const chevron = document.createElement('i');
         chevron.className = 'symbol symbol-chevron';
