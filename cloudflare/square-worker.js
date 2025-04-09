@@ -25,7 +25,7 @@ const LOCATIONS = [
   },
   {
     id: '6EXJXZ644ND0E',
-    name: 'STORE',
+    name: 'PICKUP', // store
   },
   {
     id: '3HQZPV73H8BHM',
