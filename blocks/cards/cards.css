@@ -33,6 +33,10 @@
   .cards .cards-card {
     grid-template-columns: 120px 1fr;
   }
+
+  .cards.actionless .cards-card {
+    padding: var(--spacing-m);
+  }
 }
 
 .cards .cards-card-image {
