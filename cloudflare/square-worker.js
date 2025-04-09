@@ -25,7 +25,7 @@ const LOCATIONS = [
   },
   {
     id: '6EXJXZ644ND0E',
-    name: 'PICKUP', // store
+    name: 'STORE', // pickup
   },
   {
     id: '3HQZPV73H8BHM',
@@ -151,7 +151,13 @@ export default {
         requestBody = JSON.stringify(body);
       } else {
         const locationParam = url.searchParams.get('location');
-        if (locationParam) {
+        if (locationParam !== 'pickup') {
+          locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
+          const body = JSON.parse(requestBody);
+          body.order.location_id = locationKey;
+          requestBody = JSON.stringify(body);
+        }
+        else if (locationParam !== 'pickup') {
           locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
