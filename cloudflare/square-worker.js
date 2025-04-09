@@ -151,7 +151,7 @@ export default {
         requestBody = JSON.stringify(body);
       } else {
         const locationParam = url.searchParams.get('location');
-        if (locationParam !== 'pickup') {
+        if (locationParam === 'pickup') {
           locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
