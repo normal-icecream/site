@@ -171,6 +171,8 @@ async function getImagesDocData() {
 }
 
 function getItemImage(images, id) {
+  console.log(" images:", images);
+  console.log(" id:", id);
   const image = images[id.toLowerCase()];
   const isLink = typeof image === 'string' && (image.startsWith('http://') || image.startsWith('https://'));
 
@@ -220,6 +222,7 @@ async function createCustomizeForm(data, itemId, limits) {
   const groupSelections = new Map();
 
   data.forEach((group) => {
+    console.log(" group:", group);
     const fieldset = document.createElement('fieldset');
     fieldset.classList.add('customize-group', `customize-${itemId}-${group.name}`);
     fieldset.dataset.max = limits[group.name];
@@ -256,6 +259,7 @@ async function createCustomizeForm(data, itemId, limits) {
     customizeItems.className = 'customize-items';
 
     group.options.forEach((option) => {
+      console.log(" option:", option);
       const wrapper = document.createElement('div');
       wrapper.className = 'customize-item';
       wrapper.dataset.id = option.id;
