@@ -432,12 +432,12 @@ export function wholesaleOrderForm(wholesaleData, modal) {
       });
     }
 
-    const orderWrapper = new SquareOrderWrapper(orderData).build();
+    const newOrderObject = new SquareOrderWrapper(orderData).build();
     const cartLocation = getCartLocation();
 
     const newOrder = env === 'sandbox'
-      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
-      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+      ? await hitSandbox(createOrder, JSON.stringify(newOrderObject), '?location=sandbox')
+      : await createOrder(JSON.stringify(newOrderObject), `?location=${cartLocation}`);
 
     if (newOrder) {
       const wholesaleModalContent = modal.querySelector('.modal-content');
@@ -575,6 +575,7 @@ export function orderForm(cartData) {
   getOrderFormData();
 
   async function createSquareOrder() {
+    console.log(" cartData:", cartData);
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
     const orderFormFields = getOrderFormData();
 
@@ -616,11 +617,11 @@ export function orderForm(cartData) {
       });
     }
 
-    const orderWrapper = new SquareOrderWrapper(orderData).build();
-    const cartLocation = getCartLocation();
-    const newOrder = env === 'sandbox'
-      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
-      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+    // const orderWrapper = new SquareOrderWrapper(orderData).build();
+    // const cartLocation = getCartLocation();
+    // const newOrder = env === 'sandbox'
+    //   ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
+    //   : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
 
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');

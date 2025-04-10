@@ -90,10 +90,13 @@ export function getCartQuantity() {
   return quantity;
 }
 
-export function createLineItem(catalogItemId, quantity) {
-  const squareItem = window.catalog.byId[catalogItemId];
+export function createLineItem(squareItemId, quantity) {
+  const squareItem = window.catalog.byId[squareItemId];
+  console.log(" squareItem:", squareItem);
   const lineItemData = {
-    catalog_object_id: squareItem.id,
+    item_id: squareItem.id,
+    // setting square variation id at index 0 as default for all line items, to be updated later if needed
+    catalog_object_id: squareItem.item_data.variations[0].id,
     quantity,
     base_price_money: {
       amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
@@ -111,7 +114,8 @@ function updateCartQuantityUI() {
   if (cartQuantityButton) cartQuantityButton.textContent = getCartQuantity();
 }
 
-export async function addItemToCart(key, catalogObjectId, modifiers = [], variation = {}) {
+export async function addItemToCart(key, squareItemId, modifiers = [], variation = {}) {
+  console.log(" squareItemId:", squareItemId);
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
@@ -121,19 +125,22 @@ export async function addItemToCart(key, catalogObjectId, modifiers = [], variat
   if (cartItem) {
     cartItem.quantity += quantity;
   } else {
-    const lineItem = createLineItem(catalogObjectId, quantity);
-
+    const lineItem = createLineItem(squareItemId, quantity);
+    console.log(" lineItem before :", lineItem);
+    
     if (modifiers.length > 0) {
       const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
-      lineItem.key = `${catalogObjectId}${compoundCartKey}`;
-
+      lineItem.key = `${squareItemId}${compoundCartKey}`;
+      
       lineItem.modifiers = modifiers;
     } else if (variation.name) {
-      lineItem.key = `${catalogObjectId}-${variation.id}`;
+      lineItem.key = `${squareItemId}-${variation.id}`;
+      lineItem.catalog_object_id = variation.id;
       lineItem.variation_name = variation.name;
     } else {
-      lineItem.key = catalogObjectId;
+      lineItem.key = squareItemId;
     }
+    console.log(" lineItem after:", lineItem);
     cart.line_items.push(lineItem);
   }
   localStorage.setItem('carts', JSON.stringify(carts));
