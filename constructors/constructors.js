@@ -186,6 +186,7 @@ export class SquareOrderLineItem {
     this.base_price_money = new SquareBasePriceMoney(data.base_price_money).build();
     this.name = data.name;
     this.item_type = data.item_type;
+    this.item_id = data.item_id;
   }
 
   build() {
@@ -195,6 +196,7 @@ export class SquareOrderLineItem {
       base_price_money: this.base_price_money,
       name: this.name,
       item_type: this.item_type,
+      item_id: this.item_id,
     };
   }
 }
