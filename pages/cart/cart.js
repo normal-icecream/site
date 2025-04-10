@@ -95,6 +95,7 @@ export function createLineItem(squareItemId, quantity) {
   // eslint-disable-next-line no-console
   console.log(' squareItem:', squareItem);
   const lineItemData = {
+    // ANDI - delete, it's kind of reduntant
     item_id: squareItem.id,
     // setting square variation id at index 0 as default for all line items,
     // to be updated later if needed
@@ -106,7 +107,7 @@ export function createLineItem(squareItemId, quantity) {
     },
     description: squareItem.item_data.description,
     name: squareItem.item_data.name,
-    item_type: squareItem.type,
+    item_type: squareItem.item_data.variations[0].type,
   };
   return new SquareOrderLineItem(lineItemData).build();
 }
