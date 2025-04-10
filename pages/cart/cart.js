@@ -107,7 +107,7 @@ export function createLineItem(squareItemId, quantity) {
     },
     description: squareItem.item_data.description,
     name: squareItem.item_data.name,
-    item_type: squareItem.item_data.variations[0].type,
+    item_type: squareItem.type,
   };
   return new SquareOrderLineItem(lineItemData).build();
 }
