@@ -171,8 +171,6 @@ async function getImagesDocData() {
 }
 
 function getItemImage(images, id) {
-  console.log(" images:", images);
-  console.log(" id:", id);
   const image = images[id.toLowerCase()];
   const isLink = typeof image === 'string' && (image.startsWith('http://') || image.startsWith('https://'));
 
