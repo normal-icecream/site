@@ -138,7 +138,7 @@ export default {
         return new Response('Invalid JSON in request body', { status: 400 });
       }
     } // Select correct square path to hit based on useProduction flag
-    
+
     // Check if request is for 'orders' in the request path
     const isOrderRequest = url.pathname.includes('orders');
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
@@ -156,8 +156,7 @@ export default {
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
           requestBody = JSON.stringify(body);
-        }
-        else if (locationParam !== 'pickup') {
+        } else if (locationParam !== 'pickup') {
           locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
@@ -170,7 +169,7 @@ export default {
         }
       }
     }
-    console.log(" locationKey:", locationKey);
+    console.log(' locationKey:', locationKey);
 
     // Check if the request is explicitly set to use the Square Sandbox environment
     const forceSandbox = url.searchParams.get('env') === 'sandbox';
@@ -269,7 +268,7 @@ export default {
       },
       body: request.method !== 'GET' && request.method !== 'HEAD' ? requestBody : null,
     });
-    
+
     // Send the modified request to the Square API
     const response = await fetch(modifiedRequest);
 
@@ -277,9 +276,9 @@ export default {
     if (request.method === 'POST' || request.method === 'PUT') {
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const clonedResponse = response.clone();
-      console.log(" clonedResponse:", clonedResponse);
+      console.log(' clonedResponse:', clonedResponse);
       const responseBody = await clonedResponse.json();
-      console.log(" responseBody:", responseBody);
+      console.log(' responseBody:', responseBody);
       const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
 
       await env.IDEMPOTENCY_STORE.put(

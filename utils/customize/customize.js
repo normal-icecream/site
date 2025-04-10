@@ -369,7 +369,8 @@ async function createCustomizeForm(data, itemId, limits) {
       const selectedItems = [];
       form.querySelectorAll('.customize-group').forEach((formGroup) => {
         formGroup.querySelectorAll('.customize-item').forEach((input) => {
-          console.log(" input:", input);
+          // eslint-disable-next-line no-console
+          console.log(' input:', input);
           const quantity = parseInt(input.querySelector('input[type="number"]').value, 10);
           if (quantity > 0) {
             const modOptions = data.flatMap((mods) => mods.options);

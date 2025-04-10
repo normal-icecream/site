@@ -92,10 +92,12 @@ export function getCartQuantity() {
 
 export function createLineItem(squareItemId, quantity) {
   const squareItem = window.catalog.byId[squareItemId];
-  console.log(" squareItem:", squareItem);
+  // eslint-disable-next-line no-console
+  console.log(' squareItem:', squareItem);
   const lineItemData = {
     item_id: squareItem.id,
-    // setting square variation id at index 0 as default for all line items, to be updated later if needed
+    // setting square variation id at index 0 as default for all line items,
+    // to be updated later if needed
     catalog_object_id: squareItem.item_data.variations[0].id,
     quantity,
     base_price_money: {
@@ -115,7 +117,8 @@ function updateCartQuantityUI() {
 }
 
 export async function addItemToCart(key, squareItemId, modifiers = [], variation = {}) {
-  console.log(" squareItemId:", squareItemId);
+  // eslint-disable-next-line no-console
+  console.log(' squareItemId:', squareItemId);
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
@@ -126,12 +129,13 @@ export async function addItemToCart(key, squareItemId, modifiers = [], variation
     cartItem.quantity += quantity;
   } else {
     const lineItem = createLineItem(squareItemId, quantity);
-    console.log(" lineItem before :", lineItem);
-    
+    // eslint-disable-next-line no-console
+    console.log(' lineItem before :', lineItem);
+
     if (modifiers.length > 0) {
       const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
       lineItem.key = `${squareItemId}${compoundCartKey}`;
-      
+
       lineItem.modifiers = modifiers;
     } else if (variation.name) {
       lineItem.key = `${squareItemId}-${variation.id}`;
@@ -140,7 +144,8 @@ export async function addItemToCart(key, squareItemId, modifiers = [], variation
     } else {
       lineItem.key = squareItemId;
     }
-    console.log(" lineItem after:", lineItem);
+    // eslint-disable-next-line no-console
+    console.log(' lineItem after:', lineItem);
     cart.line_items.push(lineItem);
   }
   localStorage.setItem('carts', JSON.stringify(carts));
