@@ -220,7 +220,6 @@ async function createCustomizeForm(data, itemId, limits) {
   const groupSelections = new Map();
 
   data.forEach((group) => {
-    console.log(" group:", group);
     const fieldset = document.createElement('fieldset');
     fieldset.classList.add('customize-group', `customize-${itemId}-${group.name}`);
     fieldset.dataset.max = limits[group.name];
@@ -257,7 +256,6 @@ async function createCustomizeForm(data, itemId, limits) {
     customizeItems.className = 'customize-items';
 
     group.options.forEach((option) => {
-      console.log(" option:", option);
       const wrapper = document.createElement('div');
       wrapper.className = 'customize-item';
       wrapper.dataset.id = option.id;

@@ -169,7 +169,6 @@ export default {
         }
       }
     }
-    console.log(' locationKey:', locationKey);
 
     // Check if the request is explicitly set to use the Square Sandbox environment
     const forceSandbox = url.searchParams.get('env') === 'sandbox';
@@ -276,9 +275,7 @@ export default {
     if (request.method === 'POST' || request.method === 'PUT') {
       const cacheKey = `${idempotencyKey}-${url.pathname}`;
       const clonedResponse = response.clone();
-      console.log(' clonedResponse:', clonedResponse);
       const responseBody = await clonedResponse.json();
-      console.log(' responseBody:', responseBody);
       const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
 
       await env.IDEMPOTENCY_STORE.put(

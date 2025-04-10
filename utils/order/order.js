@@ -575,8 +575,6 @@ export function orderForm(cartData) {
   getOrderFormData();
 
   async function createSquareOrder() {
-    // eslint-disable-next-line no-console
-    console.log(' cartData:', cartData);
     const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
     const orderFormFields = getOrderFormData();
 
