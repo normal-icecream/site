@@ -575,8 +575,8 @@ export function orderForm(cartData) {
   getOrderFormData();
 
   async function createSquareOrder() {
-    const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
     const orderFormFields = getOrderFormData();
+    const orderData = new SquareOrderData(cartData, window.taxList[0], orderFormFields).build();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);

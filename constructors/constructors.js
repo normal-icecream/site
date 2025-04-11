@@ -179,6 +179,51 @@ export class SquareTaxData {
   }
 }
 
+export class SquareOrderShipmentAddress {
+  constructor(data) {
+    this.address = new SquareAddress(data).build();
+    this.email_address = data.email;
+    this.phone_number = data.phone;
+    this.display_name = data.name;
+  }
+
+  build() {
+    return {
+      address: this.address,
+      email_address: this.email_address,
+      phone_number: this.phone_number,
+      display_name: this.display_name,
+    };
+  }
+}
+
+export class SquareOrderShipmentDetails {
+  constructor(data) {
+    this.recipient = new SquareOrderShipmentAddress(data).build();
+    // this.expected_shipped_at =
+  }
+
+  build() {
+    return {
+      recipient: this.recipient,
+    };
+  }
+}
+
+export class SquareFulfillmentData {
+  constructor(data) {
+    this.type = 'SHIPMENT';
+    this.shipment_details = new SquareOrderShipmentDetails(data).build();
+  }
+
+  build() {
+    return {
+      type: this.type,
+      shipment_details: this.shipment_details,
+    };
+  }
+}
+
 export class SquareOrderLineItem {
   constructor(data) {
     this.catalog_object_id = data.catalog_object_id;
@@ -202,8 +247,9 @@ export class SquareOrderLineItem {
 }
 
 export class SquareOrderData {
-  constructor(orderData, taxData) {
+  constructor(orderData, taxData, formFields) {
     this.line_items = orderData.line_items;
+    this.fulfillments = [new SquareFulfillmentData(formFields).build()];
     this.state = orderData.state || 'OPEN';
     this.taxes = [new SquareTaxData(taxData).build()];
   }
@@ -211,6 +257,7 @@ export class SquareOrderData {
   build() {
     return {
       line_items: this.line_items,
+      fulfillments: this.fulfillments,
       state: this.state,
       taxes: this.taxes,
     };
