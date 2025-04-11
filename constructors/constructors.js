@@ -238,18 +238,9 @@ export class SquarePayment {
     this.buyer_phone_number = formatPhoneNumberToE164(formData.phone);
     this.location_id = orderData.order.location_id;
     this.order_id = orderData.order.id;
-    this.initializeAddresses(formData);
+    this.shipping_address = formData.getItShipped ? new SquareAddress(formData).build() : null;
+    this.billing_address = formData.getItShipped ? new SquareAddress(formData).build() : null;
     // this.tip_money = {}
-  }
-
-  initializeAddresses(formData) {
-    if (formData.getItShipped) {
-      this.shipping_address = new SquareAddress(formData).build();
-      this.billing_address = new SquareAddress(formData).build();
-    } else {
-      this.shipping_address = null;
-      this.billing_address = null;
-    }
   }
 
   build() {

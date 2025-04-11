@@ -64,7 +64,7 @@ async function createSquarePayment(token, orderData, element) {
       backButton.addEventListener('click', () => {
         const paymentsModal = document.querySelector('.modal.payments');
         if (paymentsModal) {
-          toggleModal(paymentsModal);
+          toggleModal(paymentsModal, '');
           window.location.reload();
         }
       });
