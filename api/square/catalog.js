@@ -21,6 +21,21 @@ export async function getCatalogListJson() {
 }
 
 /**
+ * Sends request to refresh Square catalog in the background.
+ * @throws {Error} - Throws an error if the API call fails.
+*/
+export async function refreshCatalogListJson() {
+  try {
+    // Use the API client to refresh catalog
+    await apiClient(API_ENDPOINTS.SQUARE.CATALOG.refresh, 'GET');
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error refreshing catalog list:', error);
+    throw new Error(`Failed to refresh catalog list: ${error.message}`);
+  }
+}
+
+/**
  * Fetches catalog tax information from the Square API.
  * @returns {Promise<Array>} - A promise that resolves to a tax object.
  * @throws {Error} - Throws an error if the API call fails.

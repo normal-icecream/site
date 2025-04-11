@@ -89,6 +89,7 @@ async function triggerBackgroundRefresh(env, apiKey) {
       await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
     }
   } catch (err) {
+    // ANDI - add return val??
     console.error('Failed to refresh catalog:', err);
   }
 }
@@ -206,6 +207,15 @@ export default {
       body.idempotency_key = idempotencyKey;
       requestBody = JSON.stringify(body);
     }
+    
+    const isRefreshCatalogReq = url.pathname.includes('refresh');
+    if (isRefreshCatalogReq) {
+      try { 
+        await triggerBackgroundRefresh(env, apiKey);
+      } catch (error) {
+        console.error(`KV returned error: ${error}`);
+      }
+    }
 
     // Check if the request is for the catalog json
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
@@ -216,8 +226,6 @@ export default {
 
         // If catalog data exists and is not empty, return it immediately to the client
         if (catalogData && catalogData.length > 0) {
-          // Trigger a background refresh of the catalog data without blocking the response
-          triggerBackgroundRefresh(env, apiKey);
           return new Response(JSON.stringify({ objects: catalogData }), {
             status: 200,
             headers: {
