@@ -9,6 +9,7 @@ export async function createOrder(orderData, queryParams) {
   }
   try {
     const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams), 'POST', orderData);
+    
     return order;
   } catch (error) {
     // eslint-disable-next-line no-console
