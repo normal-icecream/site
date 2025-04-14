@@ -306,29 +306,25 @@ export class SquarePayment {
 }
 
 export class SquareInvoicePrimaryRecipient {
-  constructor(data) {
-    // this.customer_id:
-    this.given_name = data.fulfillments[0].shipment_details.recipient.display_name;
-    this.email_address = data.fulfillments[0].shipment_details.recipient.email_address;
-    this.phone_number = data.fulfillments[0].shipment_details.recipient.phone_number;
+  constructor(customer) {
+    this.customer_id = customer.id;
   }
 
   build() {
     return {
-      given_name: this.given_name,
-      email_address: this.email_address,
-      phone_number: this.phone_number,
+      customer_id: this.customer_id,
     };
   }
 }
 
 export class SquareInvoice {
-  constructor(orderData) {
+  constructor(orderData, customer, businessName) {
+    this.title = businessName;
     this.idempotency_key = orderData.idempotency_key;
     this.location_id = orderData.order.location_id;
     this.order_id = orderData.order.id;
     this.delivery_method = 'EMAIL';
-    this.primary_recipient = new SquareInvoicePrimaryRecipient(orderData.order).build();
+    this.primary_recipient = new SquareInvoicePrimaryRecipient(customer).build();
     this.payment_requests = [
       {
         tipping_enabled: true,
@@ -346,6 +342,7 @@ export class SquareInvoice {
 
   build() {
     return {
+      title: this.title,
       location_id: this.location_id,
       order_id: this.order_id,
       delivery_method: this.delivery_method,

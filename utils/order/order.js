@@ -362,7 +362,8 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
   const cartLocation = getCartLocation();
   const customerWrapper = new SquareCustomerWrapper(orderFormData.email).build();
 
-  const customer = env === 'sandbox'
+  let normalCustomer;
+  normalCustomer = env === 'sandbox'
     ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
     : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
 
@@ -387,17 +388,21 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
 
   // If multiple customers share the same email,
   // check if their name or business name matches the order form.
-  if (customer.customers) {
+  if (normalCustomer.customers) {
     let hasMatch = false;
-    if (customer.customers.length > 1) {
-      hasMatch = customer.customers.some((c) => (c.given_name === orderFormData.name)
+    if (normalCustomer.customers.length > 1) {
+      hasMatch = normalCustomer.customers.some((c) => (c.given_name === orderFormData.name)
       || (c.company_name === orderFormData.businessName));
     }
-    if (!hasMatch) await createSquareCustomer();
+    if (!hasMatch) {
+      normalCustomer = await createSquareCustomer();
+    }
   } else {
     // otherwise create a customer if there isn't one
-    await createSquareCustomer();
+    normalCustomer = await createSquareCustomer();
   }
+
+  return normalCustomer;
 }
 
 export function wholesaleOrderForm(wholesaleData, modal) {
@@ -436,17 +441,31 @@ export function wholesaleOrderForm(wholesaleData, modal) {
     const newOrderObject = new SquareOrderWrapper(orderData).build();
     const cartLocation = getCartLocation();
 
-    const newOrder = env === 'sandbox'
-      ? await hitSandbox(createOrder, JSON.stringify(newOrderObject), '?location=sandbox')
-      : await createOrder(JSON.stringify(newOrderObject), `?location=${cartLocation}`);
+    try {
+      let customer;
+      let newOrder;
+      if (env === 'sandbox') {
+        await hitSandbox(createOrder, JSON.stringify(newOrderObject), '?location=sandbox').then(async (order) => {
+          newOrder = order;
+          customer = await handleNewCustomer(order.idempotency_key, orderFormFields);
+        });
+      } else {
+        await createOrder(JSON.stringify(newOrderObject), `?location=${cartLocation}`).then(async (order) => {
+          newOrder = order;
+          customer = await handleNewCustomer(order.idempotency_key, orderFormFields);
+        });
+      }
 
-    if (newOrder) {
       const wholesaleModalContent = modal.querySelector('.modal-content');
       wholesaleModalContent.querySelector('.wholesale-order-form').remove();
 
       getTotals(modal, newOrder, createCartTotalContent);
 
-      const invoiceData = new SquareInvoice(newOrder).build();
+      const invoiceData = new SquareInvoice(
+        newOrder,
+        customer.customers[0],
+        orderFormFields.businessName,
+      ).build();
       const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
 
       const createInvoiceButton = document.createElement('button');
@@ -459,9 +478,6 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           const newInvoice = env === 'sandbox'
             ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
             : await createInvoice(JSON.stringify(invoice));
-
-          // Create a new custoner if they haven't already been added
-          await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
 
           // Show loading screen
           wholesaleModalContent.innerHTML = ''; // Clear previous content
@@ -558,9 +574,9 @@ export function wholesaleOrderForm(wholesaleData, modal) {
         }
       });
       wholesaleModalContent.append(createInvoiceButton);
-    } else {
+    } catch (error) {
       // eslint-disable-next-line no-console
-      console.log('error with creating an order');
+      console.log('error with creating an order:', error);
     }
   }
   const populatedFields = populateWholesaleFormFields(fields, modal, wholesaleData);
