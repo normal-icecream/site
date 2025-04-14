@@ -307,7 +307,7 @@ export class SquarePayment {
 
 export class SquareInvoicePrimaryRecipient {
   constructor(data) {
-    // this.customer_id: 
+    // this.customer_id:
     this.given_name = data.fulfillments[0].shipment_details.recipient.display_name;
     this.email_address = data.fulfillments[0].shipment_details.recipient.email_address;
     this.phone_number = data.fulfillments[0].shipment_details.recipient.phone_number;
@@ -318,7 +318,7 @@ export class SquareInvoicePrimaryRecipient {
       given_name: this.given_name,
       email_address: this.email_address,
       phone_number: this.phone_number,
-    }
+    };
   }
 }
 
