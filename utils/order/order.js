@@ -411,8 +411,8 @@ export function wholesaleOrderForm(wholesaleData, modal) {
   modalContent.append(wholesaleCartCard);
 
   async function createSquareWholesaleOrder() {
-    const orderData = new SquareOrderData(wholesaleData, window.taxList[0]).build();
     const orderFormFields = getOrderFormData();
+    const orderData = new SquareOrderData(wholesaleData, window.taxList[0], orderFormFields).build();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);

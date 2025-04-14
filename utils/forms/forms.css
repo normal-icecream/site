@@ -71,6 +71,10 @@ textarea::placeholder {
     display: none;
 }
 
+.form .form-checkbox input[type='password'] {
+    text-transform: none !important;
+}
+
 .form .form-checkbox .checkbox-container,
 .form .form-radio .radio-container {
     display: flex;
