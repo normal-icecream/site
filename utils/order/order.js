@@ -412,6 +412,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
   async function createSquareWholesaleOrder() {
     const orderFormFields = getOrderFormData();
+    // eslint-disable-next-line max-len
     const orderData = new SquareOrderData(wholesaleData, window.taxList[0], orderFormFields).build();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
