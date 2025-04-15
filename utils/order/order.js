@@ -469,7 +469,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
               // eslint-disable-next-line prefer-destructuring
               customerData = customer.customers[0];
             } else {
-              customerData = customer.customer;
+              customerData = customer;
             }
 
             const invoiceData = new SquareInvoice(
