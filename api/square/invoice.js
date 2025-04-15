@@ -38,7 +38,6 @@ export async function publishInvoice(invoiceId, invoiceData) {
   try {
     // Use the API client to create Invoice in Square
     const publishedInvoice = await apiClient(API_ENDPOINTS.SQUARE.INVOICE.publish(invoiceId), 'POST', invoiceData);
-    console.log(' publishedInvoice:', publishedInvoice);
     return publishedInvoice;
   } catch (error) {
     // eslint-disable-next-line no-console

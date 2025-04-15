@@ -366,7 +366,6 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
   normalCustomer = env === 'sandbox'
     ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
     : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
-  console.log(' normalCustomer:', normalCustomer);
 
   async function createSquareCustomer() {
     try {
@@ -393,20 +392,16 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
   // check if their name or business name matches the order form.
   if (normalCustomer.customers) {
     let hasMatch = false;
-    console.log(' hasMatch:', hasMatch);
     if (normalCustomer.customers.length > 1) {
       hasMatch = normalCustomer.customers.some((c) => (c.given_name === orderFormData.name)
       || (c.company_name === orderFormData.businessName));
-      console.log(' hasMatch:', hasMatch);
     }
     if (!hasMatch) {
       normalCustomer = await createSquareCustomer();
-      console.log(' normalCustomer:', normalCustomer);
     }
   } else {
     // otherwise create a customer if there isn't one
     normalCustomer = await createSquareCustomer();
-    console.log(' normalCustomer:', normalCustomer);
   }
 
   return normalCustomer;
@@ -457,9 +452,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
       }
 
       if (newOrder) {
-        // try {
         const customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
-        console.log('customer', customer);
 
         if (customer) {
           const wholesaleModalContent = modal.querySelector('.modal-content');
@@ -475,17 +468,13 @@ export function wholesaleOrderForm(wholesaleData, modal) {
             customerData = customer.customer;
           }
 
-          console.log('customerData,', customerData);
-
           const invoiceData = new SquareInvoice(
             newOrder,
             // ANDI - which customer should be used?
             customerData,
             orderFormFields.businessName,
           ).build();
-          console.log(' invoiceData:', invoiceData);
           const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
-          console.log(' invoice:', invoice);
 
           const createInvoiceButton = document.createElement('button');
           createInvoiceButton.className = 'wholesale-button';
@@ -497,7 +486,6 @@ export function wholesaleOrderForm(wholesaleData, modal) {
               const newInvoice = env === 'sandbox'
                 ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
                 : await createInvoice(JSON.stringify(invoice));
-              console.log(' newInvoice:', newInvoice);
 
               // Show loading screen
               wholesaleModalContent.innerHTML = ''; // Clear previous content
@@ -607,10 +595,6 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
           wholesaleModalContent.append(createInvoiceButton);
         }
-        // } catch (error) {
-        //   // eslint-disable-next-line no-console
-        //   console.error('Error fetching customer:', error);
-        // }
       }
     } catch (error) {
       // eslint-disable-next-line no-console
