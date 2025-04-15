@@ -473,7 +473,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
               // eslint-disable-next-line prefer-destructuring
               customerData = customer.customers[0];
             } else {
-              customerData = customer;
+              customerData = customer.customer;
             }
 
             console.log('customerData,', customerData);
