@@ -464,6 +464,8 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
             getTotals(modal, newOrder, createCartTotalContent);
 
+            console.log('customer,', customer);
+            
             let customerData;
             if (customer.customers) {
               // eslint-disable-next-line prefer-destructuring
@@ -472,13 +474,17 @@ export function wholesaleOrderForm(wholesaleData, modal) {
               customerData = customer;
             }
 
+            console.log('customerData,', customerData);
+
             const invoiceData = new SquareInvoice(
               newOrder,
               // ANDI - which customer should be used?
               customerData,
               orderFormFields.businessName,
             ).build();
+            console.log(" invoiceData:", invoiceData);
             const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
+            console.log(" invoice:", invoice);
 
             const createInvoiceButton = document.createElement('button');
             createInvoiceButton.className = 'wholesale-button';
@@ -488,9 +494,10 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
               try {
                 const newInvoice = env === 'sandbox'
-                  ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
-                  : await createInvoice(JSON.stringify(invoice));
-
+                ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
+                : await createInvoice(JSON.stringify(invoice));
+                console.log(" newInvoice:", newInvoice);
+                
                 // Show loading screen
                 wholesaleModalContent.innerHTML = ''; // Clear previous content
                 const loadingContainer = document.createElement('div');
