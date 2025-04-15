@@ -457,6 +457,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
           } else {
             customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
           }
+          console.log('customer,', customer);
 
           if (customer) {
             const wholesaleModalContent = modal.querySelector('.modal-content');
@@ -464,8 +465,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
             getTotals(modal, newOrder, createCartTotalContent);
 
-            console.log('customer,', customer);
-            
+
             let customerData;
             if (customer.customers) {
               // eslint-disable-next-line prefer-destructuring
