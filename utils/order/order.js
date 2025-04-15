@@ -532,7 +532,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
                   newInvoice.invoice.id,
                 );
 
-                if (env === 'sandbox') {
+                if (env !== 'sandbox') {
                   await publishInvoice(newInvoice.invoice.id, JSON.stringify({
                     idempotency_key: newInvoice.idempotency_key,
                     version: newInvoice.invoice.version,
