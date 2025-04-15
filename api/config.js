@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
     },
     INVOICE: {
       create: `${API_BASE_URLS.SQUARE}/v2/invoices`, // POST
+      publish: (invoiceId) => `${API_BASE_URLS.SQUARE}/v2/invoices/${invoiceId}/publish`, // POST
     },
     LOCATIONS: {
       list: `${API_BASE_URLS.SQUARE}/v2/locations`, // POST

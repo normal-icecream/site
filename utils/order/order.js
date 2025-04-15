@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
-import { createInvoice } from '../../api/square/invoice.js';
+import { createInvoice, publishInvoice } from '../../api/square/invoice.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import {
@@ -364,9 +364,9 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
 
   let normalCustomer;
   normalCustomer = env === 'sandbox'
-  ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
-  : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
-  console.log(" normalCustomer:", normalCustomer);
+    ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
+    : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
+  console.log(' normalCustomer:', normalCustomer);
 
   async function createSquareCustomer() {
     try {
@@ -381,7 +381,7 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
       } else {
         customer = await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
       }
-      return customer
+      return customer;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error creating customer:', error);
@@ -393,20 +393,20 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
   // check if their name or business name matches the order form.
   if (normalCustomer.customers) {
     let hasMatch = false;
-    console.log(" hasMatch:", hasMatch);
+    console.log(' hasMatch:', hasMatch);
     if (normalCustomer.customers.length > 1) {
       hasMatch = normalCustomer.customers.some((c) => (c.given_name === orderFormData.name)
       || (c.company_name === orderFormData.businessName));
-      console.log(" hasMatch:", hasMatch);
+      console.log(' hasMatch:', hasMatch);
     }
     if (!hasMatch) {
       normalCustomer = await createSquareCustomer();
-      console.log(" normalCustomer:", normalCustomer);
+      console.log(' normalCustomer:', normalCustomer);
     }
   } else {
     // otherwise create a customer if there isn't one
     normalCustomer = await createSquareCustomer();
-    console.log(" normalCustomer:", normalCustomer);
+    console.log(' normalCustomer:', normalCustomer);
   }
 
   return normalCustomer;
@@ -457,154 +457,160 @@ export function wholesaleOrderForm(wholesaleData, modal) {
       }
 
       if (newOrder) {
-        try {
-          const customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
-          console.log('customer', customer);
+        // try {
+        const customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
+        console.log('customer', customer);
 
-          if (customer) {
-            const wholesaleModalContent = modal.querySelector('.modal-content');
-            wholesaleModalContent.querySelector('.wholesale-order-form').remove();
+        if (customer) {
+          const wholesaleModalContent = modal.querySelector('.modal-content');
+          wholesaleModalContent.querySelector('.wholesale-order-form').remove();
 
-            getTotals(modal, newOrder, createCartTotalContent);
+          getTotals(modal, newOrder, createCartTotalContent);
 
+          let customerData;
+          if (customer.customers) {
+            // eslint-disable-next-line prefer-destructuring
+            customerData = customer.customers[0];
+          } else {
+            customerData = customer.customer;
+          }
 
-            let customerData;
-            if (customer.customers) {
-              // eslint-disable-next-line prefer-destructuring
-              customerData = customer.customers[0];
-            } else {
-              customerData = customer.customer;
-            }
+          console.log('customerData,', customerData);
 
-            console.log('customerData,', customerData);
+          const invoiceData = new SquareInvoice(
+            newOrder,
+            // ANDI - which customer should be used?
+            customerData,
+            orderFormFields.businessName,
+          ).build();
+          console.log(' invoiceData:', invoiceData);
+          const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
+          console.log(' invoice:', invoice);
 
-            const invoiceData = new SquareInvoice(
-              newOrder,
-              // ANDI - which customer should be used?
-              customerData,
-              orderFormFields.businessName,
-            ).build();
-            console.log(" invoiceData:", invoiceData);
-            const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
-            console.log(" invoice:", invoice);
+          const createInvoiceButton = document.createElement('button');
+          createInvoiceButton.className = 'wholesale-button';
+          createInvoiceButton.textContent = 'create invoice';
+          createInvoiceButton.addEventListener('click', async (event) => {
+            event.preventDefault();
 
-            const createInvoiceButton = document.createElement('button');
-            createInvoiceButton.className = 'wholesale-button';
-            createInvoiceButton.textContent = 'create invoice';
-            createInvoiceButton.addEventListener('click', async (event) => {
-              event.preventDefault();
-
-              try {
-                const newInvoice = env === 'sandbox'
+            try {
+              const newInvoice = env === 'sandbox'
                 ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
                 : await createInvoice(JSON.stringify(invoice));
-                console.log(" newInvoice:", newInvoice);
-                
-                // Show loading screen
-                wholesaleModalContent.innerHTML = ''; // Clear previous content
-                const loadingContainer = document.createElement('div');
-                loadingContainer.className = 'modal-wholesale-content-container';
+              console.log(' newInvoice:', newInvoice);
 
-                const iconContainer = document.createElement('div');
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'icon icon-pints';
-                iconContainer.append(iconSpan);
-                loadingContainer.append(iconContainer);
+              // Show loading screen
+              wholesaleModalContent.innerHTML = ''; // Clear previous content
+              const loadingContainer = document.createElement('div');
+              loadingContainer.className = 'modal-wholesale-content-container';
 
-                // add container to DOM first
-                wholesaleModalContent.append(loadingContainer);
-                // then decorate icons
-                decorateIcons(wholesaleModalContent);
-                // then swap icons
-                swapIcons();
+              const iconContainer = document.createElement('div');
+              const iconSpan = document.createElement('span');
+              iconSpan.className = 'icon icon-pints';
+              iconContainer.append(iconSpan);
+              loadingContainer.append(iconContainer);
 
-                const loadingMessage = document.createElement('h4');
-                loadingMessage.className = 'wholesale-loading-message';
-                loadingMessage.textContent = 'We are processing your order :)';
-                loadingContainer.append(loadingMessage);
+              // add container to DOM first
+              wholesaleModalContent.append(loadingContainer);
+              // then decorate icons
+              decorateIcons(wholesaleModalContent);
+              // then swap icons
+              swapIcons();
 
-                wholesaleModalContent.append(loadingContainer);
+              const loadingMessage = document.createElement('h4');
+              loadingMessage.className = 'wholesale-loading-message';
+              loadingMessage.textContent = 'We are processing your order :)';
+              loadingContainer.append(loadingMessage);
 
-                if (newInvoice) {
-                  // update google sheet
-                  await updateWholesaleGoogleSheet(
-                    orderData,
-                    orderFormFields,
-                    newInvoice.invoice.id,
-                  );
+              wholesaleModalContent.append(loadingContainer);
 
-                  wholesaleModalContent.innerHTML = '';
+              if (newInvoice) {
+                // update google sheet
+                await updateWholesaleGoogleSheet(
+                  orderData,
+                  orderFormFields,
+                  newInvoice.invoice.id,
+                );
 
-                  const successContainer = document.createElement('div');
-                  successContainer.className = 'modal-wholesale-content-container';
-
-                  const successIconContainer = document.createElement('div');
-                  const successIconSpan = document.createElement('span');
-                  successIconSpan.className = 'icon icon-logo';
-                  successIconContainer.append(successIconSpan);
-                  successContainer.append(successIconContainer);
-
-                  // add to DOM first
-                  wholesaleModalContent.append(successContainer);
-                  // then decorate
-                  decorateIcons(wholesaleModalContent);
-                  // then swap
-                  swapIcons();
-
-                  const successMessage = document.createElement('h4');
-                  successMessage.className = 'wholesale-success-message';
-                  successMessage.textContent = 'great choice! your order has been placed successfully.';
-                  successContainer.append(successMessage);
-
-                  const backButton = document.createElement('button');
-                  backButton.textContent = 'back to wholesale';
-                  backButton.className = 'wholesale-button';
-                  backButton.addEventListener('click', () => {
-                    toggleModal(modal);
-                    window.location.reload();
-                  });
-                  successContainer.append(backButton);
-                  wholesaleModalContent.append(successContainer);
-
-                  document.querySelector('.wholesale-form').reset();
+                if (env === 'sandbox') {
+                  await publishInvoice(newInvoice.invoice.id, JSON.stringify({
+                    idempotency_key: newInvoice.idempotency_key,
+                    version: newInvoice.invoice.version,
+                  }));
                 }
-              } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error('Error processing order:', error);
 
-                // Replace loading screen with error message
                 wholesaleModalContent.innerHTML = '';
 
-                const errorContainer = document.createElement('div');
-                errorContainer.className = 'modal-wholesale-content-container';
+                const successContainer = document.createElement('div');
+                successContainer.className = 'modal-wholesale-content-container';
 
-                const iconContainer = document.createElement('div');
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'icon icon-error';
-                iconContainer.append(iconSpan);
-                errorContainer.append(iconContainer);
+                const successIconContainer = document.createElement('div');
+                const successIconSpan = document.createElement('span');
+                successIconSpan.className = 'icon icon-logo';
+                successIconContainer.append(successIconSpan);
+                successContainer.append(successIconContainer);
+
+                // add to DOM first
+                wholesaleModalContent.append(successContainer);
+                // then decorate
                 decorateIcons(wholesaleModalContent);
+                // then swap
+                swapIcons();
 
-                const errorMessage = document.createElement('h4');
-                errorMessage.className = 'wholesale-error-message';
-                errorMessage.textContent = 'Oops! Something went wrong while placing your wholesale order. Please try again.';
-                errorContainer.append(errorMessage);
+                const successMessage = document.createElement('h4');
+                successMessage.className = 'wholesale-success-message';
+                successMessage.textContent = 'great choice! your order has been placed successfully.';
+                successContainer.append(successMessage);
 
-                const retryButton = document.createElement('button');
-                retryButton.textContent = 'Try Again';
-                retryButton.addEventListener('click', () => toggleModal(modal));
+                const backButton = document.createElement('button');
+                backButton.textContent = 'back to wholesale';
+                backButton.className = 'wholesale-button';
+                backButton.addEventListener('click', () => {
+                  toggleModal(modal);
+                  window.location.reload();
+                });
+                successContainer.append(backButton);
+                wholesaleModalContent.append(successContainer);
 
-                errorContainer.append(retryButton);
-                modal.append(errorContainer);
+                document.querySelector('.wholesale-form').reset();
               }
-            });
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error('Error processing order:', error);
 
-            wholesaleModalContent.append(createInvoiceButton);
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error fetching customer:', error);
+              // Replace loading screen with error message
+              wholesaleModalContent.innerHTML = '';
+
+              const errorContainer = document.createElement('div');
+              errorContainer.className = 'modal-wholesale-content-container';
+
+              const iconContainer = document.createElement('div');
+              const iconSpan = document.createElement('span');
+              iconSpan.className = 'icon icon-error';
+              iconContainer.append(iconSpan);
+              errorContainer.append(iconContainer);
+              decorateIcons(wholesaleModalContent);
+
+              const errorMessage = document.createElement('h4');
+              errorMessage.className = 'wholesale-error-message';
+              errorMessage.textContent = 'Oops! Something went wrong while placing your wholesale order. Please try again.';
+              errorContainer.append(errorMessage);
+
+              const retryButton = document.createElement('button');
+              retryButton.textContent = 'Try Again';
+              retryButton.addEventListener('click', () => toggleModal(modal));
+
+              errorContainer.append(retryButton);
+              modal.append(errorContainer);
+            }
+          });
+
+          wholesaleModalContent.append(createInvoiceButton);
         }
+        // } catch (error) {
+        //   // eslint-disable-next-line no-console
+        //   console.error('Error fetching customer:', error);
+        // }
       }
     } catch (error) {
       // eslint-disable-next-line no-console
