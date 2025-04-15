@@ -375,11 +375,13 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
         orderFormData,
       }).build();
 
+      let customer;
       if (env === 'sandbox') {
-        await hitSandbox(createCustomer, JSON.stringify(squareCustomer), '?location=sandbox');
+        customer = await hitSandbox(createCustomer, JSON.stringify(squareCustomer), '?location=sandbox');
       } else {
-        await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
+        customer = await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
       }
+      return customer
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error creating customer:', error);
