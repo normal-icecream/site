@@ -464,10 +464,18 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
             getTotals(modal, newOrder, createCartTotalContent);
 
+            let customerData;
+            if (customer.customers) {
+              // eslint-disable-next-line prefer-destructuring
+              customerData = customer.customers[0];
+            } else {
+              customerData = customer.customer;
+            }
+
             const invoiceData = new SquareInvoice(
               newOrder,
               // ANDI - which customer should be used?
-              customer.customers[0],
+              customerData,
               orderFormFields.businessName,
             ).build();
             const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
