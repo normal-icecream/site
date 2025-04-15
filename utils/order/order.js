@@ -364,8 +364,9 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
 
   let normalCustomer;
   normalCustomer = env === 'sandbox'
-    ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
-    : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
+  ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
+  : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
+  console.log(" normalCustomer:", normalCustomer);
 
   async function createSquareCustomer() {
     try {
@@ -451,13 +452,8 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
       if (newOrder) {
         try {
-          let customer;
-          if (env === 'sandbox') {
-            customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
-          } else {
-            customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
-          }
-          console.log('customer,', customer);
+          const customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
+          console.log('customer', customer);
 
           if (customer) {
             const wholesaleModalContent = modal.querySelector('.modal-content');
