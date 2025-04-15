@@ -16,6 +16,7 @@ export async function createCustomer(customerData) {
   try {
     // Use the API client to create customer in Square
     const customer = await apiClient(API_ENDPOINTS.SQUARE.CUSTOMER.create, 'POST', customerData);
+    console.log(" customer:", customer);
     return customer;
   } catch (error) {
     // eslint-disable-next-line no-console

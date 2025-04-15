@@ -391,16 +391,20 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
   // check if their name or business name matches the order form.
   if (normalCustomer.customers) {
     let hasMatch = false;
+    console.log(" hasMatch:", hasMatch);
     if (normalCustomer.customers.length > 1) {
       hasMatch = normalCustomer.customers.some((c) => (c.given_name === orderFormData.name)
       || (c.company_name === orderFormData.businessName));
+      console.log(" hasMatch:", hasMatch);
     }
     if (!hasMatch) {
       normalCustomer = await createSquareCustomer();
+      console.log(" normalCustomer:", normalCustomer);
     }
   } else {
     // otherwise create a customer if there isn't one
     normalCustomer = await createSquareCustomer();
+    console.log(" normalCustomer:", normalCustomer);
   }
 
   return normalCustomer;
