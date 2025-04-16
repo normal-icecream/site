@@ -133,8 +133,4 @@ input[type='number']::-webkit-inner-spin-button {
     .table table tbody tr td h4 {
         font-size: var(--heading-size-m);
     }
-
-    .table table tbody tr td h4 span {
-        padding-left: 6px;
-    }
 }
