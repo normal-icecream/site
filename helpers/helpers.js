@@ -84,8 +84,10 @@ export function getTotals(element, orderData, format) {
   const totalWrapper = element.querySelector('.total-wrapper');
   if (totalWrapper) totalWrapper.innerHTML = '';
 
-  const discount = format('discount', `-${formatCurrency(orderData.order.total_discount_money.amount)}`);
-  totalWrapper.append(discount);
+  if (Number(orderData.order.total_discount_money.amount) > 0) {
+    const discount = format('discount', `-${formatCurrency(orderData.order.total_discount_money.amount)}`);
+    totalWrapper.append(discount);
+  }
 
   const tax = format('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
   totalWrapper.append(tax);
