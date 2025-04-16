@@ -250,7 +250,7 @@ async function fetchWholesaleDeliveryMethods() {
 
     const json = await response.json();
     if (json.data) {
-      const wholesaleKey = JSON.parse(localStorage.getItem('wholesaleKey'));
+      const wholesaleKey = JSON.parse(sessionStorage.getItem('wholesaleKey'));
       const deliverMethods = json.data.find((location) => location.LOCATION === wholesaleKey);
       return deliverMethods.DELIVERY_METHOD;
     }
@@ -396,7 +396,7 @@ export function buildGQs(params) {
 
 export async function updateWholesaleGoogleSheet(orderData, orderFormFields, invoiceId) {
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
-  const key = JSON.parse(localStorage.getItem('wholesaleKey'));
+  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
 
   try {
     const response = await fetch(url);
@@ -471,7 +471,7 @@ function handleError(input, message) {
 export async function decorateWholesale(main) {
   const wholesaleContainer = main.querySelector('.columns');
 
-  const key = JSON.parse(localStorage.getItem('wholesaleKey'));
+  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
   if (key) fetchWholesaleKey(main, key);
 
   // Load styles for form
@@ -507,7 +507,7 @@ export async function decorateWholesale(main) {
         const correctPasswordItem = json.data.find((item) => item.PASSWORD === formData[0].value);
         if (correctPasswordItem) {
           buildWholesale(main, correctPasswordItem.LINK);
-          localStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
+          sessionStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
           window.location.reload();
         } else {
           handleError(passwordField, 'Please enter a valid password');
