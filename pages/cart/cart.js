@@ -55,6 +55,7 @@ export function getCartLocation() {
     } else {
       currentLocation = cartkey;
     }
+    console.log(" getItShipped:", getItShipped);
   }
   return currentLocation;
 }
@@ -445,6 +446,7 @@ export async function getCart() {
 
 // Function to refresh the cart content
 export async function refreshCartContent(element) {
+  console.log(" element:", element);
   const modalContentSection = element.querySelector('.modal-content');
   modalContentSection.innerHTML = '';
 
