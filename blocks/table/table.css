@@ -10,12 +10,8 @@
     margin-top: 0;
 }
 
-.table {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+.table > div {
     padding: 0 !important;
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch;
 }
 
 .table table {
@@ -77,6 +73,7 @@
 .table table tbody tr td:first-child p:not([class]) {
     margin-right: 30px;
     margin-bottom: 0;
+    text-align: left;
 }
 
 .table table tbody tr:last-of-type td {
@@ -93,7 +90,7 @@
 
 .table table tbody tr td:last-child input {
     background-color: var(--white);
-    border: none;
+    border: 2px solid var(--blue-light);
     text-align: center;
     padding: 10px 0;
 }
@@ -119,8 +116,8 @@ input[type='number']::-webkit-inner-spin-button {
 
 @media (width >= 900px) {
     .table {
-        width: 100%;
-        margin-left: auto;
+        width: auto;
+        margin-left: 0;
     }
 
     .table table {
@@ -135,9 +132,5 @@ input[type='number']::-webkit-inner-spin-button {
 
     .table table tbody tr td h4 {
         font-size: var(--heading-size-m);
-    }
-
-    .table table tbody tr td h4 span {
-        padding-left: 6px;
     }
 }

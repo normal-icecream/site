@@ -1,18 +1,38 @@
 /* eslint-disable import/no-cycle */
-import { formatCurrency, stringExistsInAnother } from '../../helpers/helpers.js';
+import { formatCurrency, stringExistsInAnother, convertEmailToLink } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 import { orderForm } from '../../utils/order/order.js';
 
 export const allowedCartPages = Object.freeze([
-  'store',
+  'pickup',
   'shipping',
   'merch',
 ]);
 
+export function createLocalStorageCart() {
+  const cartData = JSON.parse(localStorage.getItem('carts'));
+  if (!cartData) {
+    localStorage.setItem('carts', JSON.stringify({
+      pickup: {
+        line_items: [],
+      },
+      shipping: {
+        line_items: [],
+        fill_by_date: '',
+      },
+      merch: {
+        line_items: [],
+        fill_by_date: '',
+      },
+      lastcart: '',
+    }));
+  }
+}
+
 export function getLastCartKey() {
   const cart = JSON.parse(localStorage.getItem('carts'));
-  return cart ? cart.lastcart : 'store';
+  return cart ? cart.lastcart : 'pickup';
 }
 
 export function getLocalStorageCart() {
@@ -31,7 +51,7 @@ export function getCartLocation() {
     const cartkey = getLastCartKey();
     const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
     if (cartkey === 'merch') {
-      currentLocation = getItShipped ? 'shipping' : 'store';
+      currentLocation = getItShipped ? 'shipping' : 'pickup';
     } else {
       currentLocation = cartkey;
     }
@@ -45,7 +65,8 @@ async function getEmptyCartMessage() {
 
   const noCartDiv = document.createElement('h4');
   noCartDiv.className = 'empty-cart-message';
-  noCartDiv.textContent = `Nothing is in your ${getLastCartKey()} cart! Go pick something!`;
+  noCartDiv.textContent = `Nothing is in your ${getLastCartKey()} cart, Go pick something!`;
+  noCartDiv.textContent = `your ${getLastCartKey()} cart is empty! fill ’er up!`;
 
   noItemsInCartContainer.appendChild(noCartDiv);
 
@@ -64,19 +85,20 @@ export function getCartQuantity() {
   if (currentCart) {
     const cartQuantity = currentCart.line_items
       .reduce((total, item) => total + item.quantity, 0);
-
     if (cartQuantity > 0) {
       return cartQuantity;
     }
   }
-
   return quantity;
 }
 
-export function createLineItem(catalogItemId, quantity) {
-  const squareItem = window.catalog.byId[catalogItemId];
+export function createLineItem(squareItemId, quantity) {
+  const squareItem = window.catalog.byId[squareItemId];
   const lineItemData = {
-    catalog_object_id: squareItem.id,
+    item_id: squareItem.id,
+    // setting square variation id at index 0 as default for all line items,
+    // to be updated later if needed
+    catalog_object_id: squareItem.item_data.variations[0].id,
     quantity,
     base_price_money: {
       amount: squareItem.item_data.variations[0].item_variation_data.price_money.amount,
@@ -94,7 +116,7 @@ function updateCartQuantityUI() {
   if (cartQuantityButton) cartQuantityButton.textContent = getCartQuantity();
 }
 
-export async function addItemToCart(key, catalogObjectId, modifiers = [], variation = {}) {
+export async function addItemToCart(key, squareItemId, modifiers = [], variation = {}) {
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
@@ -104,18 +126,19 @@ export async function addItemToCart(key, catalogObjectId, modifiers = [], variat
   if (cartItem) {
     cartItem.quantity += quantity;
   } else {
-    const lineItem = createLineItem(catalogObjectId, quantity);
+    const lineItem = createLineItem(squareItemId, quantity);
 
     if (modifiers.length > 0) {
       const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
-      lineItem.key = `${catalogObjectId}${compoundCartKey}`;
+      lineItem.key = `${squareItemId}${compoundCartKey}`;
 
       lineItem.modifiers = modifiers;
     } else if (variation.name) {
-      lineItem.key = `${catalogObjectId}-${variation.id}`;
+      lineItem.key = `${squareItemId}-${variation.id}`;
+      lineItem.catalog_object_id = variation.id;
       lineItem.variation_name = variation.name;
     } else {
-      lineItem.key = catalogObjectId;
+      lineItem.key = squareItemId;
     }
     cart.line_items.push(lineItem);
   }
@@ -184,7 +207,7 @@ function removeWholesalePrefix(str) {
   return str.startsWith('wholesale - ') ? str.replace('wholesale - ', '') : str;
 }
 
-export function getCartCard(cartItems) {
+export function getCartCard(cartItems, deliveryData) {
   // Fetch catalog from Square
   const cartCardWrapper = document.createElement('div');
   cartCardWrapper.classList.add('cart', 'cart-card-wrapper');
@@ -281,34 +304,132 @@ export function getCartCard(cartItems) {
 
   // Append total container to wrapper
   totalWrapper.append(totalContent);
+
+  if (deliveryData) {
+    const shippingDetailsContainer = document.createElement('div');
+    shippingDetailsContainer.className = 'cart-shipping-details';
+
+    const shippingDeetsLabel = document.createElement('h3');
+    shippingDeetsLabel.textContent = `Estimated delivery date: ${deliveryData.DELIVERY_DATE}`;
+    shippingDetailsContainer.append(shippingDeetsLabel);
+
+    const shippingCopy = document.createElement('h4');
+    shippingCopy.textContent = deliveryData.TEXT;
+    shippingDetailsContainer.append(shippingCopy);
+
+    const shippingExtra = document.createElement('p');
+    shippingExtra.innerHTML = convertEmailToLink(deliveryData.HELPER_TEXT);
+    shippingDetailsContainer.append(shippingExtra);
+
+    totalWrapper.append(shippingDetailsContainer);
+  }
+
   cartCardWrapper.append(totalWrapper);
 
   return cartCardWrapper;
 }
 
+// eslint-disable-next-line consistent-return
+async function fetchDeliveryDetails() {
+  const url = `${window.location.origin}/admin/config.json`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const pathSegments = window.location.pathname.split('/');
+      const path = pathSegments.length > 1 ? pathSegments[1] : null;
+
+      let deliveryData = {};
+      deliveryData = json.data.find((item) => item.PAGE === path);
+
+      const today = new Date();
+      const currentDay = today.getDay();
+
+      if (path === 'shipping') {
+        // 3 = wednesday
+        const daysToNextShipDate = currentDay <= 3 ? 3 - currentDay : 7 - (currentDay - 3);
+
+        const nextShippingDate = new Date();
+        nextShippingDate.setDate(today.getDate() + daysToNextShipDate);
+
+        const deliveryDate = new Date();
+
+        // next shipping date + number of business days + weekend days
+        deliveryDate.setDate(
+          nextShippingDate.getDate()
+          + parseInt(deliveryData.DAYS_TO_DELIVER, 10)
+          + 2,
+        );
+
+        const shippingIsoDate = deliveryDate.toISOString();
+
+        const carts = JSON.parse(localStorage.getItem('carts'));
+        carts.shipping.fill_by_date = shippingIsoDate;
+        localStorage.setItem('carts', JSON.stringify(carts));
+
+        const deliveryMonth = deliveryDate.getMonth() + 1;
+        const deliverDateString = `${deliveryMonth}/${deliveryDate.getDate()}`;
+        deliveryData.DELIVERY_DATE = deliverDateString;
+        delete deliveryData.DAYS_TO_DELIVER;
+      }
+
+      if (path === 'merch') {
+        let numberOfDaysToDeliver = 0;
+
+        if (currentDay === 3 || currentDay === 4 || currentDay === 5) {
+          // + 2 days for the weekend
+          numberOfDaysToDeliver = parseInt(deliveryData.DAYS_TO_DELIVER, 10) + 2;
+        } else if (currentDay === 6) {
+          // +1 day for sun
+          numberOfDaysToDeliver = parseInt(deliveryData.DAYS_TO_DELIVER, 10) + 1;
+        } else {
+          numberOfDaysToDeliver = parseInt(deliveryData.DAYS_TO_DELIVER, 10);
+        }
+
+        const deliveryDate = new Date();
+
+        // today + number of business days to deliver
+        // (including extra days for weekends depending on the day the order is made)
+        deliveryDate.setDate(deliveryDate.getDate() + numberOfDaysToDeliver);
+
+        const merchIsoDate = deliveryDate.toISOString();
+
+        const carts = JSON.parse(localStorage.getItem('carts'));
+        carts.merch.fill_by_date = merchIsoDate;
+        localStorage.setItem('carts', JSON.stringify(carts));
+
+        const deliveryMonth = deliveryDate.getMonth() + 1;
+        const deliverDateString = `${deliveryMonth}/${deliveryDate.getDate()}`;
+        deliveryData.DELIVERY_DATE = deliverDateString;
+        delete deliveryData.DAYS_TO_DELIVER;
+      }
+
+      return deliveryData;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
+}
+
 export async function getCart() {
   loadCSS(`${window.hlx.codeBasePath}/pages/cart/cart.css`);
+
+  const deliveryData = await fetchDeliveryDetails();
 
   let cart = [];
   const cartData = JSON.parse(localStorage.getItem('carts'));
   if (!cartData) {
-    localStorage.setItem('carts', JSON.stringify({
-      store: {
-        line_items: [],
-      },
-      shipping: {
-        line_items: [],
-      },
-      merch: {
-        line_items: [],
-      },
-      lastcart: '',
-    }));
+    createLocalStorageCart();
     cart = await getEmptyCartMessage();
   } else if (cartData.lastcart.length > 0) {
     const currentCartData = cartData[cartData.lastcart];
     if (currentCartData.line_items.length > 0) {
-      cart = getCartCard(currentCartData);
+      cart = getCartCard(currentCartData, deliveryData);
     } else {
       cart = await getEmptyCartMessage();
     }

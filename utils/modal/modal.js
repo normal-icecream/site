@@ -1,9 +1,10 @@
 import { loadCSS } from '../../scripts/aem.js';
+import { wrapRegisteredWithSup } from '../../helpers/helpers.js';
 
 function createModalTitle(title) {
   const modalTitle = document.createElement('div');
   modalTitle.className = 'modal-title';
-  modalTitle.textContent = title;
+  modalTitle.append(wrapRegisteredWithSup(title));
   return modalTitle;
 }
 
@@ -19,7 +20,12 @@ export function toggleModal(element, title, refresh, data = null) {
     modalHeader.prepend(createModalTitle(title));
   }
 
-  if (!isExpanded) refresh(element, data);
+  if (!isExpanded) {
+    refresh(element, data);
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
+  }
 
   element.setAttribute('aria-expanded', !isExpanded);
   element.style.display = isExpanded ? 'none' : 'block';
@@ -33,22 +39,33 @@ export function createModal(element, content = '') {
   element.setAttribute('aria-expanded', 'false');
   element.style.display = 'none';
 
+  const modalContainer = document.createElement('div');
+  modalContainer.classList.add('modal-container');
   const modalHeader = document.createElement('div');
   modalHeader.classList.add('modal-header');
 
   const closeModalButton = document.createElement('button');
-  closeModalButton.textContent = 'x';
+  closeModalButton.textContent = '×';
   closeModalButton.className = 'modal-close-btn';
   closeModalButton.addEventListener('click', () => toggleModal(element));
   modalHeader.append(closeModalButton);
 
-  element.append(modalHeader);
+  modalContainer.append(modalHeader);
 
   const modalContent = document.createElement('div');
   modalContent.className = 'modal-content';
   modalContent.append(content);
 
-  element.append(modalContent);
+  modalContainer.append(modalContent);
+  element.append(modalContainer);
+
+  element.addEventListener('click', (event) => {
+    const isModalBackdrop = event.target.matches('.modal');
+
+    if (isModalBackdrop) {
+      toggleModal(element);
+    }
+  }, false);
 
   return element;
 }

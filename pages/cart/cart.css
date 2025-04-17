@@ -48,6 +48,17 @@
     padding-left: 30px;
 }
 
+.cart .cart-shipping-details {
+    padding: var(--horizontal-spacing);
+    background-color: var(--blue-lightest);
+    color: var(--blue);
+    border-radius: 20px;
+}
+
+.cart .cart-shipping-details h4 {
+    padding-top: var(--spacing-m);
+}
+
 .cart .empty-cart-container {
     text-transform: lowercase;
     align-self: center;

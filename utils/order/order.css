@@ -1,4 +1,5 @@
-.order .modal-wholesale-content-container {
+.order .modal-wholesale-content-container,
+.order .order-content-container {
     align-self: center;
     margin: var(--spacing-xxl);
     padding: var(--spacing-xxl);
@@ -14,7 +15,8 @@
     text-transform: lowercase;
 }
 
-.order img {
+.order .icon img,
+.order .icon svg {
     height: 250px;
     width: 250px;
     margin-bottom: var(--spacing-xxl);

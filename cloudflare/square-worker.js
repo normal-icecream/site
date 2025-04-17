@@ -7,6 +7,7 @@ const ALLOWED_ORIGINS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
   '--site--normal-icecream.aem.live', // Production domain/
+  'normal.club' // Live site domain/
 ];
 
 const SANDBOX_URLS = [
@@ -25,7 +26,7 @@ const LOCATIONS = [
   },
   {
     id: '6EXJXZ644ND0E',
-    name: 'STORE',
+    name: 'STORE', // pickup
   },
   {
     id: '3HQZPV73H8BHM',
@@ -151,7 +152,12 @@ export default {
         requestBody = JSON.stringify(body);
       } else {
         const locationParam = url.searchParams.get('location');
-        if (locationParam) {
+        if (locationParam === 'pickup') {
+          locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
+          const body = JSON.parse(requestBody);
+          body.order.location_id = locationKey;
+          requestBody = JSON.stringify(body);
+        } else if (locationParam !== 'pickup') {
           locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
@@ -202,6 +208,15 @@ export default {
       requestBody = JSON.stringify(body);
     }
 
+    const isRefreshCatalogReq = url.pathname.includes('refresh');
+    if (isRefreshCatalogReq) {
+      try {
+        await triggerBackgroundRefresh(env, apiKey);
+      } catch (error) {
+        console.error(`KV returned error: ${error}`);
+      }
+    }
+
     // Check if the request is for the catalog json
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
@@ -211,8 +226,6 @@ export default {
 
         // If catalog data exists and is not empty, return it immediately to the client
         if (catalogData && catalogData.length > 0) {
-          // Trigger a background refresh of the catalog data without blocking the response
-          triggerBackgroundRefresh(env, apiKey);
           return new Response(JSON.stringify({ objects: catalogData }), {
             status: 200,
             headers: {

@@ -5,11 +5,10 @@ import { createModal, toggleModal } from '../../utils/modal/modal.js';
 import {
   getCart,
   getLastCartKey,
-  allowedCartPages,
-  setLastCart,
   refreshCartContent,
   getCartQuantity,
 } from '../../pages/cart/cart.js';
+import { wrapRegisteredWithSup } from '../../helpers/helpers.js';
 
 // media query match that indicates desktop width
 const isDesktop = window.matchMedia('(width >= 900px)');
@@ -50,6 +49,23 @@ function toggleHamburger(hamburger, nav) {
   else document.body.removeAttribute('data-scroll');
 }
 
+function buildModals(block, button) {
+  const modal = document.createElement('div');
+  modal.classList.add('cart');
+  createModal(modal, '', getCart(getLastCartKey()));
+  block.append(modal);
+
+  const paymentModal = document.createElement('div');
+  paymentModal.classList.add('payments');
+  createModal(paymentModal);
+  block.append(paymentModal);
+
+  toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
+  button.addEventListener('click', () => {
+    toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
+  });
+}
+
 /**
  * loads and decorates the header
  * @param {Element} block The header block element
@@ -59,6 +75,34 @@ export default async function decorate(block) {
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/header';
   const fragment = await loadFragment(navPath);
+
+  // Initialize counter, this is used to track the number of interactions with an open submenu
+  let menuOpenCount = 0;
+  // Add an event listener to the document to detect clicks outside the nav-section submenu
+  document.addEventListener('click', (event) => {
+    // Select all nav-section submenu buttons that are currently expanded
+    const expandedNavSection = document.querySelectorAll('.nav-sections .subsection button[aria-expanded="true"]');
+
+    // Check if there is at least one open submenu
+    if (expandedNavSection.length > 0) {
+      // Increment the counter to track the current interaction
+      menuOpenCount += 1;
+
+      // If the menu has been opened 3 or more times, proceed to close it on click outside
+      if (menuOpenCount >= 3) {
+        // Check if the click happened outside the menu (outside 'header' and the submenu itself)
+        if (!event.target.matches('header') || !event.target.closest('.section ul li ul')) {
+          // If the click is outside the submenu, close it by setting 'aria-expanded' to false
+          const expandedButton = document.querySelector('.nav-sections .subsection button[aria-expanded="true"]');
+          // Close the expanded menu
+          expandedButton.setAttribute('aria-expanded', 'false');
+        }
+
+        // Reset count so that the logic can be triggered again on the next interaction
+        menuOpenCount = 0;
+      }
+    }
+  });
 
   // decorate nav DOM
   block.textContent = '';
@@ -100,17 +144,34 @@ export default async function decorate(block) {
     const clone = ul.cloneNode(true);
     wrapper.append(clone);
     [...clone.children].forEach((li, i) => {
-      const isCartPage = allowedCartPages.some((cartPage) => li.textContent === cartPage);
-      li.addEventListener('click', () => {
-        if (isCartPage) setLastCart(li.textContent);
-      });
-
       const subsection = li.querySelector('ul');
       if (subsection) {
         li.className = 'subsection';
         subsection.id = `subsection-${i + 1}`;
         subsection.setAttribute('role', 'menu');
-        [...subsection.children].forEach((subli) => subli.setAttribute('role', 'menuitem'));
+        [...subsection.children].forEach((subli) => {
+          const span = subli.querySelector('span');
+          if (span) {
+            const aTag = subli.querySelector('a');
+            aTag.classList.add('header-link-icon');
+            aTag.prepend(span);
+          }
+
+          const sup = subli.querySelector('sup');
+          if (sup) {
+            const aTag = subli.querySelector('a');
+            const { textContent } = subli;
+            aTag.innerHTML = '';
+            sup.remove();
+
+            aTag.classList.add('header-link-tm');
+            if (span) { aTag.append(span); }
+
+            const newSpan = wrapRegisteredWithSup(textContent);
+            aTag.append(newSpan);
+          }
+          subli.setAttribute('role', 'menuitem');
+        });
         const label = li.textContent.replace(subsection.textContent, '').trim();
         const button = document.createElement('button');
         button.setAttribute('aria-haspopup', true);
@@ -119,10 +180,15 @@ export default async function decorate(block) {
         button.textContent = label;
         button.addEventListener('click', () => {
           const expanded = button.getAttribute('aria-expanded') === 'true';
+
           if (isDesktop.matches) {
             wrapper.querySelectorAll('[aria-expanded="true"]').forEach((ex) => ex.setAttribute('aria-expanded', false));
           }
           button.setAttribute('aria-expanded', !expanded);
+
+          // Reset menuOpenCount to 1 so that the logic for detecting outside menu clicks
+          // can be triggered again on the next interaction
+          menuOpenCount = 1;
         });
         const chevron = document.createElement('i');
         chevron.className = 'symbol symbol-chevron';
@@ -137,21 +203,6 @@ export default async function decorate(block) {
   // decorate cart
   const cart = nav.querySelector('.nav-cart');
   if (cart) {
-    const modal = document.createElement('div');
-    modal.classList.add('cart');
-    createModal(modal, '', getCart(getLastCartKey()));
-    block.append(modal);
-
-    const paymentModal = document.createElement('div');
-    paymentModal.classList.add('payments');
-    createModal(paymentModal);
-    block.append(paymentModal);
-
-    const wholesaleModal = document.createElement('div');
-    wholesaleModal.classList.add('wholesale', 'modal');
-    createModal(wholesaleModal);
-    block.append(wholesaleModal);
-
     // build button
     const icon = cart.querySelector('.icon');
     const wrapper = icon.closest('p');
@@ -159,8 +210,8 @@ export default async function decorate(block) {
     button.setAttribute('type', 'button');
     button.innerHTML = icon.outerHTML;
     button.addEventListener('click', () => {
-      toggleModal(modal, `your ${getLastCartKey()} order`, refreshCartContent);
-    });
+      buildModals(block, button);
+    }, { once: true });
     wrapper.replaceWith(button);
     // build total placeholder
     const total = document.createElement('p');

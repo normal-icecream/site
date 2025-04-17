@@ -1,7 +1,7 @@
 .title-wrapper.sticky {
   position: sticky;
   top: calc(var(--header-height) - 1px);
-  padding-top: var(--spacing-s);
+  padding-top: var(--spacing-l);
   padding-bottom: var(--spacing-l);
   background-color: var(--layer-base);
   z-index: 1;
@@ -24,40 +24,28 @@
   opacity: 1;
 }
 
-.title {
-  font-family: var(--heading-font-family);
-}
-
 .title h2,
 .title .h2 {
   margin: 0;
   scroll-margin: 1em;
-  font-size: var(--heading-size-xxl);
-  font-weight: var(--weight-extrabold);
+  font-size: var(--heading-size-xl);
   line-height: var(--line-height-s);
-  text-transform: lowercase;
+}
+
+.title h3,
+.title .h3 {
+  font-size: var(--heading-size-m);
+  line-height: var(--line-height-s);
 }
 
 .title p {
-  font-size: var(--heading-size-xs);
+  font-size: var(--body-size-s);
   grid-row: 2;
   grid-column: span 2;
 }
 
 .title h2 + p {
   margin: 0;
-}
-
-.title > div {
-  display: grid;
-  grid-template-columns: 1fr minmax(auto, max-content);
-  grid-template-rows: auto;
-  gap: 0 var(--spacing-s);
-  max-width: 100%;
-}
-
-.title > div > * {
-  align-self: center;
 }
 
 .title .title-price {
@@ -102,22 +90,28 @@
   font-size: var(--heading-size-m);
 }
 
+.title p span {
+  margin-right: 6px;
+}
+
 @media (width >= 600px) {
   .title > div {
     grid-template-rows: auto 1fr;
   }
 
+  .title h3,
+  .title .h3 {
+    font-size: var(--heading-size-l);
+  }
+
   .title p {
     grid-column: 1;
+    font-size: var(--body-size-m);
   }
 
   .title .title-price {
     grid-column: 2;
     grid-row: 1 / span 2;
-  }
-
-  .title > div > * {
-    align-self: unset;
   }
   
   .title .title-price p {

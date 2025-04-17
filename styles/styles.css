@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
+ /* stylelint-disable no-descending-specificity */
 @import url('colors.css');
 @import url('containers.css');
 @import url('typography.css');
@@ -23,6 +24,7 @@
   --blue-light: #C1C8FF;
   --blue-lightest: #EDEFFA;
   --primary: var(--blue);
+  --pink: #FFE5E5;
   --pale-pink: #E0CCD5;
   --pale-orange: #E0D1CC;
   --pale-yellow: #E0DFCC;
@@ -60,6 +62,8 @@
   --code-font-family: monospace;
 
   /* spacing */
+  --spacing-xxxxl: var(--spacing-800);
+  --spacing-xxxl: var(--spacing-700);
   --spacing-xxl: var(--spacing-600);
   --spacing-xl:  var(--spacing-500);
   --spacing-l:   var(--spacing-400);
@@ -82,7 +86,6 @@
 @media (width >= 900px) {
   :root {
     /* widths and heights */
-    --header-height: 95px;
     --horizontal-spacing: var(--spacing-xl);
   }
 }
@@ -161,25 +164,21 @@ footer .footer[data-block-status='loaded'] {
 
 main {
   margin-top: calc(var(--header-height) + var(--horizontal-spacing));
-  max-width: var(--site-width);
+}
+
+main.home {
+  margin-top: var(--header-height);
 }
 
 @media (width >= 900px) {
   body {
     min-height: 100dvh;
   }
-
-  main {
-    margin: 96px auto 0;
-  }
-
-  main > div.section:first-of-type:not(.carousel-container) {
-    margin-top: 150px;
-  }
 }
 
 /* sections */
 main > .section > div {
+  max-width: var(--site-width);
   margin: var(--horizontal-spacing) auto;
   padding: 0 var(--horizontal-spacing);
 }
@@ -191,6 +190,45 @@ main .section.light {
 
 main .section.dark {
   background-color: var(--gray-600);
+}
+
+main .section-divider {
+  border-top: 1px solid var(--blue);
+  max-width: var(--site-width);
+  margin: var(--spacing-xxxxl) var(--horizontal-spacing);
+}
+
+main .section.hero-header > div {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-xxl) var(--horizontal-spacing);
+}
+
+main .section.hero-header > div > h1 > span {
+  height: 1.5em;
+  width: 1.5em;
+}
+
+main .section.hero-header > div > h1 > span > svg {
+  height: 1.5em;
+  width: 1.5em;
+}
+
+@media (width >= 900px) {
+  main .section.hero-header > div > h1 {
+    font-size: var(--heading-size-xxxxl);
+  }
+
+  main .section.hero-header > div > p {
+    font-size: var(--body-size-l);
+  }
+
+  main .section-divider {
+    margin: var(--spacing-xxxxl) auto;
+  }
 }
 
 /* images and icons */
@@ -331,6 +369,7 @@ pre,
 blockquote {
   margin-top: 0.75em;
   margin-bottom: 0.75em;
+  text-transform: lowercase;
 }
 
 pre,
@@ -376,6 +415,14 @@ sup {
   font-family: var(--body-font-family);
   line-height: 0;
   vertical-align: 0.1em;
+}
+
+.icon.icon-gf,
+.icon.icon-nf,
+.icon.icon-df,
+.icon.icon-v {
+  font-size: 75%;
+  margin-left: 6px;
 }
 
 .detail {
@@ -472,6 +519,7 @@ a.button.emphasis,
 button.button.emphasis {
   padding-top: 0.5em;
   font-family: var(--heading-font-family);
+  font-size: large;
 }
 
 a.button.emphasis:hover,

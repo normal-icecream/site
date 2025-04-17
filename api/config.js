@@ -15,10 +15,16 @@ export const API_ENDPOINTS = {
   SQUARE: {
     CATALOG: {
       catalog: `${API_BASE_URLS.SQUARE}/catalog.json`, // GET
-      taxes: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=TAX`, // GE
+      refresh: `${API_BASE_URLS.SQUARE}/catalog.json/refresh`, // POST
+      taxes: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=TAX`, // GET
+    },
+    CUSTOMER: {
+      create: `${API_BASE_URLS.SQUARE}/v2/customers`, // POST
+      search: `${API_BASE_URLS.SQUARE}/v2/customers/search`, // POST
     },
     INVOICE: {
-      create: `${API_BASE_URLS.SQUARE}/v2/invoices`,
+      create: `${API_BASE_URLS.SQUARE}/v2/invoices`, // POST
+      publish: (invoiceId) => `${API_BASE_URLS.SQUARE}/v2/invoices/${invoiceId}/publish`, // POST
     },
     LOCATIONS: {
       list: `${API_BASE_URLS.SQUARE}/v2/locations`, // POST

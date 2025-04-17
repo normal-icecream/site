@@ -1,5 +1,5 @@
 footer {
-  padding: var(--spacing-m) var(--horizontal-spacing) 38.25px;
+  padding: var(--spacing-xxxxl) var(--horizontal-spacing) 38.25px;
   font-size: var(--body-size-xs);
   background-color: var(--blue-lightest);
   text-align: center;
@@ -40,6 +40,7 @@ footer section .default-content-wrapper {
     display: grid;
     grid-template:
       'brand contact' auto
+      'socials socials' auto
       'legal legal' 1fr / min-content auto;
     gap: 0 max(calc((750px - var(--header-width)) / 3), 200px);
   }
@@ -56,45 +57,40 @@ footer .footer-brand p {
   font-size: larger;
 }
 
-@media (width >= 900px) {
-  footer .footer-brand > div > :first-child {
-    margin-top: 0;
-  }
-}
-
 /* contact */
 footer .footer-contact {
   grid-area: contact;
+  margin-top: var(--spacing-xxl);
 }
 
 footer .footer-contact ul {
   margin-top: 38.25px;
 }
 
-footer .footer-contact ul a.button {
+@media (width >= 900px) {
+  footer .footer-contact {
+    text-align: right;
+    margin-top: 0;
+  }
+
+  footer .footer-contact a {
+    display: inline-block;
+    padding: 5px 0; /* to increase touch-target size to minimum 24px */
+  }
+}
+
+/* socials */
+footer .footer-socials {
+  grid-area: socials;
+  margin-top: 38.25px;
+  padding-top: 38.25px;
+}
+
+footer .footer-socials ul a.button {
   border-radius: 50%;
   padding: 1em;
   background-color: transparent;
   line-height: 0;
-}
-
-@media (width >= 900px) {
-  footer .footer-contact {
-    text-align: right;
-  }
-
-  footer .footer-contact a:not(.button) {
-    display: inline-block;
-    padding: 5px 0; /* to increase touch-target size to minimum 24px */
-  }
-
-  footer .footer-contact .button-wrapper {
-    justify-content: flex-end;
-  }
-
-  footer .footer-contact > div > :first-child {
-    margin-top: 16px;
-  }
 }
 
 /* legal */

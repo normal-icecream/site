@@ -1,0 +1,63 @@
+.accordion summary {
+  list-style: none;
+  position: relative;
+  scroll-margin-top: calc(var(--header-height) + 0.4em);
+  border-radius: calc(var(--rounding-m) - var(--border-m));
+  padding: 0.5em var(--spacing-m) 0.4em;
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-size-l);
+  line-height: 1;
+  background-color: var(--blue-lightest);
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: border-radius 0.1s, background-color 0.3s;
+}
+
+.accordion summary:hover {
+  background-color: var(--blue-light);
+}
+
+.accordion summary::after {
+  position: absolute;
+  top: 50%;
+  right: calc(3px + var(--spacing-m));
+  transform: translateY(-50%) rotate(45deg);
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-right: var(--border-m) solid;
+  border-bottom: var(--border-m) solid;
+  font-size: var(--body-font-size-xxxs);
+  transition: transform 0.3s;
+}
+
+.accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion details {
+  border: var(--border-m) solid;
+  border-radius: var(--rounding-m);
+}
+
+.accordion details[open] {
+  border: var(--border-m) solid;
+}
+
+.accordion details + details {
+  margin-top: var(--horizontal-spacing);
+}
+
+.accordion details[open] summary {
+  border: 0;
+  border-bottom: var(--border-m) solid;
+  border-radius: calc(var(--rounding-m) - var(--border-m)) calc(var(--rounding-m) - var(--border-m)) 0 0;
+}
+
+.accordion details[open] summary::after {
+  transform: translateY(0) rotate(-135deg);
+}
+
+.accordion .accordion-content {
+  padding: var(--horizontal-spacing);
+}

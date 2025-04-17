@@ -1,4 +1,6 @@
 import {
+  buildBlock,
+  decorateBlock,
   loadHeader,
   loadFooter,
   decorateIcons,
@@ -10,9 +12,14 @@ import {
   loadSections,
   loadCSS,
   sampleRUM,
+  getMetadata,
+  toClassName,
 } from './aem.js';
+// eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
-import { getCatalogListJson, getCatalogTaxList } from '../api/square/catalog.js';
+import { decorateCatering } from '../pages/catering/catering.js';
+import { getCatalogListJson, getCatalogTaxList, refreshCatalogListJson } from '../api/square/catalog.js';
+import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
 /**
  * load fonts.css and set a session storage flag
@@ -31,6 +38,7 @@ async function loadFonts() {
  */
 export function swapIcons() {
   document.querySelectorAll('span.icon > img').forEach((icon) => {
+    if (icon.dataset.hasObserver) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
@@ -42,14 +50,14 @@ export function swapIcons() {
           // check if svg has inline styles
           let style = svg.querySelector('style');
           if (style) style = style.textContent.toLowerCase().includes('currentcolor');
-          let fill = svg.querySelector('[fill]');
-          if (fill) fill = fill.getAttribute('fill').toLowerCase().includes('currentcolor');
+          const fill = [...svg.querySelectorAll('[fill]')].some((s) => s.getAttribute('fill').toLowerCase().includes('currentcolor'));
           // replace image with SVG, ensuring color inheritance
           if ((style || fill) || (!style && !fill)) icon.replaceWith(svg);
           observer.disconnect();
         }
       });
     }, { threshold: 0 });
+    icon.dataset.hasObserver = true;
     observer.observe(icon);
   });
 }
@@ -59,10 +67,19 @@ export function swapIcons() {
  * @param {HTMLElement} main The main container element
  */
 function decoratePageType(main) {
-  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+  const { pathname } = window.location;
+  const cartPath = toClassName(pathname.replace('/', '') || 'home');
+  main.classList.add(pathname.replace('/', '') || 'home'); // label page based on path;
+
+  const template = getMetadata('template');
+  if (template === 'cart') setLastCart(cartPath);
+
+  const wholesale = pathname.split('/').some((path) => path === 'wholesale');
+  const catering = pathname.split('/').some((path) => path === 'catering');
 
   try {
     if (wholesale) decorateWholesale(main);
+    if (catering) decorateCatering(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -120,6 +137,39 @@ function decorateLabels(main) {
 }
 
 /**
+ * Creates accordion block from data-accordion sections
+ * @param {HTMLElement} main - Main container
+ */
+function createAccordionBlock(main) {
+  const accordions = main.querySelectorAll('.section[data-accordion]');
+  if (!accordions.length) return;
+
+  const firstSection = accordions[0];
+  const accordionContent = [];
+
+  // add each section's content to accordions array
+  accordions.forEach((accordion) => {
+    const title = accordion.dataset.accordion;
+    const content = document.createElement('div');
+    content.append(...accordion.children);
+    accordionContent.push([title, content]);
+    accordion.removeAttribute('data-accordion');
+  });
+
+  // create the accordions block and append to the first section
+  const wrapper = document.createElement('div');
+  const block = buildBlock('accordion', accordionContent);
+  wrapper.append(block);
+  firstSection.appendChild(wrapper);
+  decorateBlock(block);
+
+  // remove all other sections if empty
+  accordions.forEach((accordion) => {
+    if (!accordion.children.length) accordion.remove();
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
@@ -131,6 +181,7 @@ export function decorateMain(main) {
   // buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  createAccordionBlock(main);
   decorateButtons(main);
 }
 
@@ -141,6 +192,9 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+
+  createLocalStorageCart();
+
   const main = doc.querySelector('main');
   decoratePageType(main);
   if (main) {
@@ -236,6 +290,7 @@ async function loadDelayed() {
   fetchCatalog();
   // TODO - do i even need this?
   getCatalogTaxList();
+  refreshCatalogListJson();
 }
 
 async function loadPage() {

@@ -1,7 +1,6 @@
 .form form {
     display: flex;
     flex-flow: column;
-    text-transform: lowercase;
 }
 
 .form div {
@@ -48,6 +47,7 @@ select {
     padding: 20px;
     margin-bottom: 6px;
     color: var(--blue);
+    text-transform: lowercase;
 } 
 
 .form 
@@ -66,15 +66,76 @@ textarea::placeholder {
     display: block;
 }
 
-.form .form-checkbox label {
-   display: flex;
-   align-items: center;
+.form .form-checkbox input,
+.form .radio-input {
+    display: none;
 }
 
-.form .form-checkbox input {
-   height: 20px;
-   width: 20px;
-   border-radius: 100%;
+.form .form-checkbox input[type='password'] {
+    text-transform: none !important;
+}
+
+.form .form-checkbox .checkbox-container,
+.form .form-radio .radio-container {
+    display: flex;
+    align-items: center;
+}
+
+.form .form-checkbox .checkbox-button {
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: var(--white);
+    border: 1px solid var(--blue);
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+ }
+
+.form .checkbox-input:checked + div > .checkbox-button {
+    background-color: var(--blue);
+    border-color: var(--blue);
+}
+
+.form .checkbox-input:checked + div > .checkbox-button::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 8px;
+    width: 12px;
+    height: 18px;
+    border: solid var(--white);
+    transform: rotate(45deg);
+    border-width: 0 3px 3px 0;
+}
+
+.form .radio-checkbox {
+   display: inline-block;
+   height: 30px;
+   width: 30px;
+   border-radius: 50%;
+   background-color: var(--white);
+   border: 1px solid var(--blue);
+   position: relative;
+   cursor: pointer;
+   transition: background-color 0.3s, border-color 0.3s;
+}
+
+.form input[type="radio"]:checked + div > .radio-checkbox {
+    background-color: var(--white);
+    border-color: var(--blue);
+}
+
+.form input[type="radio"]:checked + div > .radio-checkbox::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--blue);
 }
 
 .form .form-submit {

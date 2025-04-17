@@ -4,7 +4,10 @@ import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import { SquareModifier } from '../../constructors/constructors.js';
 import { getCardPaymentForm } from '../payments/payments.js';
-import { loadCSS, toClassName } from '../../scripts/aem.js';
+import {
+  loadCSS, toClassName, readBlockConfig, decorateIcons,
+} from '../../scripts/aem.js';
+import { swapIcons } from '../../scripts/scripts.js';
 
 // TODO - do I need this? see helpers formatCurrency
 export function formatMoney(num) {
@@ -55,8 +58,8 @@ function getLimits(description) {
   return limits;
 }
 
-function updateCustomizeCountUI(action, groupName) {
-  const groupCount = document.querySelector(`.customize-${groupName} .customize-selected-amount`);
+function updateCustomizeCountUI(action, groupName, itemId) {
+  const groupCount = document.querySelector(`.customize-${itemId}-${groupName} .customize-selected-amount`);
   if (groupCount) {
     const currentCount = groupCount.textContent;
     if (action === 'increment') {
@@ -78,7 +81,7 @@ function clearFormErrors() {
  * Decreases the value of an input element by 1 (while observing the min value).
  * @param {HTMLInputElement} input - Input element whose value will be decremented.
  */
-function decrement(input, groupName, groupSelections) {
+function decrement(input, groupName, groupSelections, itemId) {
   const total = parseInt(input.value, 10);
   const min = parseInt(total.min, 10) || 0;
   if (total > min) {
@@ -87,7 +90,7 @@ function decrement(input, groupName, groupSelections) {
     input.dispatchEvent(new Event('change'));
     groupSelections.set(groupName, groupSelections.get(groupName) - 1);
   }
-  updateCustomizeCountUI('decrement', groupName);
+  updateCustomizeCountUI('decrement', groupName, itemId);
   clearFormErrors();
 }
 
@@ -95,7 +98,7 @@ function decrement(input, groupName, groupSelections) {
    * Increases the value of an input element by 1 (while observing the max value).
    * @param {HTMLInputElement} input - Input element whose value will be incremented.
    */
-function increment(input, groupName, groupSelections) {
+function increment(input, groupName, groupSelections, itemId) {
   const total = parseInt(input.value, 10);
   const max = parseInt(total.max, 10) || null;
   if (!max || total < max) {
@@ -103,7 +106,7 @@ function increment(input, groupName, groupSelections) {
     input.value = newTotal;
     input.dispatchEvent(new Event('change'));
     groupSelections.set(groupName, groupSelections.get(groupName) + 1);
-    updateCustomizeCountUI('increment', groupName);
+    updateCustomizeCountUI('increment', groupName, itemId);
     clearFormErrors();
   }
 }
@@ -119,15 +122,96 @@ function resetCustomizeForm() {
 }
 
 // Function to refresh the cart content
-export function refreshCustomizeContent(element) {
+export async function refreshCustomizeContent(element) {
   const modalContentSection = element.querySelector('.modal-content');
   modalContentSection.innerHTML = '';
   // eslint-disable-next-line no-use-before-define
-  const customizeContent = getCustomize(element);
+  const customizeContent = await getCustomize(element);
   modalContentSection.append(customizeContent);
+  // then decorate
+  decorateIcons(modalContentSection);
+  // then swap
+  swapIcons();
+
+  const wrappers = element.querySelectorAll('fieldset');
+
+  if (wrappers.length > 0) {
+    wrappers.forEach((wrapper) => {
+      const header = wrapper.querySelector('.customize-group-header');
+      header.classList.add('sticky');
+    });
+  }
 }
 
-function createCustomizeForm(data, itemId, limits) {
+async function getImagesDocData() {
+  const url = `${window.location.origin}/admin/images-doc`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const imageConfig = await response.text(); // Get the raw HTML string
+
+    // Parse the HTML string into a DOM object
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(imageConfig, 'text/html'); // This creates a new HTML document from the string
+
+    // Now, you can query the document as usual
+    const block = doc.querySelector('.images');
+
+    const config = readBlockConfig(block);
+    return config;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching image data:', error);
+    throw new Error(`Error fetching image data: ${error.message}`);
+  }
+}
+
+function getItemImage(images, id) {
+  const image = images[id.toLowerCase()];
+  const isLink = typeof image === 'string' && (image.startsWith('http://') || image.startsWith('https://'));
+
+  if (image && isLink) {
+    const picture = document.createElement('picture');
+
+    const source = document.createElement('source');
+    source.srcset = image;
+    source.type = 'image/png';
+
+    const img = document.createElement('img');
+    img.src = image;
+
+    picture.append(source);
+    picture.append(img);
+    return picture;
+  }
+  if (image.length > 0) {
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'customize-icon-container';
+
+    const optionIconContainer = document.createElement('div');
+    const optionIconSpan = document.createElement('span');
+    optionIconSpan.className = `icon icon-${image}`;
+    optionIconContainer.append(optionIconSpan);
+    imageContainer.append(optionIconContainer);
+    return imageContainer;
+  }
+  const imageContainer = document.createElement('div');
+  imageContainer.className = 'customize-icon-container';
+
+  const optionIconContainer = document.createElement('div');
+  const optionIconSpan = document.createElement('span');
+  optionIconSpan.className = 'icon icon-logo';
+  optionIconContainer.append(optionIconSpan);
+  imageContainer.append(optionIconContainer);
+  return imageContainer;
+}
+
+async function createCustomizeForm(data, itemId, limits) {
+  const images = await getImagesDocData();
   // Create the form element
   const form = document.createElement('form');
   form.className = 'customize-form';
@@ -137,7 +221,7 @@ function createCustomizeForm(data, itemId, limits) {
 
   data.forEach((group) => {
     const fieldset = document.createElement('fieldset');
-    fieldset.classList.add('customize-group', `customize-${group.name}`);
+    fieldset.classList.add('customize-group', `customize-${itemId}-${group.name}`);
     fieldset.dataset.max = limits[group.name];
     fieldset.dataset.min = limits[group.name];
 
@@ -176,6 +260,9 @@ function createCustomizeForm(data, itemId, limits) {
       wrapper.className = 'customize-item';
       wrapper.dataset.id = option.id;
 
+      const image = getItemImage(images, option.id);
+      wrapper.append(image);
+
       const label = document.createElement('label');
       label.textContent = option.name;
 
@@ -209,13 +296,13 @@ function createCustomizeForm(data, itemId, limits) {
       decrementBtn.textContent = '-';
       decrementBtn.type = 'button';
       decrementBtn.disabled = true;
-      decrementBtn.addEventListener('click', () => decrement(total, group.name, groupSelections));
+      decrementBtn.addEventListener('click', () => decrement(total, group.name, groupSelections, itemId));
 
       const incrementBtn = document.createElement('button');
       incrementBtn.classList.add('button', 'add', `add-${option.id}`);
       incrementBtn.textContent = '+';
       incrementBtn.type = 'button';
-      incrementBtn.addEventListener('click', () => increment(total, group.name, groupSelections));
+      incrementBtn.addEventListener('click', () => increment(total, group.name, groupSelections, itemId));
 
       actions.append(decrementBtn, total, incrementBtn);
       wrapper.append(label, actions);
@@ -314,11 +401,10 @@ function createCustomizeForm(data, itemId, limits) {
   return form;
 }
 
-export function getCustomize(element) {
+export async function getCustomize(element) {
   loadCSS(`${window.hlx.codeBasePath}/utils/customize/customize.css`);
   const item = window.catalog.byId[element?.dataset.id];
   const { name, variations, modifier_list_info: modifiers } = item.item_data;
-  // const customizeLabel = writeLabelText(name, variations[0].item_variation_data.name);
 
   let form;
   if (modifiers) {
@@ -354,7 +440,7 @@ export function getCustomize(element) {
       modifierGroups.push(field);
     });
 
-    form = createCustomizeForm(modifierGroups, item.id, limits);
+    form = await createCustomizeForm(modifierGroups, item.id, limits);
   }
 
   if (variations.length > 1) {
@@ -377,6 +463,12 @@ export function getCustomize(element) {
       field.options.push(option);
     });
     fields.push(field);
+    fields.push(
+      {
+        type: 'submit',
+        label: 'add to cart',
+      },
+    );
 
     // eslint-disable-next-line no-inner-declarations
     function handleSubmit(formData) {
@@ -391,7 +483,11 @@ export function getCustomize(element) {
       toggleModal(customizeModal);
     }
 
-    form = buildForm([field], handleSubmit, element);
+    const images = await getImagesDocData();
+    const image = getItemImage(images, item.id);
+
+    form = buildForm(fields, handleSubmit, element);
+    form.prepend(image);
     form.classList.add('form', 'customize-form', 'customize-variation');
   }
   return form;

@@ -11,6 +11,14 @@
     margin-top: var(--spacing-xxl);
 }
 
+.customize .customize-form.customize-variation label {
+    font-size: var(--heading-size-l);
+}
+
+.customize .customize-form.customize-variation fieldset label {
+    font-size: var(--heading-size-m);
+}
+
 .customize .customize-form fieldset {
     display: flex;
     flex-flow: column;
@@ -20,13 +28,13 @@
 
 .customize .customize-form fieldset .customize-group-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding-bottom: var(--spacing-m);
 }
 
-.customize .customize-form fieldset .customize-group-header .customize-count-wrapper{
+.customize .customize-form fieldset .customize-group-header .customize-count-wrapper {
     display: flex;
+    padding-left: var(--spacing-m);
 }
 
 .customize .customize-form fieldset .customize-items {
@@ -34,6 +42,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 10px;
+}
+
+.customize .customize-form fieldset .customize-group-header.sticky {
+  position: sticky;
+  top: 92px;
+  background-color: var(--layer-base);
+  z-index: 1;
 }
 
 .customize .customize-form fieldset .customize-item {
@@ -50,6 +65,8 @@
 
 .customize .customize-form fieldset .customize-item label {
     color: var(--blue);
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-m);
 }
 
 .customize .customize-form fieldset .customize-actions {
@@ -81,5 +98,19 @@
     text-align: center;
     padding: var(--spacing-l) 0;
     color: var(--red);
+}
+
+.customize .customize-actions input {
+    padding: 0 12px;
+}
+
+.customize .customize-item img,
+.customize .customize-item svg,
+.customize .customize-variation img,
+.customize .customize-variation svg {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    padding: var(--spacing-m) 0;
 }
 

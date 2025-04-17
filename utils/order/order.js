@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
 import { createOrder } from '../../api/square/order.js';
-import { createInvoice } from '../../api/square/invoice.js';
+import { createInvoice, publishInvoice } from '../../api/square/invoice.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import {
@@ -18,11 +18,17 @@ import {
   SquareOrderData,
   SquareInvoice,
   SquareInvoiceWrapper,
+  SquareCustomerWrapper,
+  SquareCustomer,
+  SquarePickupData,
+  SquareShippingData,
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
+import { swapIcons } from '../../scripts/scripts.js';
 import { loadCSS, decorateIcons } from '../../scripts/aem.js';
 import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
+import { createCustomer, findCustomer } from '../../api/square/customer.js';
 
 const alwaysVisibleFields = [
   'name',
@@ -101,16 +107,12 @@ const fields = [
     type: 'date',
     label: 'pickup Date',
     name: 'pickupdate',
-    // min: '2024-10-01',
-    // max: '2024-12-31',
     required: true,
   },
   {
     type: 'time',
     label: 'pickup Time',
     name: 'pickuptime',
-    // min: '09:00', // Earliest allowable time
-    // max: '17:00', // Latest allowable time
     required: true,
   },
   {
@@ -227,11 +229,16 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   });
   wholesaleFields.forEach((field) => fieldsToDisplay.push(field));
 
-  const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
-  fieldsToDisplay.push(shouldShipField);
+  const methods = wholesaleData.deliveryMethods.split(',').map((item) => item.trim());
+  const pickupAllowed = methods.includes('pickup');
+
+  if (pickupAllowed) {
+    const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
+    fieldsToDisplay.push(shouldShipField);
+  }
 
   const shouldShip = getOrderFormData().getItShipped;
-  if (shouldShip) {
+  if (shouldShip || !pickupAllowed) {
     const shippingFields = [];
     addressFields.forEach((field) => {
       const addressField = formFields.find((f) => f.name === field);
@@ -290,7 +297,7 @@ function populateFormFields(formFields, key, modal) {
     if (shippingField) shippingFields.push(shippingField);
   });
 
-  if (key === 'store') {
+  if (key === 'pickup') {
     pickupFields.forEach((field) => {
       const pickupField = formFields.find((f) => f.name === field);
       if (pickupField) storeFields.push(pickupField);
@@ -352,6 +359,56 @@ function populateFormFields(formFields, key, modal) {
   });
 }
 
+export async function handleNewCustomer(idempotencyKey, orderFormData) {
+  const env = getEnvironment();
+  const cartLocation = getCartLocation();
+  const customerWrapper = new SquareCustomerWrapper(orderFormData.email).build();
+
+  let normalCustomer;
+  normalCustomer = env === 'sandbox'
+    ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
+    : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
+
+  async function createSquareCustomer() {
+    try {
+      const squareCustomer = new SquareCustomer({
+        idempotency_key: idempotencyKey,
+        orderFormData,
+      }).build();
+
+      let customer;
+      if (env === 'sandbox') {
+        customer = await hitSandbox(createCustomer, JSON.stringify(squareCustomer), '?location=sandbox');
+      } else {
+        customer = await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
+      }
+      return customer;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error creating customer:', error);
+      throw new Error(`Failed to create customer: ${error.message}`);
+    }
+  }
+
+  // If multiple customers share the same email,
+  // check if their name or business name matches the order form.
+  if (normalCustomer.customers) {
+    let hasMatch = false;
+    if (normalCustomer.customers.length > 1) {
+      hasMatch = normalCustomer.customers.some((c) => (c.given_name === orderFormData.name)
+      || (c.company_name === orderFormData.businessName));
+    }
+    if (!hasMatch) {
+      normalCustomer = await createSquareCustomer();
+    }
+  } else {
+    // otherwise create a customer if there isn't one
+    normalCustomer = await createSquareCustomer();
+  }
+
+  return normalCustomer;
+}
+
 export function wholesaleOrderForm(wholesaleData, modal) {
   loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   modal.classList.add('order');
@@ -363,8 +420,9 @@ export function wholesaleOrderForm(wholesaleData, modal) {
   modalContent.append(wholesaleCartCard);
 
   async function createSquareWholesaleOrder() {
-    const orderData = new SquareOrderData(wholesaleData, window.taxList[0]).build();
     const orderFormFields = getOrderFormData();
+    // eslint-disable-next-line max-len
+    const orderData = new SquareOrderData(wholesaleData, window.taxList[0], orderFormFields).build();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);
@@ -384,123 +442,165 @@ export function wholesaleOrderForm(wholesaleData, modal) {
       });
     }
 
-    const orderWrapper = new SquareOrderWrapper(orderData).build();
+    const newOrderObject = new SquareOrderWrapper(orderData).build();
     const cartLocation = getCartLocation();
 
-    const newOrder = env === 'sandbox'
-      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
-      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+    try {
+      let newOrder;
+      if (env === 'sandbox') {
+        newOrder = await hitSandbox(createOrder, JSON.stringify(newOrderObject), '?location=sandbox');
+      } else {
+        newOrder = await createOrder(JSON.stringify(newOrderObject), `?location=${cartLocation}`);
+      }
 
-    if (newOrder) {
-      const wholesaleModalContent = modal.querySelector('.modal-content');
-      wholesaleModalContent.querySelector('.wholesale-order-form').remove();
+      if (newOrder) {
+        const customer = await handleNewCustomer(newOrder.idempotency_key, orderFormFields);
 
-      getTotals(modal, newOrder, createCartTotalContent);
+        if (customer) {
+          const wholesaleModalContent = modal.querySelector('.modal-content');
+          wholesaleModalContent.querySelector('.wholesale-order-form').remove();
 
-      const invoiceData = new SquareInvoice(newOrder).build();
-      const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
+          getTotals(modal, newOrder, createCartTotalContent);
 
-      const createInvoiceButton = document.createElement('button');
-      createInvoiceButton.className = 'wholesale-button';
-      createInvoiceButton.textContent = 'create invoice';
-      createInvoiceButton.addEventListener('click', async (event) => {
-        event.preventDefault();
-
-        try {
-          const newInvoice = env === 'sandbox'
-            ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
-            : await createInvoice(JSON.stringify(invoice));
-
-          // Show loading screen
-          wholesaleModalContent.innerHTML = ''; // Clear previous content
-          const loadingContainer = document.createElement('div');
-          loadingContainer.className = 'modal-wholesale-content-container';
-
-          const iconContainer = document.createElement('div');
-          const iconSpan = document.createElement('span');
-          iconSpan.className = 'icon icon-pints';
-          iconContainer.append(iconSpan);
-          decorateIcons(iconContainer);
-          loadingContainer.append(iconContainer);
-
-          const loadingMessage = document.createElement('h4');
-          loadingMessage.className = 'wholesale-loading-message';
-          loadingMessage.textContent = 'We are processing your order... :)';
-          loadingContainer.append(loadingMessage);
-
-          wholesaleModalContent.append(loadingContainer);
-
-          if (newInvoice) {
-            // update google sheet
-            await updateWholesaleGoogleSheet(orderData, orderFormFields, newInvoice.invoice.id);
-
-            wholesaleModalContent.innerHTML = '';
-
-            const successContainer = document.createElement('div');
-            successContainer.className = 'modal-wholesale-content-container';
-
-            const successIconContainer = document.createElement('div');
-            const successIconSpan = document.createElement('span');
-            successIconSpan.className = 'icon icon-logo';
-            successIconContainer.append(successIconSpan);
-            decorateIcons(successIconContainer);
-            successContainer.append(successIconContainer);
-
-            const successMessage = document.createElement('h4');
-            successMessage.className = 'wholesale-success-message';
-            successMessage.textContent = 'great choice! your order has been placed successfully.';
-            successContainer.append(successMessage);
-
-            const backButton = document.createElement('button');
-            backButton.textContent = 'back to wholesale';
-            backButton.className = 'wholesale-button';
-            backButton.addEventListener('click', () => {
-              toggleModal(modal);
-              window.location.reload();
-            });
-            successContainer.append(backButton);
-            modal.append(successContainer);
-
-            document.querySelector('.wholesale-form').reset();
+          let customerData;
+          if (customer.customers) {
+            // eslint-disable-next-line prefer-destructuring
+            customerData = customer.customers[0];
+          } else {
+            customerData = customer.customer;
           }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error processing order:', error);
 
-          // Replace loading screen with error message
-          wholesaleModalContent.innerHTML = '';
+          const invoiceData = new SquareInvoice(
+            newOrder,
+            // ANDI - which customer should be used?
+            customerData,
+            orderFormFields.businessName,
+          ).build();
+          const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
 
-          const errorContainer = document.createElement('div');
-          errorContainer.className = 'modal-wholesale-content-container';
+          const createInvoiceButton = document.createElement('button');
+          createInvoiceButton.className = 'wholesale-button';
+          createInvoiceButton.textContent = 'create invoice';
+          createInvoiceButton.addEventListener('click', async (event) => {
+            event.preventDefault();
 
-          const iconContainer = document.createElement('div');
-          const iconSpan = document.createElement('span');
-          iconSpan.className = 'icon icon-error';
-          iconContainer.append(iconSpan);
-          decorateIcons(iconContainer);
-          errorContainer.append(iconContainer);
+            try {
+              const newInvoice = env === 'sandbox'
+                ? await hitSandbox(createInvoice, JSON.stringify(invoice), '?location=sandbox')
+                : await createInvoice(JSON.stringify(invoice));
 
-          const errorMessage = document.createElement('h4');
-          errorMessage.className = 'wholesale-error-message';
-          errorMessage.textContent = 'Oops! Something went wrong while placing your wholesale order. Please try again.';
-          errorContainer.append(errorMessage);
+              // Show loading screen
+              wholesaleModalContent.innerHTML = ''; // Clear previous content
+              const loadingContainer = document.createElement('div');
+              loadingContainer.className = 'modal-wholesale-content-container';
 
-          const retryButton = document.createElement('button');
-          retryButton.textContent = 'Try Again';
-          retryButton.className = 'wholesale-button';
-          retryButton.addEventListener('click', () => {
-            toggleModal(modal);
+              const iconContainer = document.createElement('div');
+              const iconSpan = document.createElement('span');
+              iconSpan.className = 'icon icon-pints';
+              iconContainer.append(iconSpan);
+              loadingContainer.append(iconContainer);
+
+              // add container to DOM first
+              wholesaleModalContent.append(loadingContainer);
+              // then decorate icons
+              decorateIcons(wholesaleModalContent);
+              // then swap icons
+              swapIcons();
+
+              const loadingMessage = document.createElement('h4');
+              loadingMessage.className = 'wholesale-loading-message';
+              loadingMessage.textContent = 'We are processing your order :)';
+              loadingContainer.append(loadingMessage);
+
+              wholesaleModalContent.append(loadingContainer);
+
+              if (newInvoice) {
+                // update google sheet
+                await updateWholesaleGoogleSheet(
+                  orderData,
+                  orderFormFields,
+                  newInvoice.invoice.id,
+                );
+
+                if (env !== 'sandbox') {
+                  await publishInvoice(newInvoice.invoice.id, JSON.stringify({
+                    idempotency_key: newInvoice.idempotency_key,
+                    version: newInvoice.invoice.version,
+                  }));
+                }
+
+                wholesaleModalContent.innerHTML = '';
+
+                const successContainer = document.createElement('div');
+                successContainer.className = 'modal-wholesale-content-container';
+
+                const successIconContainer = document.createElement('div');
+                const successIconSpan = document.createElement('span');
+                successIconSpan.className = 'icon icon-logo';
+                successIconContainer.append(successIconSpan);
+                successContainer.append(successIconContainer);
+
+                // add to DOM first
+                wholesaleModalContent.append(successContainer);
+                // then decorate
+                decorateIcons(wholesaleModalContent);
+                // then swap
+                swapIcons();
+
+                const successMessage = document.createElement('h4');
+                successMessage.className = 'wholesale-success-message';
+                successMessage.textContent = 'great choice! your order has been placed successfully.';
+                successContainer.append(successMessage);
+
+                const backButton = document.createElement('button');
+                backButton.textContent = 'back to wholesale';
+                backButton.className = 'wholesale-button';
+                backButton.addEventListener('click', () => {
+                  toggleModal(modal);
+                  window.location.reload();
+                });
+                successContainer.append(backButton);
+                wholesaleModalContent.append(successContainer);
+
+                document.querySelector('.wholesale-form').reset();
+              }
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error('Error processing order:', error);
+
+              // Replace loading screen with error message
+              wholesaleModalContent.innerHTML = '';
+
+              const errorContainer = document.createElement('div');
+              errorContainer.className = 'modal-wholesale-content-container';
+
+              const iconContainer = document.createElement('div');
+              const iconSpan = document.createElement('span');
+              iconSpan.className = 'icon icon-error';
+              iconContainer.append(iconSpan);
+              errorContainer.append(iconContainer);
+              decorateIcons(wholesaleModalContent);
+
+              const errorMessage = document.createElement('h4');
+              errorMessage.className = 'wholesale-error-message';
+              errorMessage.textContent = 'Oops! Something went wrong while placing your wholesale order. Please try again.';
+              errorContainer.append(errorMessage);
+
+              const retryButton = document.createElement('button');
+              retryButton.textContent = 'Try Again';
+              retryButton.addEventListener('click', () => toggleModal(modal));
+
+              errorContainer.append(retryButton);
+              modal.append(errorContainer);
+            }
           });
 
-          errorContainer.append(retryButton);
-          modal.append(errorContainer);
-          // throw new Error(errorMessage);
+          wholesaleModalContent.append(createInvoiceButton);
         }
-      });
-      wholesaleModalContent.append(createInvoiceButton);
-    } else {
+      }
+    } catch (error) {
       // eslint-disable-next-line no-console
-      console.log('error with creating an order');
+      console.log('error with creating an order:', error);
     }
   }
   const populatedFields = populateWholesaleFormFields(fields, modal, wholesaleData);
@@ -510,27 +610,63 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 }
 
 export function orderForm(cartData) {
+  loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   const env = getEnvironment();
+  const cartLocation = getCartLocation();
   const modal = document.querySelector('.modal.cart');
   getOrderFormData();
 
   async function createSquareOrder() {
-    const orderData = new SquareOrderData(cartData, window.taxList[0]).build();
     const orderFormFields = getOrderFormData();
+    const orderData = new SquareOrderData(cartData, window.taxList[0], orderFormFields).build();
+    const note = [];
+
+    function addPickupNote() {
+      if (orderFormFields.pickupdate && orderFormFields.pickupdate?.trim() !== '') {
+        note.push(`Pickup Date: ${orderFormFields.pickupdate}`);
+      }
+      if (orderFormFields.pickuptime && orderFormFields.pickuptime?.trim() !== '') {
+        note.push(`Pickup Time: ${orderFormFields.pickuptime}`);
+      }
+    }
+
+    function addPickupFulfillments() {
+      const fillbyDate = `${orderFormFields.pickupdate}T${orderFormFields.pickuptime}:00`;
+      const pickupIsoDate = new Date(fillbyDate).toISOString();
+      orderData.fulfillments = [
+        new SquarePickupData(pickupIsoDate, orderFormFields).build(),
+      ];
+    }
+
+    // Attach pickup fulfillment data to orderData
+    if (cartLocation === 'pickup') {
+      addPickupFulfillments();
+      addPickupNote();
+    }
+
+    // Attach shipping fulfillment data to orderData
+    if (cartLocation === 'shipping') {
+      orderData.fulfillments = [
+        new SquareShippingData(cartData.fill_by_date, orderFormFields).build(),
+      ];
+    }
+
+    // Attach merch fulfillment data to orderData
+    if (cartLocation === 'merch') {
+      if (orderFormFields.getItShipped) {
+        orderData.fulfillments = [
+          new SquareShippingData(cartData.fill_by_date, orderFormFields).build(),
+        ];
+      } else {
+        addPickupFulfillments();
+        addPickupNote();
+      }
+    }
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);
     }
 
-    const note = [];
-    if (orderFormFields.pickupdate && orderFormFields.pickupdate?.trim() !== '') {
-      note.push(`Pickup Date: ${orderFormFields.pickupdate}`);
-    }
-    if (orderFormFields.pickuptime && orderFormFields.pickuptime?.trim() !== '') {
-      note.push(`Pickup Time: ${orderFormFields.pickuptime}`);
-    }
-
-    // TODO - make sure the switch from cartData to orderData isn't breaking this
     orderData.line_items.forEach((item) => {
       item.quantity = String(item.quantity);
 
@@ -544,7 +680,6 @@ export function orderForm(cartData) {
     orderData.note = note.length > 0 ? note.join(' | ') : '';
 
     if (env === 'sandbox') {
-      // TODO - make sure the switch from cartData to orderData isn't breaking this
       orderData.line_items.forEach((item) => {
         delete item.catalog_object_id;
 
@@ -557,9 +692,7 @@ export function orderForm(cartData) {
     }
 
     const orderWrapper = new SquareOrderWrapper(orderData).build();
-    const cartLocation = getCartLocation();
 
-    // TODO - make sure that this location qp is sending/switching properly in prod env's
     const newOrder = env === 'sandbox'
       ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
       : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
@@ -571,14 +704,42 @@ export function orderForm(cartData) {
       const paymentsModal = document.querySelector('.modal.payments');
       toggleModal(paymentsModal, `your ${getLastCartKey()} order`, refreshPaymentsContent, newOrder);
     } else {
-      // throw user an error
       // eslint-disable-next-line no-console
       console.log('error with creating an order');
+      const cartModal = document.querySelector('.modal.cart');
+      cartModal.classList.add('order');
+      const cartModalContent = modal.querySelector('.modal-content');
+
+      // Show loading screen
+      cartModalContent.innerHTML = ''; // Clear previous content
+
+      const errorContainer = document.createElement('div');
+      errorContainer.className = 'order-content-container';
+
+      const iconContainer = document.createElement('div');
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'icon icon-error';
+      iconContainer.append(iconSpan);
+      errorContainer.append(iconContainer);
+      decorateIcons(iconContainer);
+
+      const errorMessage = document.createElement('h4');
+      errorMessage.className = 'wholesale-error-message';
+      errorMessage.textContent = 'Oops! Something went wrong while placing your order. Please try again :)';
+      errorContainer.append(errorMessage);
+
+      const retryButton = document.createElement('button');
+      retryButton.textContent = 'Try Again';
+      retryButton.className = 'wholesale-button';
+      retryButton.addEventListener('click', () => toggleModal(modal));
+
+      errorContainer.append(retryButton);
+      cartModalContent.append(errorContainer);
     }
   }
 
   const populatedFields = populateFormFields(fields, getLastCartKey(), modal);
-  const form = buildForm(populatedFields, createSquareOrder, modal);
+  const form = buildForm(populatedFields, createSquareOrder, modal, 'place order');
   form.className = 'form cart-order-form';
   return form;
 }

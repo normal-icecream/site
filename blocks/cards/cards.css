@@ -60,7 +60,6 @@
   }
 }
 
-.cards .cards-card-dietary,
 .cards .cards-card-price,
 .cards .cards-card-badge {
   position: absolute;
@@ -74,19 +73,9 @@
   text-align: center;
 }
 
-.cards .cards-card-dietary {
-  top: var(--border-s);
-  right: var(--border-s);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0 0.2ch;
-}
-
 .cards .cards-card-badge {
   top: var(--rounding-m);
   left: var(--rounding-m);
-  background-color: aqua;
 }
 
 .cards .cards-card-body :first-child {
@@ -103,11 +92,11 @@
     max-height: 150px;
     overflow-y: hidden;
   }
-
+  
   .cards .cards-card-body h3 ~ p:not([class]) {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: var(--line-clamp);
+    -webkit-line-clamp: 4;
     text-overflow: ellipsis;
     overflow: hidden;
   }
@@ -131,8 +120,6 @@
 }
 
 .cards form input {
-  /* stylelint-disable-next-line property-no-vendor-prefix */
-  -moz-appearance: textfield;
   flex: 0 0 33%;
   border: 0;
   padding: 0.5ch 0 0 1.4ch;
@@ -143,6 +130,15 @@
   text-align: center;
 }
 
+.cards form input[type='number']::-webkit-inner-spin-button,
+.cards form input[type='number']::-webkit-outer-spin-button {
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -moz-appearance: textfield;
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-appearance: none !important;
+  margin: 0;
+}
+
 .cards form input:focus {
   color: currentcolor;
 }
@@ -150,7 +146,6 @@
 /* PRICE VARIANT */
 .cards.price .cards-card-price {
   top: var(--rounding-m);
-  right: var(--rounding-m);
   display: grid;
   font-size: var(--body-size-xxl);
   font-weight: bold;

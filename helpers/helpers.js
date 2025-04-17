@@ -84,6 +84,11 @@ export function getTotals(element, orderData, format) {
   const totalWrapper = element.querySelector('.total-wrapper');
   if (totalWrapper) totalWrapper.innerHTML = '';
 
+  if (Number(orderData.order.total_discount_money.amount) > 0) {
+    const discount = format('discount', `-${formatCurrency(orderData.order.total_discount_money.amount)}`);
+    totalWrapper.append(discount);
+  }
+
   const tax = format('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
   totalWrapper.append(tax);
 
@@ -97,4 +102,22 @@ export function stringExistsInAnother(stringOne, stringTwo) {
 
 export function removeLeadingZero(numString) {
   return String(numString).replace(/^0+/, '');
+}
+
+export function convertEmailToLink(text) {
+  // Regular expression to match an email address
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/g;
+
+  // Replace the email address with a mailto link
+  return text.replace(emailRegex, (email) => `<a href="mailto:${email}">${email}</a>`);
+}
+
+export function wrapRegisteredWithSup(str) {
+  const containsRegisteredTm = str.includes('®');
+  if (containsRegisteredTm) {
+    const span = document.createElement('span');
+    span.innerHTML = str.replace(/®/g, '<sup>®</sup>');
+    return span;
+  }
+  return str;
 }

@@ -7,12 +7,12 @@
         stroke-width: 0px;
       }
 
-      .cls-2 {
+      .cls-v2 {
         fill: none;
         stroke: #0b21e3;
       }
     </style>
   </defs>
-  <circle class="cls-2" cx="8" cy="8" r="7.5"/>
+  <circle class="cls-v2" cx="8" cy="8" r="7.5"/>
   <path class="cls-1" d="M5.97,4.8h1.33c.19,1.21.55,3.47.71,4.84h.01c.12-1.32.55-3.55.76-4.84h1.24l-1.33,6.2h-1.39l-1.32-6.2Z"/>
 </svg>

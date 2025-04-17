@@ -5,12 +5,19 @@ export default function decorate(block) {
   // setup image columns
   [...block.children].forEach((row) => {
     [...row.children].forEach((col) => {
-      const pic = col.querySelector('picture');
-      if (pic) {
-        const picWrapper = pic.closest('div');
-        if (picWrapper && picWrapper.children.length === 1) {
-          // picture is only content in column
+      if (col.children.length === 1) {
+        const pic = col.querySelector('picture');
+        if (pic) {
+          const picWrapper = pic.closest('div');
           picWrapper.classList.add('col-img');
+        }
+      } else if (col.children.length > 1) {
+        const pic = col.querySelector('picture');
+        const icon = col.querySelector('.icon');
+
+        const iconTitle = col.querySelector('h2 > span');
+        if (!iconTitle && (pic || icon)) {
+          col.classList.add('col-img-complex');
         }
       }
     });

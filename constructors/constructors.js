@@ -27,6 +27,64 @@ export class SquareBasePriceMoney {
   }
 }
 
+export class SquareCustomerEmailQuery {
+  constructor(email) {
+    this.exact = email;
+  }
+
+  build() {
+    return {
+      exact: this.exact,
+    };
+  }
+}
+
+export class SquareCustomerQuery {
+  constructor(data) {
+    this.email_address = new SquareCustomerEmailQuery(data).build();
+  }
+
+  build() {
+    return {
+      email_address: this.email_address,
+    };
+  }
+}
+
+export class SquareCustomerWrapper {
+  constructor(data) {
+    this.filter = new SquareCustomerQuery(data).build();
+  }
+
+  build() {
+    return {
+      filter: this.filter,
+    };
+  }
+}
+
+export class SquareAddress {
+  constructor(formData) {
+    this.address_line_1 = formData.address1;
+    this.address_line_2 = formData.address2;
+    this.first_name = formData.name;
+    this.locality = formData.city; // city
+    this.administrative_district_level_1 = formData.state; // state
+    this.postal_code = formData.zipcode;
+  }
+
+  build() {
+    return {
+      address_line_1: this.address_line_1,
+      address_line_2: this.address_line_2,
+      first_name: this.first_name,
+      locality: this.locality,
+      administrative_district_level_1: this.administrative_district_level_1,
+      postal_code: this.postal_code,
+    };
+  }
+}
+
 export class SquareModifier {
   constructor(data) {
     this.base_price_money = new SquareBasePriceMoney(data.base_price_money).build();
@@ -41,6 +99,28 @@ export class SquareModifier {
       catalog_object_id: this.catalog_object_id,
       name: this.name,
       quantity: this.quantity,
+    };
+  }
+}
+
+export class SquareCustomer {
+  constructor(data) {
+    this.idempotency_key = data.idempotency_key;
+    this.email_address = data.orderFormData.email;
+    this.given_name = data.orderFormData.name;
+    this.company_name = data.orderFormData.businessName;
+    this.phone_number = data.orderFormData.phone;
+    this.address = new SquareAddress(data.orderFormData).build();
+  }
+
+  build() {
+    return {
+      idempotency_key: this.idempotency_key,
+      email_address: this.email_address,
+      given_name: this.given_name,
+      company_name: this.company_name,
+      phone_number: this.phone_number,
+      address: this.address,
     };
   }
 }
@@ -99,6 +179,80 @@ export class SquareTaxData {
   }
 }
 
+export class SquareOrderShipmentAddress {
+  constructor(data) {
+    this.address = new SquareAddress(data).build();
+    this.email_address = data.email;
+    this.phone_number = data.phone;
+    this.display_name = data.name;
+  }
+
+  build() {
+    return {
+      address: this.address,
+      email_address: this.email_address,
+      phone_number: this.phone_number,
+      display_name: this.display_name,
+    };
+  }
+}
+
+export class SquareShippingDeets {
+  constructor(fillByDate, data) {
+    this.recipient = new SquareOrderShipmentAddress(data).build();
+    this.expected_shipped_at = fillByDate;
+  }
+
+  build() {
+    return {
+      recipient: this.recipient,
+      expected_shipped_at: this.expected_shipped_at,
+    };
+  }
+}
+
+export class SquareShippingData {
+  constructor(fillByDate, data) {
+    this.type = 'SHIPMENT';
+    this.shipment_details = new SquareShippingDeets(fillByDate, data).build();
+  }
+
+  build() {
+    return {
+      type: this.type,
+      shipment_details: this.shipment_details,
+    };
+  }
+}
+
+export class SquarePickupDeets {
+  constructor(pickupDate, data) {
+    this.recipient = new SquareOrderShipmentAddress(data).build();
+    this.pickup_at = pickupDate;
+  }
+
+  build() {
+    return {
+      recipient: this.recipient,
+      pickup_at: this.pickup_at,
+    };
+  }
+}
+
+export class SquarePickupData {
+  constructor(pickupDate, formFields) {
+    this.type = 'PICKUP';
+    this.pickup_details = new SquarePickupDeets(pickupDate, formFields).build();
+  }
+
+  build() {
+    return {
+      type: this.type,
+      pickup_details: this.pickup_details,
+    };
+  }
+}
+
 export class SquareOrderLineItem {
   constructor(data) {
     this.catalog_object_id = data.catalog_object_id;
@@ -106,6 +260,7 @@ export class SquareOrderLineItem {
     this.base_price_money = new SquareBasePriceMoney(data.base_price_money).build();
     this.name = data.name;
     this.item_type = data.item_type;
+    this.item_id = data.item_id;
   }
 
   build() {
@@ -115,6 +270,7 @@ export class SquareOrderLineItem {
       base_price_money: this.base_price_money,
       name: this.name,
       item_type: this.item_type,
+      item_id: this.item_id,
     };
   }
 }
@@ -147,28 +303,6 @@ export class SquareOrderWrapper {
   }
 }
 
-export class SquarePaymentAddress {
-  constructor(formData) {
-    this.address_line_1 = formData.address1;
-    this.address_line_2 = formData.address2;
-    this.first_name = formData.name;
-    this.locality = formData.city; // city
-    this.administrative_district_level_1 = formData.state; // state
-    this.postal_code = formData.zipcode;
-  }
-
-  build() {
-    return {
-      address_line_1: this.address_line_1,
-      address_line_2: this.address_line_2,
-      first_name: this.first_name,
-      locality: this.locality,
-      administrative_district_level_1: this.administrative_district_level_1,
-      postal_code: this.postal_code,
-    };
-  }
-}
-
 export class SquarePayment {
   constructor(orderData, formData, token) {
     this.idempotency_key = orderData.idempotency_key;
@@ -178,18 +312,9 @@ export class SquarePayment {
     this.buyer_phone_number = formatPhoneNumberToE164(formData.phone);
     this.location_id = orderData.order.location_id;
     this.order_id = orderData.order.id;
-    this.initializeAddresses(formData);
+    this.shipping_address = formData.getItShipped ? new SquareAddress(formData).build() : null;
+    this.billing_address = formData.getItShipped ? new SquareAddress(formData).build() : null;
     // this.tip_money = {}
-  }
-
-  initializeAddresses(formData) {
-    if (formData.getItShipped) {
-      this.shipping_address = new SquarePaymentAddress(formData).build();
-      this.billing_address = new SquarePaymentAddress(formData).build();
-    } else {
-      this.shipping_address = null;
-      this.billing_address = null;
-    }
   }
 
   build() {
@@ -207,12 +332,26 @@ export class SquarePayment {
   }
 }
 
+export class SquareInvoicePrimaryRecipient {
+  constructor(customer) {
+    this.customer_id = customer.id;
+  }
+
+  build() {
+    return {
+      customer_id: this.customer_id,
+    };
+  }
+}
+
 export class SquareInvoice {
-  constructor(orderData) {
+  constructor(orderData, customer, businessName) {
+    this.title = businessName;
     this.idempotency_key = orderData.idempotency_key;
     this.location_id = orderData.order.location_id;
     this.order_id = orderData.order.id;
     this.delivery_method = 'EMAIL';
+    this.primary_recipient = new SquareInvoicePrimaryRecipient(customer).build();
     this.payment_requests = [
       {
         tipping_enabled: true,
@@ -230,9 +369,11 @@ export class SquareInvoice {
 
   build() {
     return {
+      title: this.title,
       location_id: this.location_id,
       order_id: this.order_id,
       delivery_method: this.delivery_method,
+      primary_recipient: this.primary_recipient,
       payment_requests: this.payment_requests,
       accepted_payment_methods: this.accepted_payment_methods,
     };

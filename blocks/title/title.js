@@ -21,28 +21,9 @@ function splitParens(str) {
 }
 
 export default function decorate(block) {
-  const variants = [...block.classList];
   // simplify dom structure
   const [title, price] = block.firstElementChild.children;
   title.replaceWith(...title.children);
-
-  if (variants.includes('bundled')) {
-    const bundledContainer = document.createElement('div');
-    bundledContainer.className = 'title-bundled-container';
-
-    const complexPrice = block.querySelector('div > h2:nth-of-type(2)');
-    const splitPriceArray = complexPrice.textContent.split('|');
-    splitPriceArray.forEach((item) => {
-      const priceText = document.createElement('h3');
-      priceText.innerHTML = item.trim();
-      bundledContainer.append(priceText);
-    });
-
-    complexPrice.remove();
-
-    const titleContainer = block.querySelector('div');
-    titleContainer.append(bundledContainer);
-  }
 
   // decorate price, if available
   if (price) {
@@ -78,14 +59,40 @@ export default function decorate(block) {
   const wrapper = block.parentElement;
   const sibling = wrapper.nextElementSibling;
   // enable sticky behavior and animation
-  if (sibling && sibling.firstElementChild.children.length > 1) {
+  if (sibling) {
     wrapper.classList.add('sticky');
     window.addEventListener('scroll', () => {
       const headerHeight = document.querySelector('header').offsetHeight;
-      const { top, bottom } = wrapper.getBoundingClientRect();
-      const sticky = top <= headerHeight; // CURRENTLY sticky
-      const outOfView = bottom <= headerHeight; // scrolled UP and out of view
-      wrapper.dataset.sticky = sticky && !outOfView;
+      const wrapperParent = wrapper.closest('.section');
+
+      const allTitles = wrapperParent.querySelectorAll('.title-wrapper');
+      let previousWrapper;
+      let currentWrapper;
+
+      Array.from(allTitles).forEach((item, i) => {
+        if (item.textContent === wrapper.textContent) {
+          previousWrapper = Array.from(allTitles)[i - 1];
+          currentWrapper = Array.from(allTitles)[i];
+        }
+      });
+
+      if (previousWrapper) {
+        const prevDimens = previousWrapper.getBoundingClientRect();
+        const currDimens = currentWrapper.getBoundingClientRect();
+
+        // If prev title and curr title are at top of screen,
+        // hide prev one so it's not visible behind curr one.
+        if (
+          (previousWrapper && prevDimens.top <= headerHeight)
+          && (currentWrapper && currDimens.top <= headerHeight)
+        ) {
+          previousWrapper.style.display = 'none';
+          currentWrapper.dataset.sticky = true;
+        } else {
+          previousWrapper.style.display = '';
+          currentWrapper.dataset.sticky = false;
+        }
+      }
     });
   }
 }

@@ -7,10 +7,19 @@ import {
   loadCSS,
 } from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';
-import { toggleModal } from '../../utils/modal/modal.js';
 // eslint-disable-next-line import/no-cycle
 import { wholesaleOrderForm, resetOrderForm } from '../../utils/order/order.js';
 import { createLineItem } from '../cart/cart.js';
+import { createModal, toggleModal } from '../../utils/modal/modal.js';
+
+function buildModal(element, refresh) {
+  const wholesaleModal = document.createElement('div');
+  wholesaleModal.classList.add('wholesale', 'modal');
+  createModal(wholesaleModal);
+  element.append(wholesaleModal);
+
+  toggleModal(wholesaleModal, 'your wholesale order', refresh);
+}
 
 function createSubmitButton() {
   // Create submit button wrapper
@@ -211,13 +220,8 @@ async function fetchWholesaleHours() {
       const now = new Date();
       const dayName = days[now.getDay()];
 
-      // TODO - remove this when site goes live!!
       // eslint-disable-next-line prefer-const
       let { open, close } = operatingHours[dayName];
-      // open = '15:00';
-      // close = '15:00';
-      open = 'true';
-      // close = 'false';
 
       const currentTime = now.getHours() * 60 + now.getMinutes();
       shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
@@ -229,12 +233,38 @@ async function fetchWholesaleHours() {
   return shouldDisplay;
 }
 
+// eslint-disable-next-line consistent-return
+async function fetchWholesaleDeliveryMethods() {
+  const url = `${window.location.origin}/admin/wholesale-locations.json`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const wholesaleKey = JSON.parse(sessionStorage.getItem('wholesaleKey'));
+      const deliverMethods = json.data.find((location) => location.LOCATION === wholesaleKey);
+      return deliverMethods.DELIVERY_METHOD;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
+}
+
 async function buildWholesale(main, link) {
   const showOrderWholesaleForm = await fetchWholesaleHours();
+  const wholesaleDeliveryMethods = await fetchWholesaleDeliveryMethods();
 
   if (showOrderWholesaleForm) {
     const path = new URL(link).pathname;
-    const blockParent = main.querySelector('div');
+    const wholesaleHeroHeader = main.querySelector('div');
+
+    const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
+    const title = document.getElementById('wholesale');
+    if (title && key) title.textContent = `${title.textContent} ${key}`;
 
     const form = document.createElement('form');
     form.classList.add('table-form', 'wholesale-form');
@@ -259,7 +289,6 @@ async function buildWholesale(main, link) {
           }
         });
         const wholesaleModal = document.querySelector('.wholesale.modal');
-
         /* eslint-disable-next-line no-inner-declarations */
         function refreshWholesaleContent(element) {
           const modalContentSection = element.querySelector('.modal-content');
@@ -268,24 +297,34 @@ async function buildWholesale(main, link) {
           const modalErrorContainer = element.querySelector('.modal-wholesale-content-container');
           if (modalErrorContainer) modalErrorContainer.remove();
 
-          wholesaleOrderForm({ line_items: lineItems }, wholesaleModal);
+          wholesaleOrderForm({
+            line_items: lineItems,
+            deliveryMethods: wholesaleDeliveryMethods,
+          }, element);
         }
-        toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
+
+        if (!wholesaleModal) {
+          buildModal(main, refreshWholesaleContent);
+        } else {
+          toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
+        }
       }
     });
 
     const block = buildBlock('table', '');
     block.dataset.src = `${window.location.origin}${path}`;
+    block.classList.add('section');
     const blockContentSection = block.querySelector('.block > div > div');
-    blockParent.append(block);
+    wholesaleHeroHeader.after(block);
     decorateBlock(block);
 
     blockContentSection.append(form);
-    const submitButton = createSubmitButton();
+
+    const submitButton = createSubmitButton(main);
     await loadBlock(block);
     form.append(submitButton);
   } else {
-    const wholesaleContentSection = main.querySelector('.wholesale');
+    const wholesaleHeroHeader = main.querySelector('.hero-header');
 
     const closedContainer = document.createElement('div');
     closedContainer.className = 'wholesale-closed-container';
@@ -297,10 +336,21 @@ async function buildWholesale(main, link) {
 
     const closedMessageContext = document.createElement('p');
     closedMessageContext.className = 'wholesale-closed-message';
-    closedMessageContext.textContent = 'Orders open every tuesday at 3pm and close every saturday at 3pm :)';
+
+    const email = 'hi@normal.club';
+    const subject = 'Wholesale Ice Cream Inquiry!';
+
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+
+    const linkElement = document.createElement('a');
+    linkElement.href = mailtoLink;
+    linkElement.textContent = 'hi@normal.club';
+
+    closedMessageContext.textContent = 'are you having an ice cream emergency? email us, we\'ll do whatever we can to assist :) ';
+    closedMessageContext.append(linkElement);
     closedContainer.append(closedMessageContext);
 
-    wholesaleContentSection.append(closedContainer);
+    wholesaleHeroHeader.after(closedContainer);
   }
 }
 
@@ -319,9 +369,6 @@ async function fetchWholesaleKey(main, key) {
         buildWholesale(main, wholesaleItem.LINK);
         const columnsWrapper = main.querySelector('.columns-wrapper');
         columnsWrapper.style.display = 'none';
-
-        const contactUs = main.querySelector('.default-content-wrapper:not(:first-of-type)');
-        contactUs.style.display = 'none';
       }
     }
   } catch (error) {
@@ -347,7 +394,7 @@ export function buildGQs(params) {
 
 export async function updateWholesaleGoogleSheet(orderData, orderFormFields, invoiceId) {
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
-  const key = JSON.parse(localStorage.getItem('wholesaleKey'));
+  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
 
   try {
     const response = await fetch(url);
@@ -420,11 +467,10 @@ function handleError(input, message) {
 * Sets up wholesale static table block structure
 */
 export async function decorateWholesale(main) {
-  const wholesaleContainer = main.querySelector('div');
-  wholesaleContainer.classList.add('wholesale');
+  const wholesaleContainer = main.querySelector('.columns');
 
-  const key = JSON.parse(localStorage.getItem('wholesaleKey'));
-  if (key) fetchWholesaleKey(main, key);
+  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
+  if (key) { fetchWholesaleKey(main, key); }
 
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/pages/wholesale/wholesale.css`);
@@ -436,7 +482,7 @@ export async function decorateWholesale(main) {
     const email = formData.find((data) => data.field === 'email').value;
     const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
-    const subject = encodeURIComponent("Hi! I'd like to become a wholesaler");
+    const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
     const body = encodeURIComponent(
       `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
     );
@@ -459,7 +505,7 @@ export async function decorateWholesale(main) {
         const correctPasswordItem = json.data.find((item) => item.PASSWORD === formData[0].value);
         if (correctPasswordItem) {
           buildWholesale(main, correctPasswordItem.LINK);
-          localStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
+          sessionStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
           window.location.reload();
         } else {
           handleError(passwordField, 'Please enter a valid password');

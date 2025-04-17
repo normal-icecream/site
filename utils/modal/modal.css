@@ -1,29 +1,90 @@
 .modal {
     position: fixed;
-    z-index: 10;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
+    background-color: #0B21E330;
+    z-index: 5;
+    display: none;
+}
+
+.modal .modal-container {
+    position: fixed;
+    z-index: 6;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%,-50%);
+    min-height: calc(100dvh - var(--spacing-xxxl));
+    max-height: calc(100dvh - var(--spacing-xxxl));
+    min-width: calc(100dvw - var(--spacing-xxxl));
+    max-width: calc(100dvw - var(--spacing-xxxl));
     overflow: auto;
     background-color: var(--white);
-    padding: var(--spacing-xl);
+    border: 2px solid var(--blue);
+    border-radius: 12px;
 }
 
 .modal .modal-header {
+    align-self: center;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: var(--heading-size-xl);
     font-family: var(--heading-font-family);
+    position: sticky;
+    top: 0;
+    padding: var(--spacing-m) var(--spacing-xl) ;
+    background-color: var(--layer-base);
+    z-index: 2;
 }
 
 .modal .modal-content {
+    align-self: center;
     display: flex;
     flex-flow: column;
+    padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
 }
 
 .modal .modal-close-btn {
     color: var(--blue);
     cursor: pointer;
+    height: 60px;
+    width: 60px;
+    border-radius: 100%;
+}
+
+.modal .modal-close-btn:hover {
+    background-color: var(--blue-lightest);
+}
+
+@media (width >= 1025px) {
+    .modal .modal-container {
+        position: fixed;
+        z-index: 6;
+        top: 50%;
+        left: 50%;
+        transform:translate(-50%,-50%);
+        min-height: 400px;
+        max-height: 80vh;
+        min-width: 600px;
+        max-width: 70vw;
+        overflow: auto;
+        background-color: var(--white);
+        border: 2px solid var(--blue);
+        border-radius: 12px;
+    }
+
+    .modal > div {
+        display: flex;
+        flex-flow: column;
+    }
+
+    .modal .modal-header {
+        width: var(--site-width);
+    }
+    
+    .modal .modal-content {
+        width: var(--site-width);
+    }
 }

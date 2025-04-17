@@ -1,5 +1,5 @@
 import { loadCSS } from '../../scripts/aem.js';
-import { toKebabCase } from '../../helpers/helpers.js';
+import { toKebabCase, wrapRegisteredWithSup } from '../../helpers/helpers.js';
 
 /**
  * Creates a label element for a form field, indicating if the field is required.
@@ -8,10 +8,10 @@ import { toKebabCase } from '../../helpers/helpers.js';
  */
 function buildLabel(field) {
   const label = document.createElement('label');
-
   // Add an asterisk if the field is required
-  label.textContent = field.required === true ? `${field.label} *` : field.label;
-
+  const labelRequired = field.required === true ? `${field.label} *` : field.label;
+  const labelString = wrapRegisteredWithSup(labelRequired);
+  label.append(labelString);
   return label; // Return the constructed label element
 }
 
@@ -360,11 +360,26 @@ function buildRadio(field) {
 
   // Iterate through the options to create radio buttons and labels
   field.options.forEach((option) => {
-    const radioLabel = buildLabel(option);
+    const radioLabel = document.createElement('label');
     const radio = document.createElement('input');
+
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'radio-container';
+
+    const radioCheckbox = document.createElement('div');
+    radioCheckbox.className = 'radio-checkbox';
+    optionsContainer.append(radioCheckbox);
+
+    const radioName = document.createElement('h4');
+    radioName.className = 'radio-name';
+    radioName.textContent = option.label;
+    optionsContainer.append(radioName);
+    radioLabel.append(optionsContainer);
+
     radio.type = 'radio';
     radio.name = field.name;
     radio.value = option.value ? toKebabCase(option.value) : toKebabCase(option.label);
+    radio.className = 'radio-input';
 
     // Set required attribute if specified
     if (field.required) radio.required = true;
@@ -392,15 +407,27 @@ function buildRadio(field) {
  * and its associated label text.
  */
 function buildCheckbox(field) {
+  const checkboxLabel = document.createElement('label');
   // Create the checkbox input element using a helper function
   const input = buildInput(field);
 
   // Set the name attribute for the checkbox
   input.name = field.name;
+  input.className = 'checkbox-input';
+
+  const checkboxContainer = document.createElement('div');
+  checkboxContainer.className = 'checkbox-container';
+
+  const checkbox = document.createElement('span');
+  checkbox.className = 'checkbox-button';
+
+  const checkboxTitle = document.createElement('div');
+  checkboxTitle.textContent = field.label;
+  checkboxContainer.append(checkbox, checkboxTitle);
 
   if (field.checked) input.checked = true;
 
-  const checkboxLabel = buildLabel(field);
+  checkboxLabel.append(checkboxContainer);
   checkboxLabel.prepend(input);
 
   return checkboxLabel;
@@ -627,7 +654,7 @@ function validateBuildFormInputs(fields, handleSubmit) {
  * @param {Function} handleSubmit - A callback function to handle the form data on submission.
  * @returns {HTMLFormElement} - The dynamically constructed form element.
  */
-export default function buildForm(fields, handleSubmit, scopedElement) {
+export default function buildForm(fields, handleSubmit, scopedElement, buttonLabel = 'submit') {
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/utils/forms/forms.css`);
 
@@ -646,7 +673,7 @@ export default function buildForm(fields, handleSubmit, scopedElement) {
   if (!hasSubmit) {
     fields.push({
       type: 'submit',
-      label: 'Submit',
+      label: buttonLabel,
     });
   }
 
