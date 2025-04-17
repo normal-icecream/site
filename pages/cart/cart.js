@@ -459,7 +459,9 @@ export async function refreshCartContent(element) {
   if (hasNewCartWrapper) {
     // If cart has items, append the order form
     const cartLocalStorageData = getLocalStorageCart();
+    console.log(" cartLocalStorageData:", cartLocalStorageData);
     const form = orderForm(cartLocalStorageData);
     modalContentSection.append(form);
+    console.log(" modalContentSection:", modalContentSection);
   }
 }
