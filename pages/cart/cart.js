@@ -50,12 +50,13 @@ export function getCartLocation() {
   } else {
     const cartkey = getLastCartKey();
     // if (localStorage.getItem('orderFormData')) {
-      const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
-
+      // const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
+      const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
+      
     // }
 
     if (cartkey === 'merch') {
-      currentLocation = getItShipped ? 'shipping' : 'pickup';
+      currentLocation = orderFormData && orderFormData.getItShipped ? 'shipping' : 'pickup';
     } else {
       currentLocation = cartkey;
     }
