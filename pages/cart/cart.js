@@ -122,6 +122,7 @@ export async function addItemToCart(key, squareItemId, modifiers = [], variation
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
   const cartItem = cart?.line_items.find((item) => item.key === key);
+  console.log(" cart:", cart);
 
   const quantity = 1; // Default quantity for a new item
   if (cartItem) {
