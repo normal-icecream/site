@@ -120,6 +120,7 @@ export async function addItemToCart(key, squareItemId, modifiers = [], variation
   console.log(" squareItemId:", squareItemId);
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
+  console.log(" cartKey:", cartKey);
   const cart = carts[cartKey];
   const cartItem = cart?.line_items.find((item) => item.key === key);
   console.log(" cart:", cart);
