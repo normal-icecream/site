@@ -610,16 +610,10 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 }
 
 export function orderForm(cartData) {
-  console.log(" cartData:", cartData);
   loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   const env = getEnvironment();
-  console.log(" env:", env);
   const cartLocation = getCartLocation();
-  console.log(" cartLocation:", cartLocation);
   const modal = document.querySelector('.modal.cart');
-  console.log(" modal:", modal);
-  const test = getOrderFormData();
-  console.log(" test:", test);
 
   async function createSquareOrder() {
     const orderFormFields = getOrderFormData();

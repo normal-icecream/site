@@ -49,18 +49,12 @@ export function getCartLocation() {
     currentLocation = 'wholesale';
   } else {
     const cartkey = getLastCartKey();
-    // if (localStorage.getItem('orderFormData')) {
-      // const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
-      const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
-      
-    // }
-
+    const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
     if (cartkey === 'merch') {
       currentLocation = orderFormData && orderFormData.getItShipped ? 'shipping' : 'pickup';
     } else {
       currentLocation = cartkey;
     }
-    // console.log(" getItShipped:", getItShipped);
   }
   return currentLocation;
 }
@@ -123,20 +117,16 @@ function updateCartQuantityUI() {
 }
 
 export async function addItemToCart(key, squareItemId, modifiers = [], variation = {}) {
-  console.log(" squareItemId:", squareItemId);
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
-  console.log(" cartKey:", cartKey);
   const cart = carts[cartKey];
   const cartItem = cart?.line_items.find((item) => item.key === key);
-  console.log(" cart:", cart);
 
   const quantity = 1; // Default quantity for a new item
   if (cartItem) {
     cartItem.quantity += quantity;
   } else {
     const lineItem = createLineItem(squareItemId, quantity);
-    console.log(" lineItem:", lineItem);
 
     if (modifiers.length > 0) {
       const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
@@ -451,7 +441,6 @@ export async function getCart() {
 
 // Function to refresh the cart content
 export async function refreshCartContent(element) {
-  console.log(" element:", element);
   const modalContentSection = element.querySelector('.modal-content');
   modalContentSection.innerHTML = '';
 
@@ -465,10 +454,7 @@ export async function refreshCartContent(element) {
   if (hasNewCartWrapper) {
     // If cart has items, append the order form
     const cartLocalStorageData = getLocalStorageCart();
-    console.log(" cartLocalStorageData:", cartLocalStorageData);
     const form = orderForm(cartLocalStorageData);
-    console.log(" form:", form);
     modalContentSection.append(form);
-    console.log(" modalContentSection:", modalContentSection);
   }
 }
