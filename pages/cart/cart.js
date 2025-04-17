@@ -461,6 +461,7 @@ export async function refreshCartContent(element) {
     const cartLocalStorageData = getLocalStorageCart();
     console.log(" cartLocalStorageData:", cartLocalStorageData);
     const form = orderForm(cartLocalStorageData);
+    console.log(" form:", form);
     modalContentSection.append(form);
     console.log(" modalContentSection:", modalContentSection);
   }
