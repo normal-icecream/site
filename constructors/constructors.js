@@ -197,14 +197,16 @@ export class SquareOrderShipmentAddress {
   }
 }
 
-export class SquareOrderRecipientDetails {
-  constructor(data) {
+export class SquareShippingDetails {
+  constructor(fillByDate, data) {
     this.recipient = new SquareOrderShipmentAddress(data).build();
+    this.expected_shipped_at = fillByDate;
   }
 
   build() {
     return {
       recipient: this.recipient,
+      expected_shipped_at: this.expected_shipped_at,
     };
   }
 }
@@ -212,20 +214,18 @@ export class SquareOrderRecipientDetails {
 export class SquareShippingData {
   constructor(fillByDate, data) {
     this.type = 'SHIPMENT';
-    this.shipment_details = new SquareOrderRecipientDetails(data).build();
-    this.expected_shipped_at = fillByDate;
+    this.shipment_details = new SquareShippingDetails(fillByDate, data).build();
   }
 
   build() {
     return {
       type: this.type,
       shipment_details: this.shipment_details,
-      expected_shipped_at: this.expected_shipped_at,
     };
   }
 }
 
-export class SquarePickupDeets {
+export class SquarePickupDetails {
   constructor(pickupDate, data) {
     this.recipient = new SquareOrderShipmentAddress(data).build();
     this.pickup_at = pickupDate;
@@ -242,7 +242,7 @@ export class SquarePickupDeets {
 export class SquarePickupData {
   constructor(pickupDate, formFields) {
     this.type = 'PICKUP';
-    this.pickup_details = new SquarePickupDeets(pickupDate, formFields).build();
+    this.pickup_details = new SquarePickupDetails(pickupDate, formFields).build();
   }
 
   build() {
