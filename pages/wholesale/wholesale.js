@@ -220,14 +220,8 @@ async function fetchWholesaleHours() {
       const now = new Date();
       const dayName = days[now.getDay()];
 
-      // TODO - remove this when site goes live!!
       // eslint-disable-next-line prefer-const
       let { open, close } = operatingHours[dayName];
-      // open = '15:00';
-      // close = '15:00';
-      // TODO - Delete this when we go live on prod!!
-      open = 'true';
-      close = 'false';
 
       const currentTime = now.getHours() * 60 + now.getMinutes();
       shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
