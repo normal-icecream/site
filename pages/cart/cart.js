@@ -2,7 +2,7 @@
 import { formatCurrency, stringExistsInAnother, convertEmailToLink } from '../../helpers/helpers.js';
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
-import { orderForm } from '../../utils/order/order.js';
+import { getOrderFormData, orderForm } from '../../utils/order/order.js';
 
 export const allowedCartPages = Object.freeze([
   'pickup',
@@ -49,7 +49,11 @@ export function getCartLocation() {
     currentLocation = 'wholesale';
   } else {
     const cartkey = getLastCartKey();
-    const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
+    // if (localStorage.getItem('orderFormData')) {
+      const { getItShipped } = JSON.parse(localStorage.getItem('orderFormData'));
+
+    // }
+
     if (cartkey === 'merch') {
       currentLocation = getItShipped ? 'shipping' : 'pickup';
     } else {
@@ -452,6 +456,7 @@ export async function refreshCartContent(element) {
 
   // eslint-disable-next-line no-use-before-define
   const currentCart = await getCart();
+  getOrderFormData();
   modalContentSection.append(currentCart);
 
   const hasNewCartWrapper = element.querySelector('.cart.cart-card-wrapper');
