@@ -7,6 +7,7 @@ const ALLOWED_ORIGINS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
   '--site--normal-icecream.aem.live', // Production domain/
+  'normal.club' // Live site domain/
 ];
 
 const SANDBOX_URLS = [
