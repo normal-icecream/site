@@ -117,6 +117,7 @@ function updateCartQuantityUI() {
 }
 
 export async function addItemToCart(key, squareItemId, modifiers = [], variation = {}) {
+  console.log(" squareItemId:", squareItemId);
   const carts = JSON.parse(localStorage.getItem('carts'));
   const cartKey = getLastCartKey();
   const cart = carts[cartKey];
@@ -127,6 +128,7 @@ export async function addItemToCart(key, squareItemId, modifiers = [], variation
     cartItem.quantity += quantity;
   } else {
     const lineItem = createLineItem(squareItemId, quantity);
+    console.log(" lineItem:", lineItem);
 
     if (modifiers.length > 0) {
       const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');
