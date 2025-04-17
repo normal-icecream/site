@@ -20,6 +20,8 @@ import {
   SquareInvoiceWrapper,
   SquareCustomerWrapper,
   SquareCustomer,
+  SquarePickupData,
+  SquareShippingData,
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
@@ -610,26 +612,61 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 export function orderForm(cartData) {
   loadCSS(`${window.hlx.codeBasePath}/utils/order/order.css`);
   const env = getEnvironment();
+  const cartLocation = getCartLocation();
   const modal = document.querySelector('.modal.cart');
   getOrderFormData();
 
   async function createSquareOrder() {
     const orderFormFields = getOrderFormData();
     const orderData = new SquareOrderData(cartData, window.taxList[0], orderFormFields).build();
+    const note = [];
+
+    function addPickupNote() {
+      if (orderFormFields.pickupdate && orderFormFields.pickupdate?.trim() !== '') {
+        note.push(`Pickup Date: ${orderFormFields.pickupdate}`);
+      }
+      if (orderFormFields.pickuptime && orderFormFields.pickuptime?.trim() !== '') {
+        note.push(`Pickup Time: ${orderFormFields.pickuptime}`);
+      }
+    }
+
+    function addPickupFulfillments() {
+      const fillbyDate = `${orderFormFields.pickupdate}T${orderFormFields.pickuptime}:00`;
+      const pickupIsoDate = new Date(fillbyDate).toISOString();
+      orderData.fulfillments = [
+        new SquarePickupData(pickupIsoDate, orderFormFields).build(),
+      ];
+    }
+
+    // Attach pickup fulfillment data to orderData
+    if (cartLocation === 'pickup') {
+      addPickupFulfillments();
+      addPickupNote();
+    }
+
+    // Attach shipping fulfillment data to orderData
+    if (cartLocation === 'shipping') {
+      orderData.fulfillments = [
+        new SquareShippingData(cartData.fill_by_date, orderFormFields).build(),
+      ];
+    }
+
+    // Attach merch fulfillment data to orderData
+    if (cartLocation === 'merch') {
+      if (orderFormFields.getItShipped) {
+        orderData.fulfillments = [
+          new SquareShippingData(cartData.fill_by_date, orderFormFields).build(),
+        ];
+      } else {
+        addPickupFulfillments();
+        addPickupNote();
+      }
+    }
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);
     }
 
-    const note = [];
-    if (orderFormFields.pickupdate && orderFormFields.pickupdate?.trim() !== '') {
-      note.push(`Pickup Date: ${orderFormFields.pickupdate}`);
-    }
-    if (orderFormFields.pickuptime && orderFormFields.pickuptime?.trim() !== '') {
-      note.push(`Pickup Time: ${orderFormFields.pickuptime}`);
-    }
-
-    // TODO - make sure the switch from cartData to orderData isn't breaking this
     orderData.line_items.forEach((item) => {
       item.quantity = String(item.quantity);
 
@@ -643,7 +680,6 @@ export function orderForm(cartData) {
     orderData.note = note.length > 0 ? note.join(' | ') : '';
 
     if (env === 'sandbox') {
-      // TODO - make sure the switch from cartData to orderData isn't breaking this
       orderData.line_items.forEach((item) => {
         delete item.catalog_object_id;
 
@@ -656,7 +692,7 @@ export function orderForm(cartData) {
     }
 
     const orderWrapper = new SquareOrderWrapper(orderData).build();
-    const cartLocation = getCartLocation();
+
     const newOrder = env === 'sandbox'
       ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
       : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);

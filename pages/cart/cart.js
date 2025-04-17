@@ -19,9 +19,11 @@ export function createLocalStorageCart() {
       },
       shipping: {
         line_items: [],
+        fill_by_date: '',
       },
       merch: {
         line_items: [],
+        fill_by_date: '',
       },
       lastcart: '',
     }));
@@ -363,6 +365,12 @@ async function fetchDeliveryDetails() {
           + 2,
         );
 
+        const shippingIsoDate = deliveryDate.toISOString();
+
+        const carts = JSON.parse(localStorage.getItem('carts'));
+        carts.shipping.fill_by_date = shippingIsoDate;
+        localStorage.setItem('carts', JSON.stringify(carts));
+
         const deliveryMonth = deliveryDate.getMonth() + 1;
         const deliverDateString = `${deliveryMonth}/${deliveryDate.getDate()}`;
         deliveryData.DELIVERY_DATE = deliverDateString;
@@ -387,6 +395,12 @@ async function fetchDeliveryDetails() {
         // today + number of business days to deliver
         // (including extra days for weekends depending on the day the order is made)
         deliveryDate.setDate(deliveryDate.getDate() + numberOfDaysToDeliver);
+
+        const merchIsoDate = deliveryDate.toISOString();
+
+        const carts = JSON.parse(localStorage.getItem('carts'));
+        carts.merch.fill_by_date = merchIsoDate;
+        localStorage.setItem('carts', JSON.stringify(carts));
 
         const deliveryMonth = deliveryDate.getMonth() + 1;
         const deliverDateString = `${deliveryMonth}/${deliveryDate.getDate()}`;

@@ -197,10 +197,9 @@ export class SquareOrderShipmentAddress {
   }
 }
 
-export class SquareOrderShipmentDetails {
+export class SquareOrderRecipientDetails {
   constructor(data) {
     this.recipient = new SquareOrderShipmentAddress(data).build();
-    // this.expected_shipped_at =
   }
 
   build() {
@@ -210,16 +209,46 @@ export class SquareOrderShipmentDetails {
   }
 }
 
-export class SquareFulfillmentData {
-  constructor(data) {
+export class SquareShippingData {
+  constructor(fillByDate, data) {
     this.type = 'SHIPMENT';
-    this.shipment_details = new SquareOrderShipmentDetails(data).build();
+    this.shipment_details = new SquareOrderRecipientDetails(data).build();
+    this.expected_shipped_at = fillByDate;
   }
 
   build() {
     return {
       type: this.type,
       shipment_details: this.shipment_details,
+      expected_shipped_at: this.expected_shipped_at,
+    };
+  }
+}
+
+export class SquarePickupDeets {
+  constructor(pickupDate, data) {
+    this.recipient = new SquareOrderShipmentAddress(data).build();
+    this.pickup_at = pickupDate;
+  }
+
+  build() {
+    return {
+      recipient: this.recipient,
+      pickup_at: this.pickup_at,
+    };
+  }
+}
+
+export class SquarePickupData {
+  constructor(pickupDate, formFields) {
+    this.type = 'PICKUP';
+    this.pickup_details = new SquarePickupDeets(pickupDate, formFields).build();
+  }
+
+  build() {
+    return {
+      type: this.type,
+      pickup_details: this.pickup_details,
     };
   }
 }
@@ -247,9 +276,8 @@ export class SquareOrderLineItem {
 }
 
 export class SquareOrderData {
-  constructor(orderData, taxData, formFields) {
+  constructor(orderData, taxData) {
     this.line_items = orderData.line_items;
-    this.fulfillments = [new SquareFulfillmentData(formFields).build()];
     this.state = orderData.state || 'OPEN';
     this.taxes = [new SquareTaxData(taxData).build()];
   }
@@ -257,7 +285,6 @@ export class SquareOrderData {
   build() {
     return {
       line_items: this.line_items,
-      fulfillments: this.fulfillments,
       state: this.state,
       taxes: this.taxes,
     };
