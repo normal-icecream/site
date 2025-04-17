@@ -60,7 +60,7 @@ export function getCartLocation() {
     } else {
       currentLocation = cartkey;
     }
-    console.log(" getItShipped:", getItShipped);
+    // console.log(" getItShipped:", getItShipped);
   }
   return currentLocation;
 }
