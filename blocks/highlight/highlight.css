@@ -82,6 +82,8 @@
     color: var(--blue);
     font-weight: 600;
     z-index: 3;
+    max-width: 50px;
+    text-align: center;
 }
 
 .highlight > div:nth-child(2) > div > div svg {
