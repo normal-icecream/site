@@ -16,6 +16,7 @@ import {
   SquareDiscountAmountData,
   SquareDiscountPercentageData,
   SquareOrderData,
+  SquareTaxData,
   SquareInvoice,
   SquareInvoiceWrapper,
   SquareCustomerWrapper,
@@ -422,7 +423,7 @@ export function wholesaleOrderForm(wholesaleData, modal) {
   async function createSquareWholesaleOrder() {
     const orderFormFields = getOrderFormData();
     // eslint-disable-next-line max-len
-    const orderData = new SquareOrderData(wholesaleData, window.taxList[0], orderFormFields).build();
+    const orderData = new SquareOrderData(wholesaleData).build();
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
       addDiscountToOrder(orderData, orderFormFields);
@@ -617,9 +618,10 @@ export function orderForm(cartData) {
 
   async function createSquareOrder() {
     const orderFormFields = getOrderFormData();
-    const orderData = new SquareOrderData(cartData, window.taxList[0], orderFormFields).build();
-    const note = [];
+    const orderData = new SquareOrderData(cartData).build();
+    orderData.taxes = [new SquareTaxData(window.taxList[0]).build()];
 
+    const note = [];
     function addPickupNote() {
       if (orderFormFields.pickupdate && orderFormFields.pickupdate?.trim() !== '') {
         note.push(`Pickup Date: ${orderFormFields.pickupdate}`);
@@ -693,8 +695,8 @@ export function orderForm(cartData) {
     const orderWrapper = new SquareOrderWrapper(orderData).build();
 
     const newOrder = env === 'sandbox'
-      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
-      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+    ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
+    : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
 
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');

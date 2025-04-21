@@ -81,6 +81,9 @@ export function formatPhoneNumberToE164(phoneNumber, countryCode = '1') {
 }
 
 export function getTotals(element, orderData, format) {
+  const { pathname } = window.location;
+  const wholesale = pathname.split('/').some((path) => path === 'wholesale');
+
   const totalWrapper = element.querySelector('.total-wrapper');
   if (totalWrapper) totalWrapper.innerHTML = '';
 
@@ -89,8 +92,10 @@ export function getTotals(element, orderData, format) {
     totalWrapper.append(discount);
   }
 
-  const tax = format('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
-  totalWrapper.append(tax);
+  if (!wholesale) {
+    const tax = format('prepared food tax (included)', formatCurrency(orderData.order.total_tax_money.amount));
+    totalWrapper.append(tax);
+  }
 
   const total = format('total', formatCurrency(orderData.order.net_amount_due_money.amount));
   totalWrapper.append(total);

@@ -276,17 +276,15 @@ export class SquareOrderLineItem {
 }
 
 export class SquareOrderData {
-  constructor(orderData, taxData) {
+  constructor(orderData) {
     this.line_items = orderData.line_items;
     this.state = orderData.state || 'OPEN';
-    this.taxes = [new SquareTaxData(taxData).build()];
   }
 
   build() {
     return {
       line_items: this.line_items,
       state: this.state,
-      taxes: this.taxes,
     };
   }
 }
