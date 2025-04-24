@@ -222,8 +222,6 @@ async function fetchWholesaleHours() {
 
       // eslint-disable-next-line prefer-const
       let { open, close } = operatingHours[dayName];
-      open = 'true';
-      close = 'false';
 
       const currentTime = now.getHours() * 60 + now.getMinutes();
       shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
