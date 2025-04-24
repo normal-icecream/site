@@ -124,7 +124,7 @@ export default async function decorate(block) {
 
           const availableCell = document.createElement('td');
           const available = document.createElement('h4');
-          available.textContent = product.AVAILABLE > 0 ? product.AVAILABLE : 0;
+          available.textContent = product.STOCKREMAINING > 0 ? product.STOCKREMAINING : 0;
           availableCell.append(available);
 
           const priceCell = document.createElement('td');
@@ -134,7 +134,7 @@ export default async function decorate(block) {
 
           // Create the quantity cell, showing either "sold out" or an input field.
           const quantityCell = document.createElement('td');
-          if (product.SOLDOUT || product.AVAILABLE <= 0) {
+          if (product.SOLDOUT || product.STOCKREMAINING <= 0) {
             const soldoutElement = document.createElement('h4');
             soldoutElement.className = 'table-soldout';
             soldoutElement.textContent = 'sold out';
@@ -146,7 +146,7 @@ export default async function decorate(block) {
             quantityInput.dataset.itemName = product.ITEM;
             quantityInput.dataset.itemType = product.TYPE;
             quantityInput.min = 0;
-            quantityInput.max = product.AVAILABLE;
+            quantityInput.max = product.STOCKREMAINING;
             quantityInput.addEventListener('input', () => checkInput());
             quantityCell.append(quantityInput);
           }
