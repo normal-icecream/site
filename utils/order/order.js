@@ -118,7 +118,7 @@ const fields = [
   },
   {
     type: 'checkbox',
-    label: 'get it shipped?',
+    label: 'get it delivered?',
     name: 'getItShipped',
     val: 'get-it-shipped',
     required: false,

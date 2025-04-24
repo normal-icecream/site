@@ -96,7 +96,7 @@ const fields = [
     type: 'input',
     label: 'Business Name',
     name: 'businessName',
-    placeholder: 'Enter your businesses name',
+    placeholder: 'Enter your business name',
     required: true,
     validation: ['no-nums'],
   },
@@ -222,10 +222,8 @@ async function fetchWholesaleHours() {
 
       // eslint-disable-next-line prefer-const
       let { open, close } = operatingHours[dayName];
-
-      // TODO - Delete this when we go live on prod!!
-      // open = 'true';
-      // close = 'false';
+      open = 'true';
+      close = 'false';
 
       const currentTime = now.getHours() * 60 + now.getMinutes();
       shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
