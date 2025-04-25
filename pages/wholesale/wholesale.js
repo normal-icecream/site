@@ -409,26 +409,26 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields, inv
         const params = {
           business_name: orderFormFields.businessName,
           business_note: orderFormFields.businessNote,
-          business_method: orderFormFields.getItShipped ? 'shipping' : 'pickup',
+          business_method: orderFormFields.getItShipped ? 'delivery' : 'pickup',
           reference_id: invoiceId,
           line_items: orderData.line_items,
         };
 
         params.line_items.forEach((p) => {
           p.name = p.note;
+          delete p.base_price_money;
+          delete p.id;
+          delete p.item_type;
+          delete p.note;
         });
 
         try {
           const qs = buildGQs(params);
-          const inventoryUpdateRes = await fetch(`${wholesaleItem.SCRIPT_LINK}?${qs}`, { method: 'POST' });
-          if (!inventoryUpdateRes.ok) throw new Error('Inventory update failed.');
-
           const path = new URL(wholesaleItem.LINK).pathname;
-          const previewUpdateRes = await fetch(`https://admin.hlx.page/preview/normal-icecream/site/main/${path}`, { method: 'POST' });
-          if (!previewUpdateRes.ok) throw new Error('Preview update failed.');
 
-          const publishUpdateRes = await fetch(`https://admin.hlx.page/live/normal-icecream/site/main/${path}`, { method: 'POST' });
-          if (!publishUpdateRes.ok) throw new Error('Publish update failed.');
+          await fetch(`${wholesaleItem.SCRIPT_LINK}?${qs}`, { method: 'POST' });
+          await fetch(`https://admin.hlx.page/preview/normal-icecream/site/main/${path}`, { method: 'POST' });
+          await fetch(`https://admin.hlx.page/live/normal-icecream/site/main/${path}`, { method: 'POST' });
 
           // Reset form
           resetOrderForm();
