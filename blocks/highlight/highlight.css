@@ -17,6 +17,11 @@
     object-fit: contain;
 }
 
+.highlight > div .icon svg {
+    width: 100%;
+    height: 250px;
+}
+
 .highlight > div:nth-child(2) {
     position: absolute;
     top: -60px;

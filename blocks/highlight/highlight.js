@@ -17,6 +17,8 @@ function cleanString(inputString) {
 }
 
 export default function decorate(block) {
+  const variants = [...block.classList];
+
   const highlightContainer = block.querySelector('div');
   const highlightTitle = block.querySelector('h3');
   const highlightKey = `${cleanString(highlightTitle.textContent)}-closed`;
@@ -27,23 +29,32 @@ export default function decorate(block) {
     block.style.display = 'none';
   }
 
-  // Create and set up the close button
-  const closeButton = document.createElement('button');
-  closeButton.textContent = '×';
-  closeButton.classList.add('close-button');
-  closeButton.addEventListener('click', () => {
-    // Check the session storage for the key
-    const highlightSessionKey = sessionStorage.getItem(highlightKey);
+  if (!variants.includes('fixed')) {
+    // Create and set up the close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '×';
+    closeButton.classList.add('close-button');
+    closeButton.addEventListener('click', () => {
+      // Check the session storage for the key
+      const highlightSessionKey = sessionStorage.getItem(highlightKey);
 
-    // If the key doesn't exist, set it and hide the block
-    if (!highlightSessionKey) {
-      sessionStorage.setItem(highlightKey, 'true');
-    }
+      // If the key doesn't exist, set it and hide the block
+      if (!highlightSessionKey) {
+        sessionStorage.setItem(highlightKey, 'true');
+      }
 
-    // Hide the block (whether the sessionKey was set or not)
-    block.style.display = 'none';
-  });
-  highlightContainer.append(closeButton);
+      // Hide the block (whether the sessionKey was set or not)
+      block.style.display = 'none';
+    });
+    highlightContainer.append(closeButton);
+  }
+
+  // Select icon element
+  const icon = block.querySelector('.highlight > div > div > p > span');
+  if (icon) {
+    decorateIcons(icon);
+    swapIcons();
+  }
 
   // Select promo message element
   const promoMessage = block.querySelector('.highlight > div:nth-child(2)');
