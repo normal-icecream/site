@@ -40,7 +40,6 @@
 .highlight > div:nth-child(1) > div:nth-child(1) {
     display: flex;
     justify-content: center;
-    padding-right: var(--horizontal-spacing);
     min-width: 250px;
 }
 
@@ -115,6 +114,10 @@
     .highlight > div {
         flex-flow: row;
     } 
+
+    .highlight > div:nth-child(1) > div:nth-child(1) {
+        padding-right: var(--horizontal-spacing);
+    }
 
     .highlight > div:nth-child(1) > div:nth-child(2) {
         width: 200px;
