@@ -18,7 +18,9 @@ import {
 // eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { decorateCatering } from '../pages/catering/catering.js';
-import { getCatalogListJson, getCatalogTaxList, refreshCatalogListJson } from '../api/square/catalog.js';
+import { getCatalogListJson, getCatalogTaxList, 
+  // refreshCatalogListJson 
+} from '../api/square/catalog.js';
 import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
 /**
