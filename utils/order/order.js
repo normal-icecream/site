@@ -40,9 +40,10 @@ const alwaysVisibleFields = [
 
 const wholesaleSpecificFields = [
   'businessName',
+  'phone',
+  'email',
+  'discountCode',
   'businessNote',
-  'businessSpecialReqs',
-  'businessMethod',
 ];
 
 const addressFields = [
@@ -216,13 +217,6 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   const orderFormFields = getOrderFormData();
   const fieldsToDisplay = [];
 
-  const visibleFields = [];
-  alwaysVisibleFields.forEach((field) => {
-    const visibleField = formFields.find((f) => f.name === field);
-    if (visibleField) visibleFields.push(visibleField);
-  });
-  visibleFields.forEach((field) => fieldsToDisplay.push(field));
-
   const wholesaleFields = [];
   wholesaleSpecificFields.forEach((field) => {
     const wholesaleField = formFields.find((f) => f.name === field);
@@ -239,14 +233,7 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   }
 
   const shouldShip = getOrderFormData().getItShipped;
-  if (shouldShip || !pickupAllowed) {
-    const shippingFields = [];
-    addressFields.forEach((field) => {
-      const addressField = formFields.find((f) => f.name === field);
-      if (addressField) shippingFields.push(addressField);
-    });
-    shippingFields.forEach((field) => fieldsToDisplay.push(field));
-  } else {
+  if (!shouldShip || !pickupAllowed) {
     const forPickupFields = [];
     pickupFields.forEach((field) => {
       const pickupField = formFields.find((f) => f.name === field);
@@ -473,7 +460,6 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
           const invoiceData = new SquareInvoice(
             newOrder,
-            // ANDI - which customer should be used?
             customerData,
             orderFormFields.businessName,
           ).build();
