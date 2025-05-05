@@ -290,7 +290,7 @@ async function loadDelayed() {
   fetchCatalog();
   // TODO - do i even need this?
   getCatalogTaxList();
-  refreshCatalogListJson();
+  // refreshCatalogListJson();
 }
 
 async function loadPage() {
