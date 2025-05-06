@@ -42,7 +42,6 @@ const wholesaleSpecificFields = [
   'businessName',
   'phone',
   'email',
-  'discountCode',
   'businessNote',
 ];
 
@@ -233,7 +232,7 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   }
 
   const shouldShip = getOrderFormData().getItShipped;
-  if (!shouldShip || !pickupAllowed) {
+  if (!(shouldShip || !pickupAllowed)) {
     const forPickupFields = [];
     pickupFields.forEach((field) => {
       const pickupField = formFields.find((f) => f.name === field);
