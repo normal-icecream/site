@@ -20,7 +20,7 @@ import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { decorateCatering } from '../pages/catering/catering.js';
 import {
   getCatalogListJson, getCatalogTaxList,
-  // refreshCatalogListJson
+  refreshCatalogListJson,
 } from '../api/square/catalog.js';
 import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
@@ -293,7 +293,7 @@ async function loadDelayed() {
   fetchCatalog();
   // TODO - do i even need this?
   getCatalogTaxList();
-  // refreshCatalogListJson();
+  refreshCatalogListJson();
 }
 
 async function loadPage() {
