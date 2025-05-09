@@ -15,8 +15,6 @@ export const API_ENDPOINTS = {
   SQUARE: {
     CATALOG: {
       catalog: `${API_BASE_URLS.SQUARE}/catalog.json`, // GET
-      refresh: `${API_BASE_URLS.SQUARE}/catalog.json/refresh`, // POST
-      taxes: `${API_BASE_URLS.SQUARE}/v2/catalog/list?types=TAX`, // GET
     },
     CUSTOMER: {
       create: `${API_BASE_URLS.SQUARE}/v2/customers`, // POST

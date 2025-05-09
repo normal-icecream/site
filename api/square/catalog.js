@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { apiClient } from '../client.js';
 import { API_ENDPOINTS } from '../config.js';
 
@@ -13,41 +14,6 @@ export async function getCatalogListJson() {
 
     // return list
     return catalogList.objects;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching catalog list:', error);
-    throw new Error(`Failed to fetch catalog list: ${error.message}`);
-  }
-}
-
-/**
- * Sends request to refresh Square catalog in the background.
- * @throws {Error} - Throws an error if the API call fails.
-*/
-export async function refreshCatalogListJson() {
-  try {
-    // Use the API client to refresh catalog
-    await apiClient(API_ENDPOINTS.SQUARE.CATALOG.refresh, 'GET');
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error refreshing catalog list:', error);
-    throw new Error(`Failed to refresh catalog list: ${error.message}`);
-  }
-}
-
-/**
- * Fetches catalog tax information from the Square API.
- * @returns {Promise<Array>} - A promise that resolves to a tax object.
- * @throws {Error} - Throws an error if the API call fails.
-*/
-export async function getCatalogTaxList() {
-  try {
-    // Use the API client to fetch the catalog modifier list from the Square API
-    const catalogTax = await apiClient(API_ENDPOINTS.SQUARE.CATALOG.taxes, 'GET');
-    window.taxList = catalogTax.objects;
-
-    // return list
-    return catalogTax.objects;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching catalog list:', error);

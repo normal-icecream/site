@@ -604,7 +604,7 @@ export function orderForm(cartData) {
   async function createSquareOrder() {
     const orderFormFields = getOrderFormData();
     const orderData = new SquareOrderData(cartData).build();
-    orderData.taxes = [new SquareTaxData(window.taxList[0]).build()];
+    orderData.taxes = [new SquareTaxData(window.catalog.taxList[0]).build()];
 
     const note = [];
     function addPickupNote() {

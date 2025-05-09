@@ -18,10 +18,7 @@ import {
 // eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { decorateCatering } from '../pages/catering/catering.js';
-import {
-  getCatalogListJson, getCatalogTaxList,
-  refreshCatalogListJson,
-} from '../api/square/catalog.js';
+import { getCatalogListJson } from '../api/square/catalog.js';
 import { createLocalStorageCart, setLastCart } from '../pages/cart/cart.js';
 
 /**
@@ -247,6 +244,7 @@ export async function fetchCatalog() {
         items: [],
         categories: [],
         discounts: {},
+        taxList: [],
       };
       json.forEach((e) => {
         if (!catalog.byId[e.id]) {
@@ -273,6 +271,9 @@ export async function fetchCatalog() {
             catalog.discounts[e.discount_data.name.toLowerCase()] = { id: e.id };
           }
         }
+        if (e.type === 'TAX') {
+          catalog.taxList.push(e);
+        }
         if (e.type === 'CATEGORY') {
           catalog.categories.push(e);
         }
@@ -290,10 +291,9 @@ async function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
+
+  // Fetch Square catalog
   fetchCatalog();
-  // TODO - do i even need this?
-  getCatalogTaxList();
-  refreshCatalogListJson();
 }
 
 async function loadPage() {

@@ -208,15 +208,6 @@ export default {
       requestBody = JSON.stringify(body);
     }
 
-    const isRefreshCatalogReq = url.pathname.includes('refresh');
-    if (isRefreshCatalogReq) {
-      try {
-        await triggerBackgroundRefresh(env, apiKey);
-      } catch (error) {
-        console.error(`KV returned error: ${error}`);
-      }
-    }
-
     // Check if the request is for the catalog json
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
@@ -324,5 +315,8 @@ export default {
 
     // Return the final response to the client
     return modifiedResponse;
+  },
+  async scheduled(controller, env) {
+    await triggerBackgroundRefresh(env, env.SQUARE_PROD_API_KEY);
   },
 };
