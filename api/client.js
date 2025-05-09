@@ -26,6 +26,7 @@ export async function apiClient(endpoint, method = 'GET', data = null) {
   // Send the API request and await the response
   const baseUrl = `${API_BASE_URL}${endpoint}`;
   const url = new URL(baseUrl);
+  console.log(" url:", url);
   if (environmentConfig.useSandbox) url.searchParams.set('env', 'sandbox');
 
   const response = await fetch(url.toString(), options);

@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { getCSRFToken } from '../../helpers/helpers.js';
 import { apiClient } from '../client.js';
 import { API_ENDPOINTS } from '../config.js';
 
@@ -8,8 +9,11 @@ export async function createOrder(orderData, queryParams) {
     throw new Error('orderData is required to create an order.');
   }
 
+  // get unique 6 digit csrf token
+  const csrfToken = getCSRFToken();
+
   try {
-    const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams), 'POST', orderData);
+    const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams, csrfToken), 'POST', orderData);
 
     return order;
   } catch (error) {
