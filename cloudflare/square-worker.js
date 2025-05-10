@@ -42,6 +42,156 @@ const LOCATIONS = [
   },
 ];
 
+function createFakeOrder() {
+  return {
+    order: {
+      id: 'nTIL0S5n6dANQRgDQPFlotbMK0NZY',
+      location_id: '7EXJXZ644ND0E',
+      line_items: [
+        {
+          uid: 'nivfMYRlT9KJ7CJotgH7fC',
+          catalog_object_id: 'YNVM4ENZF2NFA5YBM6ERP4RE',
+          catalog_version: 1746807358832,
+          quantity: '1',
+          name: 'have a normal® day sweatshirt - beige + red',
+          variation_name: 'xl',
+          base_price_money: {
+            amount: 7500,
+            currency: 'USD',
+          },
+          gross_sales_money: {
+            amount: 7500,
+            currency: 'USD',
+          },
+          total_tax_money: {
+            amount: 694,
+            currency: 'USD',
+          },
+          total_discount_money: {
+            amount: 0,
+            currency: 'USD',
+          },
+          total_money: {
+            amount: 8194,
+            currency: 'USD',
+          },
+          variation_total_price_money: {
+            amount: 7500,
+            currency: 'USD',
+          },
+          applied_taxes: [
+            {
+              uid: 'SD7FAq3Q8jphwciqxvclq1',
+              tax_uid: 'sMw3P5GTQdauAIbJ5b2N2C',
+              applied_money: {
+                amount: 694,
+                currency: 'USD',
+              },
+            },
+          ],
+          item_type: 'ITEM',
+          total_service_charge_money: {
+            amount: 0,
+            currency: 'USD',
+          },
+        },
+      ],
+      taxes: [
+        {
+          uid: 'sMw3P5GTQdauAIbJ5b2N2C',
+          name: 'sales tax',
+          percentage: '9.25',
+          type: 'ADDITIVE',
+          applied_money: {
+            amount: 694,
+            currency: 'USD',
+          },
+          scope: 'ORDER',
+        },
+      ],
+      fulfillments: [
+        {
+          uid: 'pSWjAX1lcMBVBEmtwSeNQ',
+          type: 'PICKUP',
+          state: 'PROPOSED',
+          pickup_details: {
+            pickup_at: '2025-05-14T16:15:00.000Z',
+            recipient: {
+              display_name: 'Hello Hello',
+              email_address: 'eren@jurassicpark.com',
+              phone_number: '1231231234',
+              website: 'https://www.youtube.com/watch?v=RfiQYRn7fBg',
+              address: {
+                address_line_1: '',
+                address_line_2: '',
+                locality: '',
+                administrative_district_level_1: '',
+                postal_code: '',
+                first_name: 'Eren',
+              },
+            },
+          },
+        },
+      ],
+      created_at: '2025-05-09T22:15:29.012Z',
+      updated_at: '2025-05-09T22:15:29.012Z',
+      state: 'OPEN',
+      version: 1,
+      total_tax_money: {
+        amount: 694,
+        currency: 'USD',
+      },
+      total_discount_money: {
+        amount: 0,
+        currency: 'USD',
+      },
+      total_tip_money: {
+        amount: 0,
+        currency: 'USD',
+      },
+      total_money: {
+        amount: 8194,
+        currency: 'USD',
+      },
+      total_service_charge_money: {
+        amount: 0,
+        currency: 'USD',
+      },
+      net_amounts: {
+        total_money: {
+          amount: 8194,
+          currency: 'USD',
+        },
+        tax_money: {
+          amount: 694,
+          currency: 'USD',
+        },
+        discount_money: {
+          amount: 0,
+          currency: 'USD',
+        },
+        tip_money: {
+          amount: 0,
+          currency: 'USD',
+        },
+        service_charge_money: {
+          amount: 0,
+          currency: 'USD',
+        },
+      },
+      source: {
+        name: 'normal',
+      },
+      net_amount_due_money: {
+        amount: 8194,
+        currency: 'USD',
+      },
+    },
+    idempotency_key: '326ef303-7aaa-4cd8-8a82-d4842554fde4',
+    applicationId: 'sq0idp-6jw3abEgrV94NrJOaRXFTc',
+  };
+}
+
 async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   try {
     let nextCursor = null;
@@ -172,7 +322,8 @@ export default {
           }
         }
       } else {
-        return new Response(null, {
+        const fakeOrder = createFakeOrder();
+        return new Response((JSON.stringify(fakeOrder)), {
           status: 200,
           headers: {
             'Content-Type': 'application/json',
