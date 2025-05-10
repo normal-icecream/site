@@ -142,32 +142,43 @@ export default {
 
     // Check if request is for 'orders' in the request path
     const isOrderRequest = url.pathname.includes('orders');
+    const hasCSRFTokenParam = !!(url.searchParams.get('csrfToken'));
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
     let locationKey;
     if (isOrderRequest && request.method === 'POST') {
-      if (isSandboxUrl) {
-        locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
-        const body = JSON.parse(requestBody);
-        body.order.location_id = locationKey;
-        requestBody = JSON.stringify(body);
-      } else {
-        const locationParam = url.searchParams.get('location');
-        if (locationParam === 'pickup') {
-          locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
-          const body = JSON.parse(requestBody);
-          body.order.location_id = locationKey;
-          requestBody = JSON.stringify(body);
-        } else if (locationParam !== 'pickup') {
-          locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+      if (hasCSRFTokenParam) {
+        if (isSandboxUrl) {
+          locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
           const body = JSON.parse(requestBody);
           body.order.location_id = locationKey;
           requestBody = JSON.stringify(body);
         } else {
-          return new Response('Bad Request: Location query param is missing', {
-            status: 400,
-            headers: { 'Content-Type': 'text/plain' },
-          });
+          const locationParam = url.searchParams.get('location');
+          if (locationParam === 'pickup') {
+            locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
+            const body = JSON.parse(requestBody);
+            body.order.location_id = locationKey;
+            requestBody = JSON.stringify(body);
+          } else if (locationParam !== 'pickup') {
+            locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+            const body = JSON.parse(requestBody);
+            body.order.location_id = locationKey;
+            requestBody = JSON.stringify(body);
+          } else {
+            return new Response('Bad Request: Location query param is missing', {
+              status: 400,
+              headers: { 'Content-Type': 'text/plain' },
+            });
+          }
         }
+      } else {
+        return new Response(null, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json', // This header is optional if no body is sent
+            'Access-Control-Allow-Origin': originHeader,
+          },
+        });
       }
     }
 
