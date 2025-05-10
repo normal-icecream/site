@@ -175,7 +175,7 @@ export default {
         return new Response(null, {
           status: 200,
           headers: {
-            'Content-Type': 'application/json', // This header is optional if no body is sent
+            'Content-Type': 'application/json', // sending back no body
             'Access-Control-Allow-Origin': originHeader,
           },
         });
