@@ -296,31 +296,72 @@ export default {
     const isSandboxUrl = SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl));
     let locationKey;
     if (isOrderRequest && request.method === 'POST') {
+      // Check if order request has csrfToken param
       if (hasCSRFTokenParam) {
+        // Grab csrf token value from the params
+        const csrfToken = url.searchParams.get('csrfToken');
+
+        // Grab list of used csrf tokens from cloudflare kv
+        let usedTokens = await env.CSRF_TOKENS.get('usedTokens', { type: 'json' });
+
         if (isSandboxUrl) {
-          locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
-          const body = JSON.parse(requestBody);
-          body.order.location_id = locationKey;
-          requestBody = JSON.stringify(body);
-        } else {
-          const locationParam = url.searchParams.get('location');
-          if (locationParam === 'pickup') {
-            locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
+          // initialize used tokens in sandbox end if wiped
+          if (usedTokens === null) { usedTokens = []; }
+
+          // check to see if csrfToken value has be used before
+          const hasDuplicateToken = usedTokens?.some((token) => token === csrfToken);
+
+          // If csrfToken has NOT been used before, proceed with regular order
+          if (!hasDuplicateToken) {
+            locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
             const body = JSON.parse(requestBody);
             body.order.location_id = locationKey;
             requestBody = JSON.stringify(body);
-          } else if (locationParam !== 'pickup') {
-            locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
-            const body = JSON.parse(requestBody);
-            body.order.location_id = locationKey;
-            requestBody = JSON.stringify(body);
+
+            // Add csrf token value to cloudflare useTokens kv
+            await env.CSRF_TOKENS.put('usedTokens', JSON.stringify([...usedTokens, csrfToken]));
           } else {
-            return new Response('Bad Request: Location query param is missing', {
+            // otherwise send back bad request for invalid csrf token
+            return new Response('Bad Request: Invalid CSRF Token', {
+              status: 400,
+              headers: { 'Content-Type': 'text/plain' },
+            });
+          }
+        } else {
+          // check to see if csrfToken value has be used before
+          const hasDuplicateToken = usedTokens?.some((token) => token === csrfToken);
+
+          // If csrfToken has NOT been used before, proceed with regular order
+          if (!hasDuplicateToken) {
+            const locationParam = url.searchParams.get('location');
+            if (locationParam === 'pickup') {
+              locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
+              const body = JSON.parse(requestBody);
+              body.order.location_id = locationKey;
+              requestBody = JSON.stringify(body);
+            } else if (locationParam !== 'pickup') {
+              locationKey = LOCATIONS.find((location) => location.name === locationParam.toUpperCase()).id;
+              const body = JSON.parse(requestBody);
+              body.order.location_id = locationKey;
+              requestBody = JSON.stringify(body);
+            } else {
+              return new Response('Bad Request: Location query param is missing', {
+                status: 400,
+                headers: { 'Content-Type': 'text/plain' },
+              });
+            }
+
+            // Add csrf token value to cloudflare useTokens kv
+            await env.CSRF_TOKENS.put('usedTokens', JSON.stringify([...usedTokens, csrfToken]));
+          } else {
+            // otherwise send back bad request for invalid csrf token
+            return new Response('Bad Request: Invalid CSRF Token', {
               status: 400,
               headers: { 'Content-Type': 'text/plain' },
             });
           }
         }
+      // if there is no csrf token present in order params, return fake order res
       } else {
         const fakeOrder = createFakeOrder();
         return new Response((JSON.stringify(fakeOrder)), {

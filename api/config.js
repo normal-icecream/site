@@ -28,7 +28,7 @@ export const API_ENDPOINTS = {
       list: `${API_BASE_URLS.SQUARE}/v2/locations`, // POST
     },
     ORDER: {
-      create: (queryParams, csrfToken) => `${API_BASE_URLS.SQUARE}/v2/orders${queryParams}&csrfToken=${csrfToken}`, // POST
+      create: (queryParams, csrfToken) => `${API_BASE_URLS.SQUARE}/v2/orders?csrfToken=${csrfToken}&${queryParams}`, // POST
     },
     PAYMENTS: {
       create: `${API_BASE_URLS.SQUARE}/v2/payments`, // POST
