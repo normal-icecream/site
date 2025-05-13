@@ -435,9 +435,9 @@ export function wholesaleOrderForm(wholesaleData, modal) {
     try {
       let newOrder;
       if (env === 'sandbox') {
-        newOrder = await hitSandbox(createOrder, JSON.stringify(newOrderObject), '?location=sandbox');
+        newOrder = await hitSandbox(createOrder, JSON.stringify(newOrderObject), '&location=sandbox');
       } else {
-        newOrder = await createOrder(JSON.stringify(newOrderObject), `?location=${cartLocation}`);
+        newOrder = await createOrder(JSON.stringify(newOrderObject), `&location=${cartLocation}`);
       }
 
       if (newOrder) {
@@ -680,8 +680,8 @@ export function orderForm(cartData) {
     const orderWrapper = new SquareOrderWrapper(orderData).build();
 
     const newOrder = env === 'sandbox'
-      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '?location=sandbox')
-      : await createOrder(JSON.stringify(orderWrapper), `?location=${cartLocation}`);
+      ? await hitSandbox(createOrder, JSON.stringify(orderWrapper), '&location=sandbox')
+      : await createOrder(JSON.stringify(orderWrapper), `&location=${cartLocation}`);
 
     if (newOrder) {
       const cartModal = document.querySelector('.modal.cart');

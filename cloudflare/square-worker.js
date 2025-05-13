@@ -473,24 +473,6 @@ export default {
     // Send the modified request to the Square API
     const response = await fetch(modifiedRequest);
 
-    // Store response in KV for idempotency
-    // if (request.method === 'POST' || request.method === 'PUT') {
-    // const cacheKey = `${idempotencyKey}-${url.pathname}`;
-    // const clonedResponse = response.clone();
-    // const responseBody = await clonedResponse.json();
-    // const responseHeaders = Object.fromEntries(clonedResponse.headers.entries());
-
-    // await env.IDEMPOTENCY_STORE.put(
-    //   cacheKey,
-    //   JSON.stringify({
-    //     status: clonedResponse.status,
-    //     body: responseBody,
-    //     headers: responseHeaders,
-    //   }),
-    //   { expirationTtl: 3600 }, // 1 hour expiration
-    // );
-    // }
-
     // Add CORS headers to the response to enable cross-origin requests
     const corsHeaders = {
       'Access-Control-Allow-Origin': originHeader,
