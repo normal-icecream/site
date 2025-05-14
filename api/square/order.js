@@ -20,7 +20,7 @@ export async function createOrder(orderData, queryParams) {
   const csrfToken = await getCSRFToken(orderData);
 
   try {
-    const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams, csrfToken), 'POST', orderData);
+    const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams, encodeURIComponent(csrfToken)), 'POST', orderData);
 
     return order;
   } catch (error) {
