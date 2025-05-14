@@ -2,7 +2,6 @@
 /* eslint-disable max-len */
 
 // List of URLs that are allowed to make requests to Square based on environment
-// TODO - add .club as an allowed origin
 const ALLOWED_ORIGINS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
@@ -41,6 +40,20 @@ const LOCATIONS = [
     name: 'SANDBOX',
   },
 ];
+
+async function getCSRFToken(payload) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(payload);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const base64String = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
+  return base64String.substring(0, 6);
+}
+
+function isWithin5Seconds(timestamp) {
+  const currentTime = Date.now();
+  const timeDifference = Math.abs(currentTime - timestamp);
+  return timeDifference <= 5000;
+}
 
 function createFakeOrder() {
   return {
@@ -298,41 +311,22 @@ export default {
     if (isOrderRequest && request.method === 'POST') {
       // Check if order request has csrfToken param
       if (hasCSRFTokenParam) {
+        // Get unique csrf token from order data
+        const csrfTokenFromOrder = await getCSRFToken(requestBody);
+
         // Grab csrf token value from the params
-        const csrfToken = url.searchParams.get('csrfToken');
+        const csrfToken = decodeURIComponent(url.searchParams.get('csrfToken'));
 
-        // Grab list of used csrf tokens from cloudflare kv
-        let usedTokens = await env.CSRF_TOKENS.get('usedTokens', { type: 'json' });
+        // timestamp from client is within 5 seconds of now
+        const hasValidTimestamp = isWithin5Seconds(JSON.parse(requestBody).timestamp);
 
-        if (isSandboxUrl) {
-          // initialize used tokens in sandbox end if wiped
-          if (usedTokens === null) { usedTokens = []; }
-
-          // check to see if csrfToken value has be used before
-          const hasDuplicateToken = usedTokens?.some((token) => token === csrfToken);
-
-          // If csrfToken has NOT been used before, proceed with regular order
-          if (!hasDuplicateToken) {
+        if ((csrfTokenFromOrder === csrfToken) && hasValidTimestamp) {
+          if (isSandboxUrl) {
             locationKey = LOCATIONS.find((location) => location.name === 'SANDBOX').id;
             const body = JSON.parse(requestBody);
             body.order.location_id = locationKey;
             requestBody = JSON.stringify(body);
-
-            // Add csrf token value to cloudflare useTokens kv
-            await env.CSRF_TOKENS.put('usedTokens', JSON.stringify([...usedTokens, csrfToken]));
           } else {
-            // otherwise send back bad request for invalid csrf token
-            return new Response('Bad Request: Invalid CSRF Token', {
-              status: 400,
-              headers: { 'Content-Type': 'text/plain' },
-            });
-          }
-        } else {
-          // check to see if csrfToken value has be used before
-          const hasDuplicateToken = usedTokens?.some((token) => token === csrfToken);
-
-          // If csrfToken has NOT been used before, proceed with regular order
-          if (!hasDuplicateToken) {
             const locationParam = url.searchParams.get('location');
             if (locationParam === 'pickup') {
               locationKey = LOCATIONS.find((location) => location.name === 'STORE').id;
@@ -350,17 +344,15 @@ export default {
                 headers: { 'Content-Type': 'text/plain' },
               });
             }
-
-            // Add csrf token value to cloudflare useTokens kv
-            await env.CSRF_TOKENS.put('usedTokens', JSON.stringify([...usedTokens, csrfToken]));
-          } else {
-            // otherwise send back bad request for invalid csrf token
-            return new Response('Bad Request: Invalid CSRF Token', {
-              status: 400,
-              headers: { 'Content-Type': 'text/plain' },
-            });
           }
+        } else {
+          // otherwise send back bad request for invalid csrf token
+          return new Response('Bad Request: Invalid CSRF Token', {
+            status: 400,
+            headers: { 'Content-Type': 'text/plain' },
+          });
         }
+
       // if there is no csrf token present in order params, return fake order res
       } else {
         const fakeOrder = createFakeOrder();
