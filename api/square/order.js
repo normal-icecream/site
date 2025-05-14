@@ -1,7 +1,14 @@
 /* eslint-disable import/prefer-default-export */
-import { getCSRFToken } from '../../helpers/helpers.js';
 import { apiClient } from '../client.js';
 import { API_ENDPOINTS } from '../config.js';
+
+export async function getCSRFToken(payload) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(payload);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const base64String = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
+  return base64String.substring(0, 6);
+}
 
 export async function createOrder(orderData, queryParams) {
   if (!orderData) {
@@ -10,7 +17,7 @@ export async function createOrder(orderData, queryParams) {
   }
 
   // get unique 6 digit csrf token
-  const csrfToken = getCSRFToken();
+  const csrfToken = await getCSRFToken(orderData);
 
   try {
     const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams, csrfToken), 'POST', orderData);

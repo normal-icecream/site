@@ -292,11 +292,13 @@ export class SquareOrderData {
 export class SquareOrderWrapper {
   constructor(data) {
     this.order = data;
+    this.timestamp = Date.now();
   }
 
   build() {
     return {
       order: this.order,
+      timestamp: this.timestamp,
     };
   }
 }
