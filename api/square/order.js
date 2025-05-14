@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { getCSRFToken } from '../../helpers/helpers.js';
+import { getCSRFToken, generateUniqueTimestamp } from '../../helpers/helpers.js';
 import { apiClient } from '../client.js';
 import { API_ENDPOINTS } from '../config.js';
 
@@ -9,11 +9,14 @@ export async function createOrder(orderData, queryParams) {
     throw new Error('orderData is required to create an order.');
   }
 
-  // get unique 6 digit csrf token
-  const csrfToken = getCSRFToken();
+  // Add unique timestamp to order
+  const orderWithTimestamp = generateUniqueTimestamp(orderData);
+
+  // get unique csrf token from timestamped order data
+  const csrfToken = await getCSRFToken(orderWithTimestamp);
 
   try {
-    const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams, csrfToken), 'POST', orderData);
+    const order = await apiClient(API_ENDPOINTS.SQUARE.ORDER.create(queryParams, csrfToken), 'POST', orderWithTimestamp);
 
     return order;
   } catch (error) {

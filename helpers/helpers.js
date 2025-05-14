@@ -127,14 +127,16 @@ export function wrapRegisteredWithSup(str) {
   return str;
 }
 
-// generate a unique 6 digit csrf token
-export function getCSRFToken() {
-  let token = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+export function generateUniqueTimestamp(orderData) {
+  const orderObj = JSON.parse(orderData);
+  orderObj.timestamp = Date.now();
+  return JSON.stringify(orderObj);
+}
 
-  for (let i = 0; i < 6; i++) { // eslint-disable-line no-plusplus
-    token += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-
-  return token;
+export async function getCSRFToken(payload) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(payload);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const base64String = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
+  return base64String.substring(0, 6);
 }
