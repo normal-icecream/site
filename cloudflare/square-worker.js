@@ -350,6 +350,7 @@ export default {
           }
         } else {
           // otherwise send back bad request for invalid csrf token
+          console.log('(400) Bad Request: Invalid CSRF Token');
           return new Response('Bad Request: Invalid CSRF Token', {
             status: 400,
             headers: { 'Content-Type': 'text/plain' },
@@ -478,6 +479,7 @@ export default {
     const additionalFields = {};
     if (isOrderRequest) {
       additionalFields.applicationId = isSandboxUrl ? env.SQUARE_SANDBOX_APP_ID : env.SQUARE_PROD_APP_ID;
+      console.log('(200) Successful Request: new order');
     }
 
     const modifiedResponse = new Response(
