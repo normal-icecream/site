@@ -314,7 +314,7 @@ export default {
         // Get unique csrf token from order data
         const csrfTokenFromOrder = await getCSRFToken(requestBody);
 
-        const customerName = JSON.parse(requestBody).order.fulfillments[0].pickup_details.recipient.display_name;
+        const customerName = JSON.parse(requestBody)?.order?.fulfillments[0]?.pickup_details?.recipient?.display_name;
         console.log('customer name:', customerName);
 
         // Grab csrf token value from the params
