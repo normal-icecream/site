@@ -205,7 +205,7 @@ export default {
 
       // if there is no csrf token present in order params, return fake order res
       } else {
-         return new Response('Bad Request: Invalid CSRF Token', {
+        return new Response('Bad Request: Invalid CSRF Token', {
           status: 400,
           headers: { 'Content-Type': 'text/plain' },
         });
