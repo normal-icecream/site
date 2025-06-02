@@ -107,21 +107,37 @@ export class SquareCustomer {
   constructor(data) {
     this.idempotency_key = data.idempotency_key;
     this.email_address = data.orderFormData.email;
-    this.given_name = data.orderFormData.name;
-    this.company_name = data.orderFormData.businessName;
     this.phone_number = data.orderFormData.phone;
     this.address = new SquareAddress(data.orderFormData).build();
   }
 
+  attachGivenName(givenName) {
+    this.given_name = givenName;
+    return this;
+  }
+
+  attachBusinessName(businessName) {
+    this.company_name = businessName;
+    return this;
+  }
+
   build() {
-    return {
+    const output = {
       idempotency_key: this.idempotency_key,
       email_address: this.email_address,
-      given_name: this.given_name,
-      company_name: this.company_name,
       phone_number: this.phone_number,
       address: this.address,
     };
+
+    if (this.company_name) {
+      output.company_name = this.company_name;
+    }
+
+    if (this.given_name) {
+      output.given_name = this.given_name;
+    }
+
+    return output;
   }
 }
 

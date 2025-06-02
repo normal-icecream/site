@@ -351,25 +351,33 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
   const cartLocation = getCartLocation();
   const customerWrapper = new SquareCustomerWrapper(orderFormData.email).build();
 
-  let normalCustomer;
-  normalCustomer = env === 'sandbox'
+  const customerData = env === 'sandbox'
     ? await hitSandbox(findCustomer, JSON.stringify({ query: customerWrapper }), '?location=sandbox')
     : await findCustomer(JSON.stringify(customerWrapper), `?location=${cartLocation}`);
 
+  let customer;
+
   async function createSquareCustomer() {
     try {
-      const squareCustomer = new SquareCustomer({
+      const squareCustomerData = new SquareCustomer({
         idempotency_key: idempotencyKey,
         orderFormData,
-      }).build();
-
-      let customer;
-      if (env === 'sandbox') {
-        customer = await hitSandbox(createCustomer, JSON.stringify(squareCustomer), '?location=sandbox');
+      });
+      if (cartLocation === 'wholesale') {
+        squareCustomerData.attachBusinessName(orderFormData.businessName);
       } else {
-        customer = await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
+        squareCustomerData.attachGivenName(orderFormData.name);
       }
-      return customer;
+
+      const squareCustomer = squareCustomerData.build();
+
+      let newCustomer;
+      if (env === 'sandbox') {
+        newCustomer = await hitSandbox(createCustomer, JSON.stringify(squareCustomer), '?location=sandbox');
+      } else {
+        newCustomer = await createCustomer(JSON.stringify(squareCustomer), `?location=${cartLocation}`);
+      }
+      return newCustomer;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error creating customer:', error);
@@ -377,23 +385,44 @@ export async function handleNewCustomer(idempotencyKey, orderFormData) {
     }
   }
 
-  // If multiple customers share the same email,
-  // check if their name or business name matches the order form.
-  if (normalCustomer.customers) {
-    let hasMatch = false;
-    if (normalCustomer.customers.length > 1) {
-      hasMatch = normalCustomer.customers.some((c) => (c.given_name === orderFormData.name)
-      || (c.company_name === orderFormData.businessName));
-    }
-    if (!hasMatch) {
-      normalCustomer = await createSquareCustomer();
+  if (customerData.customers) {
+    if (customerData.customers.length > 0) {
+      let matchingCustomer;
+      // If a wholesale order, check business names
+      if (orderFormData.businessName && cartLocation === 'wholesale') {
+        // eslint-disable-next-line max-len
+        const nonCompanyCustomer = !customerData.customers.some((c) => c.company_name) && customerData.customers.length === 1;
+
+        // If this is an individual, create a company customer account
+        if (nonCompanyCustomer) {
+          const newCustomerData = await createSquareCustomer();
+          matchingCustomer = newCustomerData.customer;
+        } else { // This is the company account
+          // check if normal customer has matching email address and business name
+          // eslint-disable-next-line max-len
+          matchingCustomer = customerData.customers.find((c) => c.company_name?.toLowerCase() === orderFormData.businessName.toLowerCase()
+            && c.email_address === orderFormData.email);
+        }
+      // Otherwise for reqular orders select the customer who is not a business with the same email
+      } else {
+        matchingCustomer = customerData.customers.find((c) => !c.company_name && c);
+      }
+
+      // If there is a match, set customer to matching customer data
+      if (matchingCustomer) {
+        customer = matchingCustomer;
+      } else { // create new customer from the same email address but with a different business name
+        const newCustomerData = await createSquareCustomer();
+        customer = newCustomerData.customer;
+      }
     }
   } else {
     // otherwise create a customer if there isn't one
-    normalCustomer = await createSquareCustomer();
+    const newCustomerData = await createSquareCustomer();
+    customer = newCustomerData.customer;
   }
 
-  return normalCustomer;
+  return customer;
 }
 
 export function wholesaleOrderForm(wholesaleData, modal) {
@@ -449,17 +478,9 @@ export function wholesaleOrderForm(wholesaleData, modal) {
 
           getTotals(modal, newOrder, createCartTotalContent);
 
-          let customerData;
-          if (customer.customers) {
-            // eslint-disable-next-line prefer-destructuring
-            customerData = customer.customers[0];
-          } else {
-            customerData = customer.customer;
-          }
-
           const invoiceData = new SquareInvoice(
             newOrder,
-            customerData,
+            customer,
             orderFormFields.businessName,
           ).build();
           const invoice = new SquareInvoiceWrapper(invoiceData, newOrder.idempotency_key).build();
