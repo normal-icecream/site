@@ -15,7 +15,7 @@ normal merch products - Sweater: have a normal® day! - beige + red
 <g:link>
 https://www.normal.club/merch
 </g:link>
-<g:image_link>https://www.normal.club/media_12de6a4f8de14c1d30ab4ad113429f08bd39ebd18.png?width=560&format=webply&optimize=medium</g:image_link>
+<g:image_link>https://www.normal.club/media_12de6a4f8de14c1d30ab4ad113429f08bd39ebd18.png?width=560&amp;format=webply&amp;optimize=medium</g:image_link>
 <g:condition>new</g:condition>
 <g:availability>in stock</g:availability>
 <g:price>75.00 USD</g:price>
