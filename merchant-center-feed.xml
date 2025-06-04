@@ -19,6 +19,10 @@ https://www.normal.club/merch
 <g:condition>new</g:condition>
 <g:availability>in stock</g:availability>
 <g:price>75.00 USD</g:price>
+<g:age_group>adult</g:age_group>
+<g:color>beige</g:color>
+<g:size>M</g:size>
+<g:gender>unisex</g:gender>
 <g:shipping>
     <g:country>US</g:country>
     <g:service>Standard</g:service>
