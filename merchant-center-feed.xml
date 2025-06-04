@@ -21,8 +21,14 @@ https://www.normal.club/merch
 <g:price>75.00 USD</g:price>
 <g:age_group>adult</g:age_group>
 <g:color>beige</g:color>
-<g:size>M</g:size>
+<g:size>XL</g:size>
+<g:size>XXL</g:size>
 <g:gender>unisex</g:gender>
+<g:material>100% cotton</g:material>
+<g:pattern>solid</g:pattern>
+<g:style>sweater</g:style>
+<g:product_category>Sweaters</g:product_category>
+<g:product_category>Sweaters</g:product_category>
 <g:shipping>
     <g:country>US</g:country>
     <g:service>Standard</g:service>
