@@ -109,34 +109,12 @@ async function triggerBackgroundRefresh(env, apiKey) {
 
 export default {
   async fetch(request, env) {
-    // Get the 'Origin' header from the incoming request to validate the source
-    const originHeader = request.headers.get('Origin');
-
-    // Check if originHeader is null or undefined
-    if (!originHeader) {
-      return new Response('Bad Request: Origin header is missing', {
-        status: 400,
-        headers: { 'Content-Type': 'text/plain' },
-      });
-    }
-
-    // Check if the request's origin is in the list of allowed origins
-    const isAllowed = ALLOWED_ORIGINS.find((element) => originHeader.endsWith(element));
-    if (!isAllowed) {
-      // Reject the request with a 403 status if the origin is not allowed
-      return new Response(`Forbidden: Requests from origin header ${originHeader} are not allowed.`, {
-        status: 403,
-        headers: { 'Content-Type': 'text/plain' },
-      });
-    }
-
     if (request.method === 'OPTIONS') {
       // Handle CORS preflight requests by responding with appropriate headers
       return new Response(null, {
         headers: {
-          'Access-Control-Allow-Origin': originHeader,
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         },
       });
     }
@@ -262,7 +240,7 @@ export default {
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': originHeader,
+              'Access-Control-Allow-Origin': '*',
             },
           });
         }
