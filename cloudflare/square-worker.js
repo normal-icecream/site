@@ -1,14 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 
-// List of URLs that are allowed to make requests to Square based on environment
-const ALLOWED_ORIGINS = [
-  'localhost:3000', // Local development
-  '--site--normal-icecream.aem.page', // Preview domain/
-  '--site--normal-icecream.aem.live', // Production domain/
-  'normal.club', // Live site domain/
-];
-
 const SANDBOX_URLS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
@@ -109,6 +101,9 @@ async function triggerBackgroundRefresh(env, apiKey) {
 
 export default {
   async fetch(request, env) {
+    // Get the 'Origin' header from the incoming request to validate the source
+    const originHeader = request.headers.get('Origin');
+
     if (request.method === 'OPTIONS') {
       // Handle CORS preflight requests by responding with appropriate headers
       return new Response(null, {
@@ -254,7 +249,7 @@ export default {
           status: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': originHeader,
+            'Access-Control-Allow-Origin': '*',
           },
         });
       } catch (error) {
@@ -270,7 +265,7 @@ export default {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': originHeader,
+          'Access-Control-Allow-Origin': '*',
         },
       });
     }
@@ -291,9 +286,8 @@ export default {
 
     // Add CORS headers to the response to enable cross-origin requests
     const corsHeaders = {
-      'Access-Control-Allow-Origin': originHeader,
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     };
 
     const additionalFields = {};
