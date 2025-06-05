@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/prefer-default-export */
-import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
-import { createPayment } from '../../api/square/payments.js';
+import { getEnvironment, hitSandbox } from '../../scripts/square-client/environmentConfig.js';
+import { createPayment } from '../../scripts/square-client/square/payments.js';
 import { loadScript, loadCSS, decorateIcons } from '../../scripts/aem.js';
 import buildForm from '../forms/forms.js';
 import {

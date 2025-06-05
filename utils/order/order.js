@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
-import { getEnvironment, hitSandbox } from '../../api/environmentConfig.js';
-import { createOrder } from '../../api/square/order.js';
-import { createInvoice, publishInvoice } from '../../api/square/invoice.js';
+import { getEnvironment, hitSandbox } from '../../scripts/square-client/environmentConfig.js';
+import { createOrder } from '../../scripts/square-client/square/order.js';
+import { createInvoice, publishInvoice } from '../../scripts/square-client/square/invoice.js';
 import buildForm from '../forms/forms.js';
 import { toggleModal } from '../modal/modal.js';
 import {
@@ -29,7 +29,7 @@ import { getTotals } from '../../helpers/helpers.js';
 import { swapIcons } from '../../scripts/scripts.js';
 import { loadCSS, decorateIcons } from '../../scripts/aem.js';
 import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
-import { createCustomer, findCustomer } from '../../api/square/customer.js';
+import { createCustomer, findCustomer } from '../../scripts/square-client/square/customer.js';
 
 const alwaysVisibleFields = [
   'name',
