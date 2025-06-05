@@ -6,7 +6,7 @@ import { environmentConfig } from './environmentConfig.js';
 // otherwise, use the production Cloudflare Worker URL
 const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8787' // Local development server
-  : 'https://square-worker.website-f57.workers.dev'; // Production URL of your Cloudflare Worker
+  : 'https://www.normal.club'; // Production URL of your Cloudflare Worker
 
 /**
  * A generic API client function to interact with the server-side API.
