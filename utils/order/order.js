@@ -440,10 +440,6 @@ export function wholesaleOrderForm(wholesaleData, modal) {
     // eslint-disable-next-line max-len
     const orderData = new SquareOrderData(wholesaleData).build();
 
-    if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
-      addDiscountToOrder(orderData, orderFormFields);
-    }
-
     const note = [];
     if (wholesaleData.note) note.push(wholesaleData.note);
     orderData.note = note.length > 0 ? note.join(' | ') : '';
@@ -671,7 +667,7 @@ export function orderForm(cartData) {
     }
 
     if (orderFormFields.discountCode && orderFormFields.discountCode.trim() !== '') {
-      addDiscountToOrder(orderData, orderFormFields);
+      await addDiscountToOrder(orderData, orderFormFields);
     }
 
     orderData.line_items.forEach((item) => {

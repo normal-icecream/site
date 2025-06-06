@@ -168,16 +168,22 @@ async function validateInput(input) {
 
   // Custom validation rules: Parse from data-validation attribute
   const validationRules = JSON.parse(input.dataset.validation || '[]');
-  validationRules.forEach(async (rule) => {
+  /* eslint-disable-next-line no-restricted-syntax */
+  for (const rule of validationRules) {
     // Rule: No numbers allowed
     if (rule === 'no-nums' && /\d/.test(input.value)) {
       errorMessages.push('Numbers are not allowed.');
     }
 
     if (rule === 'discount' && input.value && input.value.trim() !== '') {
-      const discount = (await getCatalog()).discounts[input.value];
-      if (!discount) {
-        errorMessages.push('invalid discount code.');
+      /* eslint-disable-next-line no-await-in-loop */
+      const catalog = await getCatalog();
+
+      if (catalog) {
+        const discount = catalog?.discounts[input.value];
+        if (!discount) {
+          errorMessages.push('invalid discount code.');
+        }
       }
     }
 
@@ -195,7 +201,7 @@ async function validateInput(input) {
         errorMessages.push('There should only be 10 digits in this entry.');
       }
     }
-  });
+  }
 
   // Apply error messages if validation failed
   if (errorMessages.length > 0) {
@@ -223,7 +229,7 @@ async function validateInput(input) {
  * @param {HTMLFormElement} form - The form element to validate.
  * @returns {boolean} `true` if the form is valid; `false` otherwise.
  */
-function validateForm(form) {
+async function validateForm(form) {
   let isValid = true;
 
   // Get all form inputs as an array
@@ -231,29 +237,29 @@ function validateForm(form) {
 
   // Retrieve grouped checkboxes based on specific criteria
   const checkboxGroups = getCheckboxGroups(form);
-
-  // Validate each checkbox group
-  Object.values(checkboxGroups).forEach((group) => {
+  /* eslint-disable-next-line no-restricted-syntax */
+  for (const group of Object.values(checkboxGroups)) {
     const groupValid = validateCheckboxGroup(group);
     if (!groupValid) {
       isValid = false;
     }
-  });
+  }
 
   // Extract all grouped checkboxes into a flat array
   const groupedCheckboxes = Object.values(checkboxGroups).flatMap((group) => group.checkboxes);
 
   // Exclude grouped checkboxes from other form inputs
   const withoutCheckboxGroups = formInputs.filter((input) => !groupedCheckboxes.includes(input));
-  withoutCheckboxGroups.forEach((input) => {
-    // Skip non-input elements like buttons
+  /* eslint-disable-next-line no-restricted-syntax */
+  for (const input of withoutCheckboxGroups) {
     if (input.type !== 'submit' && input.type !== 'button' && input.type !== 'reset') {
-      const inputValid = validateInput(input); // Validate individual input
+      /* eslint-disable-next-line no-await-in-loop */
+      const inputValid = await validateInput(input);
       if (!inputValid) {
-        isValid = false; // Mark the form as invalid if any field fails
+        isValid = false;
       }
     }
-  });
+  }
 
   // Return the overall validity of the form
   return isValid;
@@ -283,8 +289,8 @@ function buildInput(field) {
   }
 
   // Trigger input validation when the user types into the field
-  input.addEventListener('input', () => {
-    validateInput(input); // Validate the current input
+  input.addEventListener('input', async () => {
+    await validateInput(input); // Validate the current input
   });
 
   // Return the fully configured <input> element
@@ -692,11 +698,11 @@ export default function buildForm(fields, handleSubmit, scopedElement, buttonLab
   });
 
   // Attach an event listener to handle form submission
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     let isValid = true;
-    isValid = validateForm(form); // Perform custom validation on the form
+    isValid = await validateForm(form); // Perform custom validation on the form
 
     if (isValid) {
       const data = []; // Initialize an object to store form data
