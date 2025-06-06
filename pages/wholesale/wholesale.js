@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+/* eslint-disable import/no-cycle */
 import { removeLeadingZero } from '../../helpers/helpers.js';
 import {
   buildBlock,
@@ -11,6 +12,7 @@ import buildForm from '../../utils/forms/forms.js';
 import { wholesaleOrderForm, resetOrderForm } from '../../utils/order/order.js';
 import { createLineItem } from '../cart/cart.js';
 import { createModal, toggleModal } from '../../utils/modal/modal.js';
+import { getCatalog } from '../../scripts/scripts.js';
 
 function buildModal(element, refresh) {
   const wholesaleModal = document.createElement('div');
@@ -278,11 +280,11 @@ async function buildWholesale(main, link) {
         const inputs = form.querySelectorAll('input[type="number"]');
 
         const lineItems = [];
-        inputs.forEach((input) => {
+        inputs.forEach(async (input) => {
           // If input value isn't empty or zero, add to formData
           if (input.value > 0) {
-            const item = window.catalog.byId[input.id];
-            const lineItem = createLineItem(item.id, removeLeadingZero(input.value));
+            const item = (await getCatalog()).byId[input.id];
+            const lineItem = await createLineItem(item.id, removeLeadingZero(input.value));
             lineItems.push(lineItem);
             lineItem.note = input.dataset.itemName;
             lineItem.type = input.dataset.itemType;

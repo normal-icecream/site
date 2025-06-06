@@ -26,7 +26,7 @@ import {
 } from '../../constructors/constructors.js';
 import { refreshPaymentsContent } from '../customize/customize.js';
 import { getTotals } from '../../helpers/helpers.js';
-import { swapIcons } from '../../scripts/scripts.js';
+import { getCatalog, swapIcons } from '../../scripts/scripts.js';
 import { loadCSS, decorateIcons } from '../../scripts/aem.js';
 import { updateWholesaleGoogleSheet } from '../../pages/wholesale/wholesale.js';
 import { createCustomer, findCustomer } from '../../scripts/square-client/square/customer.js';
@@ -196,10 +196,10 @@ export function resetOrderForm() {
   localStorage.setItem('orderFormData', JSON.stringify(orderData));
 }
 
-function addDiscountToOrder(order, orderFormData) {
+async function addDiscountToOrder(order, orderFormData) {
   const discounts = [];
-  const discountData = window.catalog.discounts[orderFormData.discountCode].id;
-  const discount = window.catalog.byId[discountData];
+  const discountData = (await getCatalog()).discounts[orderFormData.discountCode].id;
+  const discount = (await getCatalog()).byId[discountData];
 
   if (discount) {
     if (discount.discount_data.percentage) {
@@ -625,7 +625,7 @@ export function orderForm(cartData) {
   async function createSquareOrder() {
     const orderFormFields = getOrderFormData();
     const orderData = new SquareOrderData(cartData).build();
-    orderData.taxes = [new SquareTaxData(window.catalog.taxList[0]).build()];
+    orderData.taxes = [new SquareTaxData((await getCatalog()).taxList[0]).build()];
 
     const note = [];
     function addPickupNote() {

@@ -3,6 +3,7 @@ import { formatCurrency, stringExistsInAnother, convertEmailToLink } from '../..
 import { SquareOrderLineItem } from '../../constructors/constructors.js';
 import { loadCSS } from '../../scripts/aem.js';
 import { getOrderFormData, orderForm } from '../../utils/order/order.js';
+import { getCatalog } from '../../scripts/scripts.js';
 
 export const allowedCartPages = Object.freeze([
   'pickup',
@@ -92,8 +93,8 @@ export function getCartQuantity() {
   return quantity;
 }
 
-export function createLineItem(squareItemId, quantity) {
-  const squareItem = window.catalog.byId[squareItemId];
+export async function createLineItem(squareItemId, quantity) {
+  const squareItem = (await getCatalog()).byId[squareItemId];
   const lineItemData = {
     item_id: squareItem.id,
     // setting square variation id at index 0 as default for all line items,
@@ -126,7 +127,7 @@ export async function addItemToCart(key, squareItemId, modifiers = [], variation
   if (cartItem) {
     cartItem.quantity += quantity;
   } else {
-    const lineItem = createLineItem(squareItemId, quantity);
+    const lineItem = await createLineItem(squareItemId, quantity);
 
     if (modifiers.length > 0) {
       const compoundCartKey = modifiers.reduce((acc, curr) => `${acc}-${curr.catalog_object_id}`, '');

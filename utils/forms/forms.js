@@ -1,5 +1,7 @@
+/* eslint-disable import/no-cycle */
 import { loadCSS } from '../../scripts/aem.js';
 import { toKebabCase, wrapRegisteredWithSup } from '../../helpers/helpers.js';
+import { getCatalog } from '../../scripts/scripts.js';
 
 /**
  * Creates a label element for a form field, indicating if the field is required.
@@ -154,7 +156,7 @@ function validateCheckboxGroup(group) {
  * @param {HTMLInputElement} input - The input field to validate.
  * @returns {boolean} `true` if the input is valid; `false` otherwise.
  */
-function validateInput(input) {
+async function validateInput(input) {
   input.setCustomValidity(''); // Reset any previous custom validity
   const errorMessages = []; // Array to collect error messages
   let isValid = true; // Tracks the validity of the input
@@ -166,14 +168,14 @@ function validateInput(input) {
 
   // Custom validation rules: Parse from data-validation attribute
   const validationRules = JSON.parse(input.dataset.validation || '[]');
-  validationRules.forEach((rule) => {
+  validationRules.forEach(async (rule) => {
     // Rule: No numbers allowed
     if (rule === 'no-nums' && /\d/.test(input.value)) {
       errorMessages.push('Numbers are not allowed.');
     }
 
     if (rule === 'discount' && input.value && input.value.trim() !== '') {
-      const discount = window.catalog.discounts[input.value];
+      const discount = (await getCatalog()).discounts[input.value];
       if (!discount) {
         errorMessages.push('invalid discount code.');
       }

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {
   buildBlock,
   decorateBlock,
@@ -15,7 +16,6 @@ import {
   getMetadata,
   toClassName,
 } from './aem.js';
-// eslint-disable-next-line import/no-cycle
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { decorateCatering } from '../pages/catering/catering.js';
 import { getCatalogListJson } from './square-client/square/catalog.js';
@@ -236,51 +236,59 @@ async function loadLazy(doc) {
 }
 
 export async function fetchCatalog() {
-  if (!window.catalog) {
-    const json = await getCatalogListJson();
-    if (json) {
-      const catalog = {
-        byId: {},
-        items: [],
-        categories: [],
-        discounts: {},
-        taxList: [],
-      };
-      json.forEach((e) => {
-        if (!catalog.byId[e.id]) {
-          catalog.byId[e.id] = e;
+  const json = await getCatalogListJson();
+  let catalogData;
+  if (json) {
+    const catalog = {
+      byId: {},
+      items: [],
+      categories: [],
+      discounts: {},
+      taxList: [],
+    };
+    json.forEach((e) => {
+      if (!catalog.byId[e.id]) {
+        catalog.byId[e.id] = e;
+      }
+      if (e.type === 'ITEM') {
+        catalog.items.push(e);
+        if (e.item_data.variations) {
+          e.item_data.variations.forEach((v) => {
+            catalog.byId[v.id] = v;
+          });
         }
-        if (e.type === 'ITEM') {
-          catalog.items.push(e);
-          if (e.item_data.variations) {
-            e.item_data.variations.forEach((v) => {
-              catalog.byId[v.id] = v;
-            });
-          }
+      }
+      if (e.type === 'MODIFIER_LIST') {
+        if (e.modifier_list_data.modifiers) {
+          e.modifier_list_data.modifiers.forEach((m) => {
+            m.modifier_data.modifier_list_id = e.id;
+            catalog.byId[m.id] = m;
+          });
         }
-        if (e.type === 'MODIFIER_LIST') {
-          if (e.modifier_list_data.modifiers) {
-            e.modifier_list_data.modifiers.forEach((m) => {
-              m.modifier_data.modifier_list_id = e.id;
-              catalog.byId[m.id] = m;
-            });
-          }
+      }
+      if (e.type === 'DISCOUNT') {
+        if (e.discount_data.name) {
+          catalog.discounts[e.discount_data.name.toLowerCase()] = { id: e.id };
         }
-        if (e.type === 'DISCOUNT') {
-          if (e.discount_data.name) {
-            catalog.discounts[e.discount_data.name.toLowerCase()] = { id: e.id };
-          }
-        }
-        if (e.type === 'TAX') {
-          catalog.taxList.push(e);
-        }
-        if (e.type === 'CATEGORY') {
-          catalog.categories.push(e);
-        }
-      });
-      window.catalog = catalog;
-    }
+      }
+      if (e.type === 'TAX') {
+        catalog.taxList.push(e);
+      }
+      if (e.type === 'CATEGORY') {
+        catalog.categories.push(e);
+      }
+    });
+    catalogData = catalog;
   }
+  return catalogData;
+}
+
+export async function getCatalog() {
+  if (!window.catalog) {
+    window.catalog = await fetchCatalog();
+  }
+
+  return window.catalog;
 }
 
 /**
@@ -291,9 +299,6 @@ async function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
-
-  // Fetch Square catalog
-  fetchCatalog();
 }
 
 async function loadPage() {

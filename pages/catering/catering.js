@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+/* eslint-disable import/no-cycle */
 import { loadCSS } from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';
 

@@ -2,6 +2,7 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { addItemToCart, removeItemFromCart, getCartItemQuantity } from '../../pages/cart/cart.js';
 import { createModal, toggleModal } from '../../utils/modal/modal.js';
 import { refreshCustomizeContent } from '../../utils/customize/customize.js';
+import { getCatalog } from '../../scripts/scripts.js';
 
 /**
  * Delays execution of a function until delay has passed since the last function invocation.
@@ -243,9 +244,9 @@ export default function decorate(block) {
       button.type = 'button';
       button.setAttribute('aria-label', 'customize item');
       button.textContent = buttonLabel;
-      button.addEventListener('click', () => {
+      button.addEventListener('click', async () => {
         if (squareProductId) {
-          const cardItemTitle = window.catalog.byId[squareProductId].item_data.name;
+          const cardItemTitle = (await getCatalog()).byId[squareProductId].item_data.name;
           toggleModal(modal, cardItemTitle, refreshCustomizeContent);
         }
       });

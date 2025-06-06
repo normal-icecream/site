@@ -1,14 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 
-// List of URLs that are allowed to make requests to Square based on environment
-// const ALLOWED_ORIGINS = [
-//   'localhost:3000', // Local development
-//   '--site--normal-icecream.aem.page', // Preview domain/
-//   '--site--normal-icecream.aem.live', // Production domain/
-//   'normal.club', // Live site domain/
-// ];
-
 const SANDBOX_URLS = [
   'localhost:3000', // Local development
   '--site--normal-icecream.aem.page', // Preview domain/
@@ -112,14 +104,6 @@ export default {
     // Get the 'Origin' header from the incoming request to validate the source
     const originHeader = request.headers.get('Origin');
 
-    // Check if originHeader is null or undefined
-    // if (!originHeader) {
-    //   return new Response('Bad Request: Origin header is missing', {
-    //     status: 400,
-    //     headers: { 'Content-Type': 'text/plain' },
-    //   });
-    // }
-
     // Check if the request's origin is in the list of allowed origins
     const isAllowed = true; // ALLOWED_ORIGINS.find((element) => originHeader.endsWith(element));
     if (!isAllowed) {
@@ -156,7 +140,7 @@ export default {
     // Check if request is for 'orders' in the request path
     const isOrderRequest = url.pathname.includes('orders');
     const hasCSRFTokenParam = !!(url.searchParams.get('csrfToken'));
-    const isSandboxUrl = SANDBOX_URLS.includes(originHeader);
+    const isSandboxUrl = originHeader !== null ? SANDBOX_URLS.some((sandboxUrl) => originHeader.includes(sandboxUrl)) : false;
     let locationKey;
     if (isOrderRequest && request.method === 'POST') {
       // Check if order request has csrfToken param

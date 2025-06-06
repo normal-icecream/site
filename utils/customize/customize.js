@@ -7,7 +7,7 @@ import { getCardPaymentForm } from '../payments/payments.js';
 import {
   loadCSS, toClassName, readBlockConfig, decorateIcons,
 } from '../../scripts/aem.js';
-import { swapIcons } from '../../scripts/scripts.js';
+import { getCatalog, swapIcons } from '../../scripts/scripts.js';
 
 // TODO - do I need this? see helpers formatCurrency
 export function formatMoney(num) {
@@ -403,15 +403,15 @@ async function createCustomizeForm(data, itemId, limits) {
 
 export async function getCustomize(element) {
   loadCSS(`${window.hlx.codeBasePath}/utils/customize/customize.css`);
-  const item = window.catalog.byId[element?.dataset.id];
+  const item = (await getCatalog()).byId[element?.dataset.id];
   const { name, variations, modifier_list_info: modifiers } = item.item_data;
 
   let form;
   if (modifiers) {
     const modifierGroups = [];
     const limits = getLimits(item.item_data.description);
-    modifiers.forEach((mod) => {
-      const modData = window.catalog.byId[mod.modifier_list_id].modifier_list_data;
+    modifiers.forEach(async (mod) => {
+      const modData = (await getCatalog()).byId[mod.modifier_list_id].modifier_list_data;
       const modName = modData.name.replace('SHIPPING', '').trim();
       const modLabel = writeLabelText(modName);
       const modMods = modData.modifiers;
