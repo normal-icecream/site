@@ -258,7 +258,6 @@ async function fetchWholesaleDeliveryMethods() {
 
 async function buildWholesale(main, link) {
   const showOrderWholesaleForm = await fetchWholesaleHours();
-  const wholesaleDeliveryMethods = await fetchWholesaleDeliveryMethods();
 
   if (showOrderWholesaleForm) {
     const path = new URL(link).pathname;
@@ -368,9 +367,8 @@ async function fetchWholesaleKey(main, key) {
     if (json.data) {
       const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
       if (wholesaleItem) {
+        sessionStorage.setItem('wholesaleKey', JSON.stringify(key))
         buildWholesale(main, wholesaleItem.LINK);
-        const columnsWrapper = main.querySelector('.columns-wrapper');
-        columnsWrapper.style.display = 'none';
       }
     }
   } catch (error) {
@@ -469,66 +467,41 @@ function handleError(input, message) {
 * Sets up wholesale static table block structure
 */
 export async function decorateWholesale(main) {
-  const wholesaleContainer = main.querySelector('.columns');
-
-  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
-  if (key) { fetchWholesaleKey(main, key); }
+  // Add wholesale class due to new routes
+  main.classList.add('wholesale');
 
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/pages/wholesale/wholesale.css`);
 
-  function handleBecomeWholesaler(formData) {
-    const name = formData.find((data) => data.field === 'name').value;
-    const businessName = formData.find((data) => data.field === 'businessName').value;
-    const location = formData.find((data) => data.field === 'location').value;
-    const email = formData.find((data) => data.field === 'email').value;
-    const referralSource = formData.find((data) => data.field === 'referralSource').value;
+  const wholesaleContainer = main.querySelector('.columns');
 
-    const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
-    const body = encodeURIComponent(
-      `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
-    );
-
-    const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
-    window.location.href = mailtoLink;
+  function getWholesaleKey(str) {
+    return str.split('-')[1];
   }
 
-  async function handleLoginWholesaler(formData) {
-    const url = `${window.location.origin}/admin/wholesale-locations.json`;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
+  const key = getWholesaleKey(window.location.href.substring(window.location.href.lastIndexOf('/') + 1))?.toUpperCase();
 
-      const json = await response.json();
-      if (json.data) {
-        const passwordField = main.querySelector('.form-password input');
-        const correctPasswordItem = json.data.find((item) => item.PASSWORD === formData[0].value);
-        if (correctPasswordItem) {
-          buildWholesale(main, correctPasswordItem.LINK);
-          sessionStorage.setItem('wholesaleKey', JSON.stringify(correctPasswordItem.LOCATION));
-          window.location.reload();
-        } else {
-          handleError(passwordField, 'Please enter a valid password');
-        }
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error.message);
+  if (key) { 
+    fetchWholesaleKey(main, key); 
+  } else {
+    function handleBecomeWholesaler(formData) {
+      const name = formData.find((data) => data.field === 'name').value;
+      const businessName = formData.find((data) => data.field === 'businessName').value;
+      const location = formData.find((data) => data.field === 'location').value;
+      const email = formData.find((data) => data.field === 'email').value;
+      const referralSource = formData.find((data) => data.field === 'referralSource').value;
+  
+      const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
+      const body = encodeURIComponent(
+        `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
+      );
+  
+      const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
+      window.location.href = mailtoLink;
     }
+  
+    const becomeWholesalerSection = wholesaleContainer.querySelector('.columns > div > div');
+    const becomeWholesalerForm = buildForm(fields, handleBecomeWholesaler, becomeWholesalerSection);
+    becomeWholesalerSection.append(becomeWholesalerForm);
   }
-
-  const alreadyWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:first-of-type');
-  const alreadyWholesalerForm = buildForm(
-    passwordFields,
-    handleLoginWholesaler,
-    alreadyWholesalerSection,
-  );
-  alreadyWholesalerForm.classList.add('wholesale-password-form');
-  alreadyWholesalerSection.append(alreadyWholesalerForm);
-
-  const becomeWholesalerSection = wholesaleContainer.querySelector('.columns > div > div:last-of-type');
-  const becomeWholesalerForm = buildForm(fields, handleBecomeWholesaler, becomeWholesalerSection);
-  becomeWholesalerSection.append(becomeWholesalerForm);
 }

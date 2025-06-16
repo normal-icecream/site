@@ -1,7 +1,3 @@
-.wholesale {
-   text-transform: lowercase;
-}
-
 .wholesale .columns > div {
     display: flex;
     flex-flow: column;
