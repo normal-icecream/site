@@ -124,20 +124,6 @@ const fields = [
   },
 ];
 
-const passwordFields = [
-  {
-    type: 'password',
-    label: 'Password',
-    name: 'password',
-    placeholder: 'Enter your password',
-    required: true,
-  },
-  {
-    type: 'submit',
-    label: 'enter password',
-  },
-];
-
 function convertDecimalToTime(decimalTime) {
   const totalMinutes = decimalTime * 24 * 60; // Convert day fraction to minutes
   const hours = Math.floor(totalMinutes / 60);
@@ -258,6 +244,7 @@ async function fetchWholesaleDeliveryMethods() {
 
 async function buildWholesale(main, link) {
   const showOrderWholesaleForm = await fetchWholesaleHours();
+  const wholesaleDeliveryMethods = await fetchWholesaleDeliveryMethods();
 
   if (showOrderWholesaleForm) {
     const path = new URL(link).pathname;
@@ -367,7 +354,7 @@ async function fetchWholesaleKey(main, key) {
     if (json.data) {
       const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
       if (wholesaleItem) {
-        sessionStorage.setItem('wholesaleKey', JSON.stringify(key))
+        sessionStorage.setItem('wholesaleKey', JSON.stringify(key));
         buildWholesale(main, wholesaleItem.LINK);
       }
     }
@@ -444,23 +431,20 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields, inv
   }
 }
 
-function handleError(input, message) {
-  const inputParent = input.closest('form');
-  const submitButton = inputParent.querySelector('.form-submit');
-  const errorMessage = submitButton.querySelector('p');
-  if (!errorMessage) {
-    inputParent.classList.add('invalid');
-    const error = document.createElement('p');
-    error.classList.add('error-messages');
-    error.textContent = message;
-    submitButton.append(error);
+function handleBecomeWholesaler(formData) {
+  const name = formData.find((data) => data.field === 'name').value;
+  const businessName = formData.find((data) => data.field === 'businessName').value;
+  const location = formData.find((data) => data.field === 'location').value;
+  const email = formData.find((data) => data.field === 'email').value;
+  const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
-    input.addEventListener('input', function clearPasswordError() {
-      inputParent.classList.remove('invalid');
-      if (error) error.remove();
-      input.removeEventListener('input', clearPasswordError); // Remove event to avoid multiple triggers
-    });
-  }
+  const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
+  const body = encodeURIComponent(
+    `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
+  );
+
+  const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
+  window.location.href = mailtoLink;
 }
 
 /**
@@ -481,25 +465,9 @@ export async function decorateWholesale(main) {
 
   const key = getWholesaleKey(window.location.href.substring(window.location.href.lastIndexOf('/') + 1))?.toUpperCase();
 
-  if (key) { 
-    fetchWholesaleKey(main, key); 
+  if (key) {
+    fetchWholesaleKey(main, key);
   } else {
-    function handleBecomeWholesaler(formData) {
-      const name = formData.find((data) => data.field === 'name').value;
-      const businessName = formData.find((data) => data.field === 'businessName').value;
-      const location = formData.find((data) => data.field === 'location').value;
-      const email = formData.find((data) => data.field === 'email').value;
-      const referralSource = formData.find((data) => data.field === 'referralSource').value;
-  
-      const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
-      const body = encodeURIComponent(
-        `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
-      );
-  
-      const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
-      window.location.href = mailtoLink;
-    }
-  
     const becomeWholesalerSection = wholesaleContainer.querySelector('.columns > div > div');
     const becomeWholesalerForm = buildForm(fields, handleBecomeWholesaler, becomeWholesalerSection);
     becomeWholesalerSection.append(becomeWholesalerForm);
