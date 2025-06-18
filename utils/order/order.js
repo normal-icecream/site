@@ -77,7 +77,7 @@ const fields = [
   },
   {
     type: 'textarea',
-    label: 'Notes',
+    label: 'Special Requests / Notes',
     name: 'businessNote',
     placeholder: 'Notes',
     validation: ['no-nums'],
@@ -118,9 +118,9 @@ const fields = [
   },
   {
     type: 'checkbox',
-    label: 'get it delivered?',
-    name: 'getItShipped',
-    val: 'get-it-shipped',
+    label: "i'd like to pick this up at the store",
+    name: 'isPickupOrder',
+    val: 'pickup-order',
     required: false,
   },
   {
@@ -176,7 +176,7 @@ export function getOrderFormData() {
       city: '',
       state: '',
       zipcode: '',
-      getItShipped: false,
+      isPickupOrder: false, // false for pickup, true for delivery
     }));
   }
   return orderFormData;
@@ -190,7 +190,7 @@ export function resetOrderForm() {
     orderData.pickuptime = '';
     orderData.discountCode = '';
     orderData.businessNote = '';
-    orderData.getItShipped = false;
+    orderData.isPickupOrder = false;
   }
 
   localStorage.setItem('orderFormData', JSON.stringify(orderData));
@@ -227,12 +227,12 @@ function populateWholesaleFormFields(formFields, modal, wholesaleData) {
   const pickupAllowed = methods.includes('pickup');
 
   if (pickupAllowed) {
-    const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
-    fieldsToDisplay.push(shouldShipField);
+    const isPickupField = formFields.find((f) => f.name === 'isPickupOrder');
+    fieldsToDisplay.push(isPickupField);
   }
 
-  const shouldShip = getOrderFormData().getItShipped;
-  if (!(shouldShip || !pickupAllowed)) {
+  const pickupOrder = getOrderFormData().isPickupOrder;
+  if ((pickupOrder || !pickupAllowed)) {
     const forPickupFields = [];
     pickupFields.forEach((field) => {
       const pickupField = formFields.find((f) => f.name === field);
@@ -290,26 +290,23 @@ function populateFormFields(formFields, key, modal) {
       if (pickupField) storeFields.push(pickupField);
     });
     storeFields.forEach((field) => fieldsToDisplay.push(field));
+
+    const localStorageOrderFields = getOrderFormData();
+    localStorageOrderFields.isPickupOrder = true;
+    localStorage.setItem('orderFormData', JSON.stringify(localStorageOrderFields));
   } else if (key === 'shipping') {
     shippingFields.forEach((field) => fieldsToDisplay.push(field));
+
+    const localStorageOrderFields = getOrderFormData();
+    localStorageOrderFields.isPickupOrder = false;
+    localStorage.setItem('orderFormData', JSON.stringify(localStorageOrderFields));
   } else if (key === 'merch') {
-    const shouldShipField = formFields.find((f) => f.name === 'getItShipped');
-    fieldsToDisplay.push(shouldShipField);
+    const isPickupField = formFields.find((f) => f.name === 'isPickupOrder');
+    fieldsToDisplay.push(isPickupField);
 
-    const shouldShip = getOrderFormData().getItShipped;
+    const pickupOrder = getOrderFormData().isPickupOrder;
 
-    if (shouldShip) {
-      pickupFields.forEach((field) => {
-        const pickupFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
-        //  remove items then refresh cart
-        if (pickupFieldIndex !== -1) {
-          // Remove the field from "fieldsToDisplay"
-          fieldsToDisplay.splice(pickupFieldIndex, 1);
-        }
-      });
-
-      shippingFields.forEach((field) => fieldsToDisplay.push(field));
-    } else {
+    if (pickupOrder) {
       pickupFields.forEach((field) => {
         const pickupField = formFields.find((f) => f.name === field);
         if (pickupField) fieldsToDisplay.push(pickupField);
@@ -323,6 +320,17 @@ function populateFormFields(formFields, key, modal) {
           fieldsToDisplay.splice(shippingFieldIndex, 1);
         }
       });
+    } else {
+      pickupFields.forEach((field) => {
+        const pickupFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
+        //  remove items then refresh cart
+        if (pickupFieldIndex !== -1) {
+          // Remove the field from "fieldsToDisplay"
+          fieldsToDisplay.splice(pickupFieldIndex, 1);
+        }
+      });
+
+      shippingFields.forEach((field) => fieldsToDisplay.push(field));
     }
   }
 
@@ -656,13 +664,13 @@ export function orderForm(cartData) {
 
     // Attach merch fulfillment data to orderData
     if (cartLocation === 'merch') {
-      if (orderFormFields.getItShipped) {
+      if (orderFormFields.isPickupOrder) {
+        addPickupFulfillments();
+        addPickupNote();
+      } else {
         orderData.fulfillments = [
           new SquareShippingData(cartData.fill_by_date, orderFormFields).build(),
         ];
-      } else {
-        addPickupFulfillments();
-        addPickupNote();
       }
     }
 

@@ -328,8 +328,8 @@ export class SquarePayment {
     this.buyer_phone_number = formatPhoneNumberToE164(formData.phone);
     this.location_id = orderData.order.location_id;
     this.order_id = orderData.order.id;
-    this.shipping_address = formData.getItShipped ? new SquareAddress(formData).build() : null;
-    this.billing_address = formData.getItShipped ? new SquareAddress(formData).build() : null;
+    this.shipping_address = !formData.isPickupOrder ? new SquareAddress(formData).build() : null;
+    this.billing_address = !formData.isPickupOrder ? new SquareAddress(formData).build() : null;
     // this.tip_money = {}
   }
 
