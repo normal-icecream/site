@@ -258,7 +258,7 @@ async function buildWholesale(main, link) {
     form.classList.add('table-form', 'wholesale-form');
 
     // Form handle submit
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const isValid = validateForm();
@@ -266,16 +266,19 @@ async function buildWholesale(main, link) {
         const inputs = form.querySelectorAll('input[type="number"]');
 
         const lineItems = [];
-        inputs.forEach(async (input) => {
-          // If input value isn't empty or zero, add to formData
+        /* eslint-disable-next-line no-restricted-syntax */
+        for (const input of inputs) {
           if (input.value > 0) {
+            /* eslint-disable-next-line no-await-in-loop */
             const item = (await getCatalog()).byId[input.id];
+            /* eslint-disable-next-line no-await-in-loop */
             const lineItem = await createLineItem(item.id, removeLeadingZero(input.value));
-            lineItems.push(lineItem);
             lineItem.note = input.dataset.itemName;
             lineItem.type = input.dataset.itemType;
+            lineItems.push(lineItem);
           }
-        });
+        }
+
         const wholesaleModal = document.querySelector('.wholesale.modal');
         /* eslint-disable-next-line no-inner-declarations */
         function refreshWholesaleContent(element) {
@@ -396,7 +399,8 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields, inv
         const params = {
           business_name: orderFormFields.businessName,
           business_note: orderFormFields.businessNote,
-          business_method: orderFormFields.getItShipped ? 'delivery' : 'pickup',
+          business_method: orderFormFields.isPickupOrder ? 'pickup' : 'delivery',
+          // business_method: orderFormFields.getItShipped ? 'delivery' : 'pickup',
           reference_id: invoiceId,
           line_items: orderData.line_items,
         };
