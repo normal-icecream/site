@@ -446,7 +446,7 @@ function handleBecomeWholesaler(formData) {
     `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
   );
 
-  const mailtoLink = `mailto:hi@normal.club?subject=${subject}&body=${body}`;
+  const mailtoLink = `mailto:wholesale@normal.club?subject=${subject}&body=${body}`;
   window.location.href = mailtoLink;
 }
 
