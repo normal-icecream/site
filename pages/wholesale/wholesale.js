@@ -400,7 +400,6 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields, inv
           business_name: orderFormFields.businessName,
           business_note: orderFormFields.businessNote,
           business_method: orderFormFields.isPickupOrder ? 'pickup' : 'delivery',
-          // business_method: orderFormFields.getItShipped ? 'delivery' : 'pickup',
           reference_id: invoiceId,
           line_items: orderData.line_items,
         };

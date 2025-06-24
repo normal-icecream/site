@@ -94,7 +94,7 @@ export async function decorateCatering(main) {
       `Name: ${name}\nCompany Name: ${companyName}\nLocation: ${location}\nEvent Type: ${eventType}\nEmail: ${email}\nNumber of People: ${numOfPeople}\nEvent Date: ${date}\nEvent Time: ${time}\nProduct Interest: ${productInterest}`,
     );
 
-    const mailtoLink = `mailto:hi@normal.club;tatiana@normal.club?subject=${subject}&body=${body}`;
+    const mailtoLink = `mailto:catering@normal.club;tatiana@normal.club?subject=${subject}&body=${body}`;
     window.location.href = mailtoLink;
   }
 
