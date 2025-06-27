@@ -382,7 +382,7 @@ export function buildGQs(params) {
   return qs;
 }
 
-export async function updateWholesaleGoogleSheet(orderData, orderFormFields, invoiceId) {
+export async function updateWholesaleGoogleSheet(orderData, orderFormFields) {
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
   const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
 
@@ -396,11 +396,18 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields, inv
     if (json.data) {
       const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
       if (wholesaleItem) {
+        let wholesaleNote = `email: ${orderFormFields?.email},\nphone #: ${orderFormFields?.phone},\nnote: ${orderFormFields?.businessNote}`;
+
+        if (orderFormFields.isPickupOrder) {
+          wholesaleNote += `,\npickup date: ${orderFormFields?.pickupdate},\npickup time: ${orderFormFields?.pickuptime}`;
+        }
+
         const params = {
+          business_email: orderFormFields.email,
           business_name: orderFormFields.businessName,
-          business_note: orderFormFields.businessNote,
+          business_note: wholesaleNote,
           business_method: orderFormFields.isPickupOrder ? 'pickup' : 'delivery',
-          reference_id: invoiceId,
+          is_wholesale_order: true,
           line_items: orderData.line_items,
         };
 
