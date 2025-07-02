@@ -52,7 +52,7 @@ export function getCartLocation() {
     const cartkey = getLastCartKey();
     const orderFormData = JSON.parse(localStorage.getItem('orderFormData'));
     if (cartkey === 'merch') {
-      currentLocation = orderFormData && orderFormData.isPickupOrder ? 'shipping' : 'pickup';
+      currentLocation = orderFormData && orderFormData.isPickupOrder ? 'pickup' : 'shipping';
     } else {
       currentLocation = cartkey;
     }
