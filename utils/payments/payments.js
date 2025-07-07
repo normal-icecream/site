@@ -21,14 +21,103 @@ import { getTotals } from '../../helpers/helpers.js';
 import { toggleModal } from '../modal/modal.js';
 import { swapIcons } from '../../scripts/scripts.js';
 
+function stringTemplateParser(expression, valueObj) {
+  const templateMatcher = /{{\s?([^{}\s]*)\s?}}/g;
+  const text = expression.replace(templateMatcher, (substring, value) => valueObj[value]);
+  return text;
+}
+
+function buildGQs(params) {
+  let qs = '';
+  Object.keys(params).forEach((key) => {
+    if (key in params) {
+      if (key === 'line_items') {
+        qs += `${key}=${encodeURIComponent(JSON.stringify(params[key]))}`;
+      } else {
+        qs += `${key}=${encodeURIComponent(params[key])}`;
+      }
+      qs += '&';
+    }
+  });
+  return qs;
+}
+
+async function sendOrderConfirmationEmail(receiptUrl, recipientEmail, orderType) {
+  const url = `${window.location.origin}/email-templates/email-templates.json`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      const orderConfirmationTemplate = json.data.find((temp) => temp.NAME === 'order_confirmation');
+
+      if (orderConfirmationTemplate) {
+        const emailSubject = stringTemplateParser(
+          orderConfirmationTemplate.SUBJECT,
+          { order_type: orderType },
+        );
+        const emailBody = stringTemplateParser(
+          orderConfirmationTemplate.BODY,
+          { order_type: orderType, receipt_url: receiptUrl },
+        );
+
+        const params = {
+          template_name: 'order_confirmation',
+          recipient_email: recipientEmail,
+          subject: emailSubject,
+          body: emailBody,
+        };
+
+        try {
+          const qs = buildGQs(params);
+          await fetch(`${orderConfirmationTemplate.SCRIPT_LINK}?${qs}`, { method: 'POST' });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('Error posting email content:', error);
+        }
+      }
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error fetching email template data:', error);
+  }
+}
+
 async function createSquarePayment(token, orderData, element) {
   const env = getEnvironment();
-
   const formData = getOrderFormData();
   const squarePaymentData = new SquarePayment(orderData, formData, token).build();
   const SquarePaymentDataJson = JSON.stringify(squarePaymentData);
 
   try {
+    // Show loading screen
+    element.innerHTML = ''; // Clear previous content
+    const loadingContainer = document.createElement('div');
+    loadingContainer.className = 'payment-content-container';
+
+    const iconContainer = document.createElement('div');
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'icon icon-wholesale';
+    iconContainer.append(iconSpan);
+    loadingContainer.append(iconContainer);
+
+    // add container to DOM first
+    element.append(loadingContainer);
+    // then decorate icons
+    decorateIcons(element);
+    // then swap icons
+    swapIcons();
+
+    const loadingMessage = document.createElement('h4');
+    loadingMessage.textContent = 'we are sending your order :)';
+    loadingContainer.append(loadingMessage);
+
+    element.append(loadingContainer);
+
     const payment = env === 'sandbox'
       ? await hitSandbox(createPayment, SquarePaymentDataJson)
       : await createPayment(SquarePaymentDataJson);
@@ -37,16 +126,25 @@ async function createSquarePayment(token, orderData, element) {
       // Create a new custoner if they haven't already been added
       await handleNewCustomer(orderData.idempotency_key, formData);
 
+      const fulfillmentType = orderData.order.fulfillments[0].type === 'PICKUP' ? 'pickup' : 'delivery';
+
+      // Send customer confirmation via google doc email template
+      await sendOrderConfirmationEmail(
+        payment.payment.receipt_url,
+        payment.payment.buyer_email_address,
+        fulfillmentType,
+      );
+
       element.innerHTML = '';
 
       const paymentSuccessContainer = document.createElement('div');
       paymentSuccessContainer.className = 'payment-content-container';
 
-      const iconContainer = document.createElement('div');
-      const iconSpan = document.createElement('span');
-      iconSpan.className = 'icon icon-logo';
-      iconContainer.append(iconSpan);
-      paymentSuccessContainer.append(iconContainer);
+      const paymentSuccessIconContainer = document.createElement('div');
+      const paymentSuccessIconSpan = document.createElement('span');
+      paymentSuccessIconSpan.className = 'icon icon-logo';
+      paymentSuccessIconContainer.append(paymentSuccessIconSpan);
+      paymentSuccessContainer.append(paymentSuccessIconContainer);
       element.append(paymentSuccessContainer);
       // then decorate icons
       decorateIcons(element);
