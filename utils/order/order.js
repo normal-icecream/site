@@ -658,10 +658,10 @@ export function orderForm(cartData) {
 
       if (item.modifiers && item.modifiers.length > 0) {
         item.modifiers.forEach((modifier) => {
-          itemNote.push(`${modifier.name}: ${modifier.quantity}`);
+          itemNote.push(`${modifier.name} x ${modifier.quantity}`);
           delete modifier.quantity;
         });
-        item.note = itemNote.length > 0 ? itemNote.join(', ') : '';
+        item.note = itemNote.length > 0 ? itemNote.join(' • ') : '';
       }
     });
     orderData.note = note.length > 0 ? note.join(' | ') : '';
