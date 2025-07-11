@@ -653,15 +653,13 @@ export function orderForm(cartData) {
     }
 
     orderData.line_items.forEach((item) => {
-      const itemNote = [];
       item.quantity = String(item.quantity);
 
       if (item.modifiers && item.modifiers.length > 0) {
         item.modifiers.forEach((modifier) => {
-          itemNote.push(`${modifier.name} x ${modifier.quantity}`);
+          modifier.name = `${modifier.name} x ${modifier.quantity}`;
           delete modifier.quantity;
         });
-        item.note = itemNote.length > 0 ? itemNote.join(' • ') : '';
       }
     });
     orderData.note = note.length > 0 ? note.join(' | ') : '';
