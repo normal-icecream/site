@@ -441,7 +441,6 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields) {
   }
 }
 
-// TODO - do I need to make the invocation of this awaited???
 async function handleBecomeWholesaler(formData) {
   const name = formData.find((data) => data.field === 'name').value;
   const businessName = formData.find((data) => data.field === 'businessName').value;
@@ -449,57 +448,37 @@ async function handleBecomeWholesaler(formData) {
   const email = formData.find((data) => data.field === 'email').value;
   const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
-  // const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
-  // const body = encodeURIComponent(
-  //   `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
-  // );
-
-  // const mailtoLink = `mailto:wholesale@normal.club?subject=${subject}&body=${body}`;
-  // window.location.href = mailtoLink;
-
+  // wholesale_inquiries sheet
   const url = `${window.location.origin}/admin/wholesale-inquiries.json`;
-  console.log(" url:", url);
 
   try {
     const response = await fetch(url);
-    console.log(" response:", response);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
 
     const json = await response.json();
-    console.log(" json:", json);
     if (json.data) {
-    console.log(" json.data:", json.data);
-
-      const now = new Date();
-      console.log(" now:", now);
-
-      // Set up data we want to send in wholesaler inquiry email and to populate the wholesale-inquires sheet
+      // Set up data we want to send in wholesaler inquiry email and
+      // to populate the wholesale-inquires sheet
       const params = {
-        inquiry_date: now,
-        name: name,
+        name,
+        inquiry_date: new Date(),
         business_name: businessName,
-        location: location,
-        email: email,
+        location,
+        email,
         referral_source: referralSource,
       };
-      
+
       try {
+        const form = document.querySelector('form');
         const qs = buildGQs(params);
-        // console.log(" qs:", qs);
-        // const path = new URL(wholesaleItem.LINK).pathname;
-
-
         const scriptLink = json.data[0].SCRIPT_LINK;
-        console.log(" scriptLink:", scriptLink);
+        // Reset form
+        form.reset();
 
-        await fetch(`${scriptLink}?${qs}`, { method: 'POST' });
-        // await fetch(`https://admin.hlx.page/preview/normal-icecream/site/main/admin/wholesale-inquiries.json`, { method: 'POST' });
-        // await fetch(`https://admin.hlx.page/live/normal-icecream/site/main/admin/wholesale-inquiries.json`, { method: 'POST' });
-
-        // // Reset form
-        // resetOrderForm();
+        // Add interested party to sheet
+        await fetch(`${scriptLink}?${qs}`, { method: 'POST', mode: 'no-cors' });
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error updating inventory:', error.message);
