@@ -68,6 +68,21 @@ const fields = [
   },
 ];
 
+export function buildGQs(params) {
+  let qs = '';
+  Object.keys(params).forEach((key) => {
+    if (key in params) {
+      if (key === 'line_items') {
+        qs += `${key}=${encodeURIComponent(JSON.stringify(params[key]))}`;
+      } else {
+        qs += `${key}=${encodeURIComponent(params[key])}`;
+      }
+      qs += '&';
+    }
+  });
+  return qs;
+}
+
 /**
 * Sets up catering form
 */
@@ -78,7 +93,7 @@ export async function decorateCatering(main) {
   const cateringFormContainer = main.querySelector('.catering > div:nth-child(2) > div > div:nth-child(2)');
   cateringFormContainer.classList.add('catering-container');
 
-  function handleCateringRequest(formData) {
+  async function handleCateringRequest(formData) {
     const name = formData.find((data) => data.field === 'name').value;
     const companyName = formData.find((data) => data.field === 'companyName').value;
     const location = formData.find((data) => data.field === 'location').value;
@@ -89,13 +104,52 @@ export async function decorateCatering(main) {
     const time = formData.find((data) => data.field === 'time').value;
     const productInterest = formData.find((data) => data.field === 'productInterest').value;
 
-    const subject = encodeURIComponent('catering request');
-    const body = encodeURIComponent(
-      `Name: ${name}\nCompany Name: ${companyName}\nLocation: ${location}\nEvent Type: ${eventType}\nEmail: ${email}\nNumber of People: ${numOfPeople}\nEvent Date: ${date}\nEvent Time: ${time}\nProduct Interest: ${productInterest}`,
-    );
+    // get catering_inquiries script link
+    const url = `${window.location.origin}/admin/script-links.json`;
 
-    const mailtoLink = `mailto:catering@normal.club;tatiana@normal.club?subject=${subject}&body=${body}`;
-    window.location.href = mailtoLink;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      if (json.data) {
+        const cateringScriptData = json.data.find((data) => data.TYPE === 'catering_inquiry');
+        // Set up data we want to send in wholesaler inquiry email and
+        // to populate the wholesale-inquires sheet
+        if (cateringScriptData) {
+          const params = {
+            name,
+            company_name: companyName,
+            inquiry_date: new Date(),
+            location,
+            email,
+            event_type: eventType,
+            num_of_people: numOfPeople,
+            date,
+            time,
+            product_interest: productInterest,
+          };
+
+          try {
+            const form = document.querySelector('form');
+            const qs = buildGQs(params);
+            // Reset form
+            form.reset();
+
+            // Add interested party to sheet
+            await fetch(`${cateringScriptData.SCRIPT_LINK}?${qs}`, { method: 'POST', mode: 'no-cors' });
+          } catch (error) {
+          // eslint-disable-next-line no-console
+            console.error('Error updating inventory:', error.message);
+          }
+        }
+      }
+    } catch (error) {
+    // eslint-disable-next-line no-console
+      console.error(error.message);
+    }
   }
 
   const cateringForm = buildForm(fields, handleCateringRequest, main, 'Send catering request');

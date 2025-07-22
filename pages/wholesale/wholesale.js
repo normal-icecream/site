@@ -448,8 +448,8 @@ async function handleBecomeWholesaler(formData) {
   const email = formData.find((data) => data.field === 'email').value;
   const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
-  // wholesale_inquiries sheet
-  const url = `${window.location.origin}/admin/wholesale-inquiries.json`;
+  // wholesale_inquiries script link
+  const url = `${window.location.origin}/admin/script-links.json`;
 
   try {
     const response = await fetch(url);
@@ -459,29 +459,32 @@ async function handleBecomeWholesaler(formData) {
 
     const json = await response.json();
     if (json.data) {
+      const wholesaleScriptData = json.data.find((link) => link.TYPE === 'wholesale_inquiry');
       // Set up data we want to send in wholesaler inquiry email and
       // to populate the wholesale-inquires sheet
-      const params = {
-        name,
-        inquiry_date: new Date(),
-        business_name: businessName,
-        location,
-        email,
-        referral_source: referralSource,
-      };
+      if (wholesaleScriptData) {
+        const params = {
+          name,
+          inquiry_date: new Date(),
+          business_name: businessName,
+          location,
+          email,
+          referral_source: referralSource,
+        };
 
-      try {
-        const form = document.querySelector('form');
-        const qs = buildGQs(params);
-        const scriptLink = json.data[0].SCRIPT_LINK;
-        // Reset form
-        form.reset();
+        try {
+          const form = document.querySelector('form');
+          const qs = buildGQs(params);
+          // const scriptLink = json.data[0].SCRIPT_LINK;
+          // Reset form
+          form.reset();
 
-        // Add interested party to sheet
-        await fetch(`${scriptLink}?${qs}`, { method: 'POST', mode: 'no-cors' });
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error updating inventory:', error.message);
+          // Add interested party to sheet
+          await fetch(`${wholesaleScriptData.SCRIPT_LINK}?${qs}`, { method: 'POST', mode: 'no-cors' });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error updating inventory:', error.message);
+        }
       }
     }
   } catch (error) {
