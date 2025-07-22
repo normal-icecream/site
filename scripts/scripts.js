@@ -283,6 +283,7 @@ export async function fetchCatalog() {
   return catalogData;
 }
 
+// Function to fetch the square catalog data on demand.
 export async function getCatalog() {
   if (!window.catalog) {
     window.catalog = await fetchCatalog();

@@ -441,20 +441,53 @@ export async function updateWholesaleGoogleSheet(orderData, orderFormFields) {
   }
 }
 
-function handleBecomeWholesaler(formData) {
+async function handleBecomeWholesaler(formData) {
   const name = formData.find((data) => data.field === 'name').value;
   const businessName = formData.find((data) => data.field === 'businessName').value;
   const location = formData.find((data) => data.field === 'location').value;
   const email = formData.find((data) => data.field === 'email').value;
   const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
-  const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
-  const body = encodeURIComponent(
-    `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
-  );
+  // wholesale_inquiries sheet
+  const url = `${window.location.origin}/admin/wholesale-inquiries.json`;
 
-  const mailtoLink = `mailto:wholesale@normal.club?subject=${subject}&body=${body}`;
-  window.location.href = mailtoLink;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      // Set up data we want to send in wholesaler inquiry email and
+      // to populate the wholesale-inquires sheet
+      const params = {
+        name,
+        inquiry_date: new Date(),
+        business_name: businessName,
+        location,
+        email,
+        referral_source: referralSource,
+      };
+
+      try {
+        const form = document.querySelector('form');
+        const qs = buildGQs(params);
+        const scriptLink = json.data[0].SCRIPT_LINK;
+        // Reset form
+        form.reset();
+
+        // Add interested party to sheet
+        await fetch(`${scriptLink}?${qs}`, { method: 'POST', mode: 'no-cors' });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error updating inventory:', error.message);
+      }
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+  }
 }
 
 /**
