@@ -509,7 +509,9 @@ export async function decorateWholesale(main) {
     return str.split('-')[1];
   }
 
-  const key = getWholesaleKey(window.location.href.substring(window.location.href.lastIndexOf('/') + 1))?.toUpperCase();
+  const fullPath = window.location.href;
+  const lastSegment = fullPath.substring(fullPath.lastIndexOf('/') + 1).split('?')[0];
+  const key = getWholesaleKey(lastSegment)?.toUpperCase();
 
   if (key) {
     fetchWholesaleKey(main, key);
