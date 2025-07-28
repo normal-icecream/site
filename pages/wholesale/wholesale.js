@@ -448,6 +448,14 @@ async function handleBecomeWholesaler(formData) {
   const email = formData.find((data) => data.field === 'email').value;
   const referralSource = formData.find((data) => data.field === 'referralSource').value;
 
+  const subject = encodeURIComponent("hi! I'd like to become a wholesaler");
+  const body = encodeURIComponent(
+    `Name: ${name}\nBusiness Name: ${businessName}\nEmail: ${email}\nLocation: ${location}\nHow Did You Hear About Us: ${referralSource}`,
+  );
+
+  const mailtoLink = `mailto:wholesale@normal.club?subject=${subject}&body=${body}`;
+  window.location.href = mailtoLink;
+
   // wholesale_inquiries script link
   const url = `${window.location.origin}/admin/script-links.json`;
 
@@ -475,7 +483,6 @@ async function handleBecomeWholesaler(formData) {
         try {
           const form = document.querySelector('form');
           const qs = buildGQs(params);
-          // const scriptLink = json.data[0].SCRIPT_LINK;
           // Reset form
           form.reset();
 

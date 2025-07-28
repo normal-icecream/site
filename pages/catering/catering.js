@@ -104,6 +104,14 @@ export async function decorateCatering(main) {
     const time = formData.find((data) => data.field === 'time').value;
     const productInterest = formData.find((data) => data.field === 'productInterest').value;
 
+    const subject = encodeURIComponent('catering request');
+    const body = encodeURIComponent(
+      `Name: ${name}\nCompany Name: ${companyName}\nLocation: ${location}\nEvent Type: ${eventType}\nEmail: ${email}\nNumber of People: ${numOfPeople}\nEvent Date: ${date}\nEvent Time: ${time}\nProduct Interest: ${productInterest}`,
+    );
+
+    const mailtoLink = `mailto:catering@normal.club;tatiana@normal.club?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
+
     // get catering_inquiries script link
     const url = `${window.location.origin}/admin/script-links.json`;
 
