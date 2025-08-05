@@ -103,6 +103,12 @@ function clampBodies(wrapper) {
   });
 }
 
+function getSquareItemId(url) {
+  const regex = /\/([A-Z0-9]{24})(?:\/|\?|$)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
 export default function decorate(block) {
   const variants = [...block.classList];
   const ul = document.createElement('ul');
@@ -121,9 +127,8 @@ export default function decorate(block) {
     let squareProductId;
     if (squareButton) {
       const squareLink = squareButton.querySelector('a')
-        ?.getAttribute('href')
-        .split('/');
-      squareProductId = [squareLink[squareLink.length - 1]].pop()?.split('?')[0];
+        ?.getAttribute('href');
+      squareProductId = getSquareItemId(squareLink);
       squareButton.remove();
     }
 
