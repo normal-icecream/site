@@ -62,29 +62,10 @@
     .modal .modal-container {
         position: fixed;
         z-index: 6;
-        top: 50%;
-        left: 50%;
-        transform:translate(-50%,-50%);
+        transform: translate(-50%,-50%);
         min-height: 400px;
         max-height: 80vh;
-        min-width: 600px;
-        max-width: 70vw;
-        overflow: auto;
-        background-color: var(--white);
-        border: 2px solid var(--blue);
-        border-radius: 12px;
-    }
-
-    .modal > div {
-        display: flex;
-        flex-flow: column;
-    }
-
-    .modal .modal-header {
-        width: var(--site-width);
-    }
-    
-    .modal .modal-content {
-        width: var(--site-width);
+        min-width: 900px;
+        max-width: 90vw;
     }
 }
