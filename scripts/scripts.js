@@ -294,7 +294,7 @@ export async function getCatalog() {
   if (!catalog) {
     const catalogData = await fetchCatalog();
     localStorage.setItem('catalog', JSON.stringify(catalogData));
-    return JSON.parse(catalogData);
+    return catalogData;
   }
   refreshCatalog();
   return JSON.parse(catalog);
