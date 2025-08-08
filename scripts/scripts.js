@@ -283,13 +283,21 @@ export async function fetchCatalog() {
   return catalogData;
 }
 
+export async function refreshCatalog() {
+  const catalogData = await fetchCatalog();
+  localStorage.setItem('catalog', JSON.stringify(catalogData));
+}
+
 // Function to fetch the square catalog data on demand.
 export async function getCatalog() {
-  if (!window.catalog) {
-    window.catalog = await fetchCatalog();
+  const catalog = localStorage.getItem('catalog');
+  if (!catalog) {
+    const catalogData = await fetchCatalog();
+    localStorage.setItem('catalog', JSON.stringify(catalogData));
+    return JSON.parse(catalogData);
   }
-
-  return window.catalog;
+  refreshCatalog();
+  return JSON.parse(catalog);
 }
 
 /**

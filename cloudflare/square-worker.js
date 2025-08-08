@@ -237,23 +237,8 @@ export default {
     const isCatalogJsonRequest = url.pathname.includes('catalog.json');
     if (isCatalogJsonRequest) {
       try {
-        // Try to get catalog data from Cloudflare KV storage
-        const catalogData = await env.CATALOG_JSON.get('catalog', { type: 'json' });
-
-        // If catalog data exists and is not empty, return it immediately to the client
-        if (catalogData && catalogData.length > 0) {
-          return new Response(JSON.stringify({ objects: catalogData }), {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': originHeader,
-            },
-          });
-        }
-        // If no catalog data is found, fetch the latest data from Square
+        // Fetch the latest data from Square
         const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-        // Store the fetched catalog data in Cloudflare KV storage
-        await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
 
         // Return the fetched catalog data to the client
         return new Response(JSON.stringify({ objects: latestCatalog }), {
