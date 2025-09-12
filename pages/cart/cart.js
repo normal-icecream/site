@@ -165,7 +165,7 @@ export function removeItemFromCart(key) {
 
 export function getCartItemQuantity(prodId) {
   const cart = getLocalStorageCart();
-  const itemQuantity = cart?.line_items.find((item) => item.catalog_object_id === prodId)?.quantity;
+  const itemQuantity = cart?.line_items.find((item) => item.item_id === prodId)?.quantity;
   const quantity = itemQuantity || 0;
   return quantity;
 }
