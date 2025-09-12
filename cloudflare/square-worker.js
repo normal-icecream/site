@@ -88,17 +88,6 @@ async function fetchAllPages(baseUrl, apiKey, collectedItems = []) {
   }
 }
 
-async function triggerBackgroundRefresh(env, apiKey) {
-  try {
-    const latestCatalog = await fetchAllPages('https://connect.squareup.com/v2/catalog/list', apiKey);
-    if (latestCatalog && latestCatalog.length > 0) {
-      await env.CATALOG_JSON.put('catalog', JSON.stringify(latestCatalog));
-    }
-  } catch (err) {
-    console.error('Failed to refresh catalog:', err);
-  }
-}
-
 export default {
   async fetch(request, env) {
     // Get the 'Origin' header from the incoming request to validate the source
@@ -307,8 +296,5 @@ export default {
 
     // Return the final response to the client
     return modifiedResponse;
-  },
-  async scheduled(controller, env) {
-    await triggerBackgroundRefresh(env, env.SQUARE_PROD_API_KEY);
   },
 };
