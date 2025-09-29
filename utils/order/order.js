@@ -84,7 +84,7 @@ const fields = [
     label: 'Phone Number',
     name: 'phone',
     placeholder: 'your cell',
-    required: true,
+    // required: true,
     validation: ['phone:US'],
   },
   {
@@ -105,13 +105,13 @@ const fields = [
     type: 'date',
     label: 'pickup Date',
     name: 'pickupdate',
-    required: true,
+    // required: true,
   },
   {
     type: 'time',
     label: 'pickup Time',
     name: 'pickuptime',
-    required: true,
+    // required: true,
   },
   {
     type: 'checkbox',
