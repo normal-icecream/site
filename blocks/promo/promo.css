@@ -23,8 +23,7 @@
     left: 50%;
     transform:translate(-50%,-50%);
     min-height: fit-content;
-    min-width: 70vw;
-    max-width: 800px;
+    min-width: 90vw;
     overflow: auto;
     background-color: var(--white);
     border: 2px solid var(--blue);
@@ -40,50 +39,35 @@
     width: 100%;
     height: 250px;
     object-fit: contain;
-    margin-top: 60px;
 }
 
 .promo > .promo-container > div .icon svg {
     width: 100%;
     height: 250px;
+    padding: var(--horizontal-spacing) 0;
 }
 
-.promo > .promo-container > div:nth-child(2) {
-    position: absolute;
-    top: -60px;
-    left: -40px;
-    width: 140px; 
-    height: 140px;
-}
-
-.promo > .promo-container > div:nth-child(2) > div {
-    position: relative;
-    z-index: 10;
+.promo > .promo-container > div:nth-child(1),
+.promo > .promo-container > div:nth-child(1) > div {
     display: flex;
-    justify-content: center;
+    flex-flow: column;
     align-items: center;
 }
 
-.promo > .promo-container > div:nth-child(1) > div:nth-child(1) {
+.promo > .promo-container p.button-wrapper a.button {
+    text-transform: lowercase;
+    color: var(--white);
+    background-color: var(--blue);
     display: flex;
+    align-items: center;
     justify-content: center;
-    min-width: 250px;
-}
-
-.promo > .promo-container > div:nth-child(1) > div:nth-child(2) {
-    padding-top: var(--horizontal-spacing);
-}
-
-.promo > .promo-container > div:nth-child(1) > div > p.button-wrapper {
-    display: flex;
-    justify-content: center;
-}
-
-.promo > .promo-container > div:nth-child(1) > div > p.button-wrapper a {
-    font-size: var(--heading-size-s);
     font-family: var(--heading-font-family);
-    padding: var(--spacing-s) calc(var(--spacing-xxxl) + var(--spacing-l));
-    margin-top: var(--horizontal-spacing);
+    font-size: var(--heading-size-m);
+    line-height: 0;
+    min-height: 50px;
+    min-width: 300px;
+    cursor: pointer;
+    border-radius: 6px;
 }
 
 .promo > .promo-container .close-button {
@@ -108,37 +92,38 @@
     border-radius: 50%;
 }
 
+.promo .success-message {
+    color: var(--green);
+    margin: var(--horizontal-spacing);
+    text-align: center;
+    font-family: var(--heading-font-family);
+    font-size: var(--heading-size-xs);
+}
+
+.promo.banner .promo-container .img-wrapper img {
+    padding: var(--horizontal-spacing) 0;
+}
+
 @media (width >= 600px) {
-    .promo > .promo-container > div:nth-child(1) img {
-        margin-top: 0;
+    .promo.popup > .promo-container {
+        min-width: 60vw;
+    }
+
+    .promo.banner > .promo-container > div > div {
+        flex-flow: row;
+    }
+    
+    .promo.banner > .promo-container > div > div .img-wrapper {
+        min-width: 45%;
+    }
+    
+    .promo.banner > .promo-container > div > div .banner-content-wrapper {
+        margin-left: 20px;
     }
 }
 
 @media (width >= 900px) {
-    .promo > .promo-container > div:nth-child(1) img {
-        height: 400px;
-    }
-
-    .promo > .promo-container > div:nth-child(1) {
-        flex-flow: row;
-    }
-
-    .promo > .promo-container > div:nth-child(1) > div:nth-child(1) {
-        padding-right: var(--horizontal-spacing);
-    }
-
-    .promo > .promo-container > div:nth-child(1) > div:nth-child(2) {
-        width: 200px;
-        padding-right: var(--horizontal-spacing);
-        flex-grow: 1;
-        padding-top: 0;
-    }
-
-    .promo > .promo-container > div:nth-child(1) > div:nth-child(2) h3 {
-        font-size: var(--heading-size-xl);
-    }
-
-    .promo > .promo-container > div:nth-child(1) > div > p.button-wrapper {
-        justify-content: flex-start;
+    .promo.popup > .promo-container {
+        min-width: 40vw;
     }
 }
