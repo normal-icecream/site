@@ -169,6 +169,6 @@ export default function decorate(block) {
     closeButton.addEventListener('click', () => closePopup(block, popupKey));
     promoContainer.append(closeButton);
 
-    block.addEventListener('click', () => closePopup(block, popupKey), false);
+    // block.addEventListener('click', () => closePopup(block, popupKey), false);
   }
 }
