@@ -230,8 +230,15 @@ export function buildGQs(params) {
 }
 
 function getFormVal(formData, fieldName) {
-  const val = formData.find((data) => data.field === fieldName).value;
-  return val ?? '';
+  let val;
+  const property = formData.find((data) => data.field === fieldName);
+  if (property) {
+    val = property.value;
+  } else {
+    ''
+  }
+
+  return val;
 }
 
 // function singularize(str) {
@@ -409,6 +416,7 @@ async function handleNewPintClubSubSubmit(data) {
       const pintClubData = json.data.find((pcd) => pcd.TYPE === 'pint_club');
 
       const deliveryMethod = getFormVal(data, 'delivery-method');
+      const pickupLocation = getFormVal(data, 'pickup-location');
 
       if (pintClubData) {
         const params = {
@@ -423,8 +431,8 @@ async function handleNewPintClubSubSubmit(data) {
           delivery_method: getFormVal(data, 'delivery-method'),
           delivery_fee: await getDeliveryFee(getFormVal(data, 'delivery-method')),
           subscription_fee: await getSubscriptionFee(subscriptionLength),
-          pickup_location: deliveryMethod === 'pickup' ? getFormVal(data, 'pickup-location') : 'N/A',
-          pickup_address: getFormVal(data, 'pickup-location') === 'la' ? laAddress : slcAddress,
+          pickup_location: pickupLocation ? deliveryMethod === 'pickup' ? getFormVal(data, 'pickup-location') : 'N/A' : 'N/A',
+          pickup_address: pickupLocation ? getFormVal(data, 'pickup-location') === 'la' ? laAddress : slcAddress : 'N/A',
         };
 
         try {
@@ -444,10 +452,10 @@ async function handleNewPintClubSubSubmit(data) {
 
           // Add interested party to sheet
           await fetch(`${pintClubData.SCRIPT_LINK}?${qs}`, { method: 'POST', mode: 'no-cors' });
-
+          
           // Send customer confirmation email
           await sendWelcomeToPintClub(params);
-
+          
           // Send email to normal team to add new sub to square
           await sendAddNewPintClubSubToSquare(params);
 
