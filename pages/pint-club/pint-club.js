@@ -314,8 +314,7 @@ async function sendAddNewPintClubSubToSquare(subscriptionData) {
 
         const params = {
           template_name: 'pint_club_success',
-          // replace with hi@normal.club
-          recipient_email: 'andi.carlstrom@gmail.com',
+          recipient_email: 'hi@normal.club',
           subject: emailSubject,
           body: emailBody,
         };
