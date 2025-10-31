@@ -17,6 +17,7 @@ import {
   getMetadata,
   toClassName,
 } from './aem.js';
+import { decoratePintClub } from '../pages/pint-club/pint-club.js';
 import { decorateWholesale } from '../pages/wholesale/wholesale.js';
 import { decorateCatering } from '../pages/catering/catering.js';
 import { getCatalogListJson } from './square-client/square/catalog.js';
@@ -77,9 +78,11 @@ function decoratePageType(main) {
 
   const wholesale = pathname.split('/').some((path) => path === 'wholesale');
   const catering = pathname.split('/').some((path) => path === 'catering');
+  const pintClub = pathname.split('/').some((path) => path === 'pint-club');
 
   try {
     if (wholesale) decorateWholesale(main);
+    if (pintClub) decoratePintClub(main);
     if (catering) decorateCatering(main);
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -197,12 +200,12 @@ async function loadEager(doc) {
   createLocalStorageCart();
 
   const main = doc.querySelector('main');
-  decoratePageType(main);
   if (main) {
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
+  decoratePageType(main);
 
   sampleRUM.enhance();
 

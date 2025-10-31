@@ -349,6 +349,33 @@ function buildSelect(field) {
     });
   }
 
+  select.addEventListener('change', (event) => {
+    const selectForm = event.target.closest('form');
+    const extraFields = selectForm.querySelector(`.${toKebabCase(field.label)}-extra-fields`);
+
+    // If the form that this select field belongs to already has a
+    if (extraFields) extraFields.remove();
+
+    // Then if extra fields exist on THIS field type, then build them and add them to the form
+    const matchingOption = field.options.find((option) => option.value === event.target.value);
+
+    if (matchingOption && matchingOption.extraFields) {
+      const extraFieldsContainer = document.createElement('div');
+      extraFieldsContainer.classList.add(`${toKebabCase(field.label)}-extra-fields`);
+      matchingOption.extraFields.forEach((f) => {
+        /* eslint-disable no-use-before-define */
+        const newField = buildField(f);
+        extraFieldsContainer.append(newField);
+      });
+
+      const formSelect = selectForm.querySelector(`.form-select option[value=${event.target.value}]`).closest('.form-select');
+
+      if (formSelect) {
+        formSelect.after(extraFieldsContainer);
+      }
+    }
+  });
+
   // Trigger input validation when the user types into the field
   select.addEventListener('input', () => {
     validateInput(select);
@@ -500,7 +527,7 @@ function buildWrapper(field) {
  * @returns {HTMLElement} - A DOM element representing the completed field.
  * Unsupported types will log a warning message.
  */
-function buildField(field) {
+export function buildField(field) {
   // Create a wrapper element for the field
   const wrapper = buildWrapper(field);
 
