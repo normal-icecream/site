@@ -1,0 +1,19 @@
+.pint-club .info-card {
+    background-color: var(--blue-lightest);
+    border-radius: 12px;
+    padding: var(--spacing-xxl)
+}
+
+.pint-club .divider {
+    height: 1px;
+    margin: 4px 0;
+    background-color: var(--blue);
+}
+
+.pint-club .processing-container {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(50dvh - var(--spacing-xxl));
+}

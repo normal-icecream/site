@@ -90,7 +90,7 @@ export async function decorateCatering(main) {
   // Load styles for form
   loadCSS(`${window.hlx.codeBasePath}/pages/catering/catering.css`);
 
-  const cateringFormContainer = main.querySelector('.catering > div:nth-child(2) > div > div:nth-child(2)');
+  const cateringFormContainer = main.querySelector('div:nth-child(2) > div');
   cateringFormContainer.classList.add('catering-container');
 
   async function handleCateringRequest(formData) {
