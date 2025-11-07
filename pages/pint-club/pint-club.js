@@ -235,7 +235,7 @@ function getFormVal(formData, fieldName) {
   if (property) {
     val = property.value;
   } else {
-    ''
+    val = '';
   }
 
   return val;
@@ -451,10 +451,10 @@ async function handleNewPintClubSubSubmit(data) {
 
           // Add interested party to sheet
           await fetch(`${pintClubData.SCRIPT_LINK}?${qs}`, { method: 'POST', mode: 'no-cors' });
-          
+
           // Send customer confirmation email
           await sendWelcomeToPintClub(params);
-          
+
           // Send email to normal team to add new sub to square
           await sendAddNewPintClubSubToSquare(params);
 
