@@ -187,6 +187,36 @@ async function validateInput(input) {
       }
     }
 
+    if (rule === 'valid-delivery-zip') {
+      const isValidZipCodeFormat = /^\d{5}(-\d{4})?$/.test(input.value.trim());
+
+      if (isValidZipCodeFormat) {
+        const url = `${window.location.origin}/admin/delivery-zip-codes.json`;
+
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+          }
+
+          // eslint-disable-next-line no-await-in-loop
+          const json = await response.json();
+          if (json.data) {
+            const zip = input.value.trim();
+
+            const isValidZip = json.data.some((codes) => codes.ZIP_CODES === zip);
+
+            if (!isValidZip) {
+              errorMessages.push('delivery zip code is out of range, please choose shipping option');
+            }
+          }
+        } catch (error) {
+          errorMessages.push('delivery zip code is out of range, please choose shipping option');
+        }
+      }
+    }
+
     // Rule: US phone number validation
     if (rule === 'phone:US' && /\d/.test(input.value)) {
       const digitsOnly = input.value.replace(/\D/g, '');
@@ -362,10 +392,13 @@ function buildSelect(field) {
     if (matchingOption && matchingOption.extraFields) {
       const extraFieldsContainer = document.createElement('div');
       extraFieldsContainer.classList.add(`${toKebabCase(field.label)}-extra-fields`);
-      matchingOption.extraFields.forEach((f) => {
+
+      matchingOption.extraFields.forEach((fieldsArray) => {
+        fieldsArray.forEach((f) => {
         /* eslint-disable no-use-before-define */
-        const newField = buildField(f);
-        extraFieldsContainer.append(newField);
+          const newField = buildField(f);
+          extraFieldsContainer.append(newField);
+        });
       });
 
       const formSelect = selectForm.querySelector(`.form-select option[value=${event.target.value}]`).closest('.form-select');
