@@ -77,6 +77,15 @@ function getSubscriptionDates(subscriptionType) {
   };
 }
 
+const deliveryNoteField = [
+  {
+    type: 'textarea',
+    label: 'delivery notes',
+    name: 'delivery-notes',
+    placeholder: 'special instructions / delivery notes',
+  },
+];
+
 const addressFields = [
   {
     type: 'input',
@@ -112,6 +121,7 @@ const addressFields = [
     name: 'zipcode',
     required: true,
     placeholder: 'your zip code',
+    validation: ['valid-delivery-zip'],
   },
 ];
 
@@ -168,17 +178,17 @@ const primaryFields = [
       {
         label: 'pickup',
         value: 'pickup',
-        extraFields: pickupFields,
+        extraFields: [pickupFields],
       },
       {
         label: `local delivery | $${await getDeliveryFee('delivery')}`,
         value: 'delivery',
-        extraFields: addressFields,
+        extraFields: [addressFields, deliveryNoteField],
       },
       {
         label: `national shipping | $${await getDeliveryFee('shipping')}`,
         value: 'shipping',
-        extraFields: addressFields,
+        extraFields: [addressFields],
       },
     ],
     required: true,
@@ -303,6 +313,7 @@ async function sendAddNewPintClubSubToSquare(subscriptionData) {
             start_date: subscriptionData.start_date,
             end_date: subscriptionData.end_date,
             delivery_method: subscriptionData.delivery_method,
+            delivery_notes: subscriptionData.delivery_notes,
             delivery_fee: subscriptionData.delivery_fee,
             pickup_location: subscriptionData.pickup_location,
             pickup_address: subscriptionData.pickup_address,
@@ -360,6 +371,7 @@ async function sendWelcomeToPintClub(subscriptionData) {
             start_date: subscriptionData.start_date,
             end_date: subscriptionData.end_date,
             delivery_method: subscriptionData.delivery_method,
+            delivery_notes: subscriptionData.delivery_notes,
             delivery_fee: subscriptionData.delivery_fee,
             address: subscriptionData.address,
             pickup_location: subscriptionData.pickup_location,
@@ -428,6 +440,7 @@ async function handleNewPintClubSubSubmit(data) {
           phone: getFormVal(data, 'phone'),
           address: deliveryMethod === 'pickup' ? 'N/A' : `${getFormVal(data, 'address1')} ${getFormVal(data, 'address2')} ${getFormVal(data, 'city')}, ${getFormVal(data, 'state')} ${getFormVal(data, 'zipcode')}`,
           delivery_method: getFormVal(data, 'delivery-method'),
+          delivery_notes: getFormVal(data, 'delivery-notes'),
           delivery_fee: await getDeliveryFee(getFormVal(data, 'delivery-method')),
           subscription_fee: await getSubscriptionFee(subscriptionLength),
           pickup_location: pickupLocation ? deliveryMethod === 'pickup' ? getFormVal(data, 'pickup-location') : 'N/A' : 'N/A',
