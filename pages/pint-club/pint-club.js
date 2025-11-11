@@ -77,12 +77,30 @@ function getSubscriptionDates(subscriptionType) {
   };
 }
 
-const deliveryNoteField = [
+const deliveryNoteFields = [
+  {
+    type: 'input',
+    label: 'your zip code',
+    name: 'zipcode',
+    required: true,
+    placeholder: 'your zip code',
+    validation: ['valid-delivery-zip'],
+  },
   {
     type: 'textarea',
     label: 'delivery notes',
     name: 'delivery-notes',
     placeholder: 'special instructions / delivery notes',
+  },
+];
+
+const shippingZipCodeFields = [
+  {
+    type: 'input',
+    label: 'your zip code',
+    name: 'zipcode',
+    required: true,
+    placeholder: 'your zip code',
   },
 ];
 
@@ -114,14 +132,6 @@ const addressFields = [
     name: 'state',
     placeholder: 'Your state',
     required: true,
-  },
-  {
-    type: 'input',
-    label: 'your zip code',
-    name: 'zipcode',
-    required: true,
-    placeholder: 'your zip code',
-    validation: ['valid-delivery-zip'],
   },
 ];
 
@@ -183,12 +193,12 @@ const primaryFields = [
       {
         label: `local delivery | $${await getDeliveryFee('delivery')}`,
         value: 'delivery',
-        extraFields: [addressFields, deliveryNoteField],
+        extraFields: [addressFields, deliveryNoteFields],
       },
       {
         label: `national shipping | $${await getDeliveryFee('shipping')}`,
         value: 'shipping',
-        extraFields: [addressFields],
+        extraFields: [addressFields, shippingZipCodeFields],
       },
     ],
     required: true,
