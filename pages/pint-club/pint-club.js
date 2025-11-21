@@ -55,10 +55,30 @@ async function getSubscriptionFee(subscriptionLength) {
   return fee;
 }
 
-function getSubscriptionDates(subscriptionType) {
+async function getSubscriptionDates(subscriptionType) {
+  const url = `${window.location.origin}/admin/pint-club-cutoff.json`;
+  let cutoffDate;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.data) {
+      cutoffDate = json.data[0].DAY_OF_MONTH;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error fetching email template data:', error);
+  }
+
   const today = new Date();
 
-  const startDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const isTodayAfterCutoff = cutoffDate ? today.getDate() > cutoffDate : today.getDate();
+
+  const startDate = isTodayAfterCutoff ? new Date(today.getFullYear(), today.getMonth() + 2, 1) : new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
   const monthsToAdd = subscriptionType === 'three-months' ? 3
     : subscriptionType === 'six-months' ? 6
@@ -421,7 +441,7 @@ async function handleNewPintClubSubSubmit(data) {
     value: subscriptionLength,
   });
 
-  const dates = getSubscriptionDates(subscriptionLength);
+  const dates = await getSubscriptionDates(subscriptionLength);
 
   // get pint_club script link
   const url = `${window.location.origin}/admin/script-links.json`;
@@ -642,7 +662,7 @@ export async function decoratePintClub(main) {
   loadCSS(`${window.hlx.codeBasePath}/pages/pint-club/pint-club.css`);
 
   main.classList.add('pint-club');
-  const monthlyPintClubSubContainer = main.querySelector('div:nth-child(2) .default-content-wrapper');
+  const monthlyPintClubSubContainer = main.querySelector('.info-container > div:last-child');
   const pintClubSubForm = buildForm(fields, handlePintClubSubRequest, main, 'pint club subscription');
 
   monthlyPintClubSubContainer.append(pintClubSubForm);
