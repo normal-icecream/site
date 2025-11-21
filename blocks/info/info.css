@@ -1,0 +1,23 @@
+.info {
+    text-transform: lowercase;
+    border-radius: 20px;
+    padding: var(--spacing-xxl) var(--horizontal-spacing);
+}
+
+.info.center {
+    text-align: center;
+}
+
+.info.right {
+    text-align: right;
+}
+
+.info.primary {
+    background-color: var(--blue);
+    color: var(--white);
+}
+
+.info.light {
+    background-color: var(--blue-lightest);
+    color: var(--blue);
+}
