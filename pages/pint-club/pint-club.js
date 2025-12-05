@@ -586,21 +586,19 @@ async function buildInfoCard() {
 
     const shippingFee = await getDeliveryFee(event.target.value);
 
-    if (event.target.value === 'shipping' || event.target.value === 'delivery') {
-      const hasShippingFees = totalContainer.querySelector('.cost-to-ship');
-      if (hasShippingFees) hasShippingFees.remove();
+    const hasShippingFees = totalContainer.querySelector('.cost-to-ship');
+    if (hasShippingFees) hasShippingFees.remove();
 
+    if (event.target.value === 'shipping' || event.target.value === 'delivery') {
       const costToShip = createSubscrptContainer(`${event.target.value} cost`, `$${shippingFee}.00/mo`);
       costToShip.classList.add('cost-to-ship');
 
       totalContainer.append(costToShip);
     } else {
-      // add on change handler to see which location they choose to display the pickup address
-
       const deliveryMethodSelect = form.querySelector('select[name=pickup-location]');
       deliveryMethodSelect.addEventListener('change', (e) => {
-        const checking = subscriptionContainer.querySelector('.pickup-address');
-        if (checking) checking.remove();
+        const pickupLocation = subscriptionContainer.querySelector('.pickup-address');
+        if (pickupLocation) pickupLocation.remove();
 
         const pickupAddressContainer = document.createElement('div');
         pickupAddressContainer.classList.add('pickup-address');
