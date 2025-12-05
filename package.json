@@ -26,6 +26,6 @@
     "eslint-plugin-import": "2.29.1",
     "stylelint": "16.6.1",
     "stylelint-config-standard": "36.0.0",
-    "wrangler": "^3.109.1"
+    "wrangler": "^4.50.0"
   }
 }

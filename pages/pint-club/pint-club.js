@@ -13,7 +13,7 @@ function stringTemplateParser(expression, valueObj) {
 
 async function getDeliveryFee(deliveryMethod) {
   const url = `${window.location.origin}/admin/pint-club-shipping-fees.json`;
-  let fee;
+  let fee = 0;
 
   try {
     const response = await fetch(url);
@@ -281,35 +281,6 @@ function getFormVal(formData, fieldName) {
   return val;
 }
 
-// function singularize(str) {
-//   return str.endsWith('s') ? str.slice(0, -1) : str;
-// }
-
-// function hyphenate(str) {
-//   return str.replace(/\s+/g, '-');
-// }
-
-// function createInfoContent(container, titleText, subText) {
-//     const infoCard = document.createElement('div');
-//     infoCard.classList.add('info-card-title', hyphenate(titleText))
-
-//     if (titleText) {
-//         const title = document.createElement('h4');
-//         title.textContent = titleText;
-//         infoCard.append(title);
-//     }
-
-//     if (subText) {
-//         const sub = document.createElement('p');
-//         sub.textContent = subText;
-//         infoCard.append(sub);
-//     }
-
-//     container.append(infoCard);
-
-//     return infoCard;
-//   }
-
 const laAddress = '242 n ave 25 la, ca 90012';
 const slcAddress = '169 e 900 s, salt lake city, ut 84111';
 
@@ -527,117 +498,159 @@ async function handleNewPintClubSubSubmit(data) {
   }
 }
 
-// async function buildSummaryCard() {
-//     const summaryCardContainer = document.createElement('div');
-//     summaryCardContainer.classList.add('summary-card');
+function normalizeSubscriptionLength(type) {
+  let normalizedSubLength;
 
-//     const pintClubSubLength = document.querySelector('[data-subscription-length]');
-//     const subscriptionLength = pintClubSubLength?.dataset.subscriptionLength;
+  if (type === 'twelve-months') {
+    normalizedSubLength = '12 month';
+  } else if (type === 'six-months') {
+    normalizedSubLength = '6 month';
+  } else {
+    normalizedSubLength = '3 month';
+  }
+  return normalizedSubLength;
+}
 
-//     const subscriptionFee = await getSubscriptionFee(subscriptionLength);
+async function buildInfoCard() {
+  const pintClubSubLength = document.querySelector('[data-subscription-length]');
+  const data = pintClubSubLength?.dataset;
+  const subscriptionFee = await getSubscriptionFee(data.subscriptionLength);
+  const dates = await getSubscriptionDates(data.subscriptionLength);
 
-//     const divider = document.createElement('div');
-//     divider.classList.add('divider');
+  const container = document.createElement('div');
+  container.classList.add('pint-club', 'info-card');
 
-//     createInfoContent(
-//         summaryCardContainer,
-//         'summary',
-//     )
+  const subscriptionContainer = document.createElement('div');
+  subscriptionContainer.classList.add('content-container');
 
-//     summaryCardContainer.append(divider);
+  const title = document.createElement('h3');
+  title.classList.add('info-card-title');
+  title.textContent = `${normalizeSubscriptionLength(data.subscriptionLength)} subscription`;
+  subscriptionContainer.append(title);
 
-//     const testContent = document.createElement('div');
-//     const summaryContent = document.createElement('h5');
-//     summaryContent.textContent = `${singularize(subscriptionLength)} subscription`;
-//     testContent.append(summaryContent);
+  const subtitle = document.createElement('div');
+  subtitle.classList.add('info-card-subtitle');
+  subtitle.textContent = '4 pints per month';
+  subscriptionContainer.append(subtitle);
 
-//     const testTestingContent = document.createElement('h5');
-//     testTestingContent.textContent = `$${singularize(subscriptionFee)}/mo`;
-//     testContent.append(testTestingContent);
+  function styledCopy(heading, text) {
+    const styledCopyContainer = document.createElement('div');
+    styledCopyContainer.classList.add('pint-club-styled-content');
 
-//     summaryCardContainer.append(testContent);
+    const styledTitle = document.createElement('h4');
+    styledTitle.textContent = heading;
 
-//     // const testsecondContent = document.createElement('div');
-//     // const summarysecondContent = document.createElement('h5');
-//     // summarysecondContent.textContent = 'shipping cost';
-//     // testsecondContent.append(summarysecondContent);
+    const copy = document.createElement('div');
+    copy.textContent = text;
 
-//     // const testsecondTestingContent = document.createElement('h5');
-//     // testsecondTestingContent.textContent = `$${deliveryFee}/mo`;
-//     // testsecondContent.append(testsecondTestingContent);
+    styledCopyContainer.append(styledTitle, copy);
 
-//     // summaryCardContainer.append(testsecondContent);
+    return styledCopyContainer;
+  }
 
-//     return summaryCardContainer;
-// }
+  const from = styledCopy('from', `${dates.start_date} - ${dates.end_date}`);
+  subscriptionContainer.append(from);
 
-// async function buildInfoCard() {
-//     const pintClubSubLength = document.querySelector('[data-subscription-length]');
-//     const subscriptionLength = pintClubSubLength?.dataset.subscriptionLength;
+  const divider = document.createElement('div');
+  divider.classList.add('divider');
+  container.append(divider);
 
-//     const subscriptionFee = await getSubscriptionFee(subscriptionLength);
+  const totalContainer = document.createElement('div');
+  totalContainer.classList.add('total-container');
 
-//     const container = document.createElement('div');
-//     container.classList.add('pint-club', 'info-card');
+  function createSubscrptContainer(subTitle, amount) {
+    const subscriptionTotal = document.createElement('div');
+    subscriptionTotal.classList.add('subscription-total-container');
 
-//     createInfoContent(
-//         container,
-//         `${singularize(subscriptionLength)} subscription | $${subscriptionFee}/mo`,
-//         '4 pints per month',
-//     )
+    const totalTitle = document.createElement('h5');
+    totalTitle.textContent = `${subTitle}`;
+    subscriptionTotal.append(totalTitle);
 
-//     const dates = await getSubscriptionDates(subscriptionLength);
+    const amountContent = document.createElement('h5');
+    amountContent.textContent = `${amount}`;
+    subscriptionTotal.append(amountContent);
 
-//     createInfoContent(
-//         container,
-//         `start date`,
-//         `${dates.start_date}`,
-//     )
+    return subscriptionTotal;
+  }
 
-//     createInfoContent(
-//         container,
-//         `end date`,
-//         `${dates.end_date}`,
-//     )
+  totalContainer.append(
+    createSubscrptContainer(`${normalizeSubscriptionLength(data.subscriptionLength)} subscription`, `$${subscriptionFee}.00/mo`),
+  );
 
-//     return container;
-// }
+  const form = document.querySelector('.modal-content form');
+  const select = form.querySelector('select');
+
+  select.addEventListener('change', async (event) => {
+    const pickupAddress = subscriptionContainer.querySelector('.pickup-address');
+    if (pickupAddress) pickupAddress.remove();
+
+    const shippingFee = await getDeliveryFee(event.target.value);
+
+    if (event.target.value === 'shipping' || event.target.value === 'delivery') {
+      const hasShippingFees = totalContainer.querySelector('.cost-to-ship');
+      if (hasShippingFees) hasShippingFees.remove();
+
+      const costToShip = createSubscrptContainer(`${event.target.value} cost`, `$${shippingFee}.00/mo`);
+      costToShip.classList.add('cost-to-ship');
+
+      totalContainer.append(costToShip);
+    } else {
+      // add on change handler to see which location they choose to display the pickup address
+
+      const deliveryMethodSelect = form.querySelector('select[name=pickup-location]');
+      deliveryMethodSelect.addEventListener('change', (e) => {
+        const checking = subscriptionContainer.querySelector('.pickup-address');
+        if (checking) checking.remove();
+
+        const pickupAddressContainer = document.createElement('div');
+        pickupAddressContainer.classList.add('pickup-address');
+
+        if (e.target.value === 'la') {
+          const laCopy = styledCopy('pickup address', laAddress);
+          pickupAddressContainer.append(laCopy);
+        } else {
+          const slcCopy = styledCopy('pickup address', slcAddress);
+          pickupAddressContainer.append(slcCopy);
+        }
+        subscriptionContainer.append(pickupAddressContainer);
+      });
+    }
+
+    const totalPerMonth = totalContainer.querySelector('.total-per-month');
+    if (totalPerMonth) totalPerMonth.remove();
+
+    const taxCopy = totalContainer.querySelector('.tax-details');
+    if (taxCopy) taxCopy.remove();
+
+    const calc = Number(subscriptionFee) + Number(shippingFee);
+    const totalCostPerMonth = createSubscrptContainer('total', `$${calc}.00/mo`);
+    totalCostPerMonth.classList.add('total-per-month');
+    totalContainer.append(totalCostPerMonth);
+
+    const taxDetails = document.createElement('div');
+    taxDetails.classList.add('tax-details');
+    taxDetails.textContent = 'tax included on final invoice';
+    totalContainer.append(taxDetails);
+  });
+
+  container.append(subscriptionContainer, divider, totalContainer);
+
+  return container;
+}
 
 async function refreshPintClubSignupContent(element) {
   const modalContent = element.querySelector('.modal-content');
   modalContent.innerHTML = '';
 
-  // const infoCard = await buildInfoCard();
   // const summaryCard = await buildSummaryCard();
   const form = buildForm(primaryFields, handleNewPintClubSubSubmit, element);
-
   modalContent.append(form);
-  // modalContent.append(infoCard);
-  // modalContent.append(summaryCard);
 
-  // const deliveryMethodSelect = element.querySelector('.form-select > select[name="delivery-method"]');
-  // deliveryMethodSelect.addEventListener('change', (event) => {
-  //     const deliveryMethod = event.target.value;
+  const formTest = modalContent.querySelector('form');
+  const submitBtn = modalContent.querySelector('.form-submit');
 
-  //     const pickupLocationSelect = element.querySelector('.form-select > select[name="pickup-location"]');
-  //     if (pickupLocationSelect) {
-  //         pickupLocationSelect.addEventListener('change', (event) => {
-  //             const pickupLocationVal = event.target.value;
-  //             const infoContent = element.querySelector('.info-card');
-
-  //             if (infoContent) {
-  //                 const pickupAddress = document.querySelector('.info-card-title.pickup-address');
-  //                 if (pickupAddress) pickupAddress.remove();
-
-  //                 createInfoContent(
-  //                     infoContent,
-  //                     `pickup address`,
-  //                     `${pickupLocationVal === 'la' ? laAddress : slcAddress}`,
-  //                 )
-  //             }
-  //         })
-  //     }
-  // })
+  const infoCard = await buildInfoCard();
+  formTest.insertBefore(infoCard, submitBtn);
 }
 
 function buildModal(element) {
