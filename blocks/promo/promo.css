@@ -53,13 +53,6 @@
     text-align: center;
 }
 
-.promo.banner > .promo-container > div > div:nth-child(2) {
-    text-align: center;
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-}
-
 .promo > .promo-container p.button-wrapper a.button {
     text-transform: lowercase;
     color: var(--white);
@@ -105,27 +98,9 @@
     font-size: var(--heading-size-xs);
 }
 
-.promo.banner .promo-container .img-wrapper img {
-    padding: var(--horizontal-spacing) 0;
-}
-
 @media (width >= 600px) {
     .promo.popup > .promo-container {
         min-width: 60vw;
-    }
-
-    .promo.banner > .promo-container > div {
-        flex-flow: row;
-    }
-
-    .promo.banner > .promo-container > div > div:nth-child(1) p {
-        width: 35vw;
-    }
-
-    .promo.banner > .promo-container > div > div:nth-child(2) {
-        margin-left: var(--horizontal-spacing);
-        text-align: left;
-        align-items: flex-start
     }
 }
 

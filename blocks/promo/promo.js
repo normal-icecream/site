@@ -140,27 +140,6 @@ export default function decorate(block) {
     promoContainerContent.append(form);
   }
 
-  if (variants.includes('banner')) {
-    const hasImageContainer = block.querySelector('.img-wrapper');
-
-    const container = block.querySelector('.promo-container > div > div');
-
-    const bannerContentWrapper = document.createElement('div');
-    bannerContentWrapper.classList.add('banner-content-wrapper');
-
-    let promoContent;
-
-    if (hasImageContainer) {
-      promoContent = Array.from(container.children).slice(1);
-    } else {
-      promoContent = Array.from(container.children);
-    }
-
-    promoContent.forEach((element) => bannerContentWrapper.appendChild(element));
-
-    container.appendChild(bannerContentWrapper);
-  }
-
   if (variants.includes('popup')) {
     // Create and set up the close button
     const closeButton = document.createElement('button');
