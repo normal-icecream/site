@@ -371,12 +371,9 @@ async function refreshCatalog() {
   // return organized catalog array
   return new Promise((resolve, reject) => {
     const request = store.getAll();
-
     request.onsuccess = async () => {
       if (request.result !== undefined) {
-        // const catalogData = request.result;
         const organizedCatalog = await organizeCatalog(request.result);
-        // catalog = organizedCatalog;
         resolve(organizedCatalog);
 
         // close db connection

@@ -54,16 +54,6 @@
     display: none;
 }
 
-.wholesale .wholesale-closed-container {
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    height: 40vh;
-    padding: 0 var(--horizontal-spacing);
-}
-
 .wholesale .cart-card-wrapper {
     margin: var(--spacing-xxl) 0;
 }
@@ -100,4 +90,8 @@
 
 .wholesale .cart-amount {
     padding-left: 30px;
+}
+
+.wholesale .wholesale-form {
+    margin-bottom: 20vh;
 }
