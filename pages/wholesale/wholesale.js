@@ -246,10 +246,13 @@ async function buildWholesale(main, link) {
   const showOrderWholesaleForm = await fetchWholesaleHours();
   const wholesaleDeliveryMethods = await fetchWholesaleDeliveryMethods();
 
-  if (showOrderWholesaleForm) {
-    const path = new URL(link).pathname;
-    const wholesaleHeroHeader = main.querySelector('div');
+  const wholesaleFormContainer = main.querySelector('.wholesale-form');
 
+  if (showOrderWholesaleForm) {
+    const closedToOrdersBlock = main.querySelector('.closed-to-orders');
+    if (closedToOrdersBlock) closedToOrdersBlock.remove();
+
+    const path = new URL(link).pathname;
     const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
     const title = document.getElementById('wholesale');
     if (title && key) title.textContent = `${title.textContent} ${key}`;
@@ -269,13 +272,19 @@ async function buildWholesale(main, link) {
         /* eslint-disable-next-line no-restricted-syntax */
         for (const input of inputs) {
           if (input.value > 0) {
-            /* eslint-disable-next-line no-await-in-loop */
-            const item = (await getCatalog()).byId[input.id];
-            /* eslint-disable-next-line no-await-in-loop */
-            const lineItem = await createLineItem(item.id, removeLeadingZero(input.value));
-            lineItem.note = input.dataset.itemName;
-            lineItem.type = input.dataset.itemType;
-            lineItems.push(lineItem);
+            try {
+              /* eslint-disable-next-line no-await-in-loop */
+              const item = (await getCatalog()).byId[input.id];
+
+              /* eslint-disable-next-line no-await-in-loop */
+              const lineItem = await createLineItem(item.id, removeLeadingZero(input.value));
+              lineItem.note = input.dataset.itemName;
+              lineItem.type = input.dataset.itemType;
+              lineItems.push(lineItem);
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error(error.message);
+            }
           }
         }
 
@@ -306,7 +315,7 @@ async function buildWholesale(main, link) {
     block.dataset.src = `${window.location.origin}${path}`;
     block.classList.add('section');
     const blockContentSection = block.querySelector('.block > div > div');
-    wholesaleHeroHeader.after(block);
+    wholesaleFormContainer.appendChild(block);
     decorateBlock(block);
 
     blockContentSection.append(form);
@@ -314,34 +323,6 @@ async function buildWholesale(main, link) {
     const submitButton = createSubmitButton(main);
     await loadBlock(block);
     form.append(submitButton);
-  } else {
-    const wholesaleHeroHeader = main.querySelector('.hero-header');
-
-    const closedContainer = document.createElement('div');
-    closedContainer.className = 'wholesale-closed-container';
-
-    const closedMessage = document.createElement('h3');
-    closedMessage.className = 'wholesale-closed-message';
-    closedMessage.textContent = 'Wholesale orders are closed right now';
-    closedContainer.append(closedMessage);
-
-    const closedMessageContext = document.createElement('p');
-    closedMessageContext.className = 'wholesale-closed-message';
-
-    const email = 'wholesale@normal.club';
-    const subject = 'Wholesale Ice Cream Inquiry!';
-
-    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
-
-    const linkElement = document.createElement('a');
-    linkElement.href = mailtoLink;
-    linkElement.textContent = 'wholesale@normal.club';
-
-    closedMessageContext.textContent = 'are you having an ice cream emergency? email us, we\'ll do whatever we can to assist :) ';
-    closedMessageContext.append(linkElement);
-    closedContainer.append(closedMessageContext);
-
-    wholesaleHeroHeader.after(closedContainer);
   }
 }
 
