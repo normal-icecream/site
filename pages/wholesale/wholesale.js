@@ -179,6 +179,9 @@ async function fetchWholesaleHours() {
   const url = `${window.location.origin}/admin/store-hours.json`;
   let shouldDisplay = false;
 
+  const { pathname } = window.location;
+  const isWholesaleTest = pathname.split('/').some((path) => path === 'wholesale-test');
+
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -212,7 +215,7 @@ async function fetchWholesaleHours() {
       let { open, close } = operatingHours[dayName];
 
       const currentTime = now.getHours() * 60 + now.getMinutes();
-      shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
+      shouldDisplay = isWholesaleTest ? true : shouldDisplayWholesaleForm(open, close, currentTime);
     }
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -274,13 +277,19 @@ async function buildWholesale(main, link) {
           if (input.value > 0) {
             try {
               /* eslint-disable-next-line no-await-in-loop */
-              const item = (await getCatalog()).byId[input.id];
+              const item = await getCatalog();
 
-              /* eslint-disable-next-line no-await-in-loop */
-              const lineItem = await createLineItem(item.id, removeLeadingZero(input.value));
-              lineItem.note = input.dataset.itemName;
-              lineItem.type = input.dataset.itemType;
-              lineItems.push(lineItem);
+              if (item) {
+                const squareItem = item.byId[input.id];
+                /* eslint-disable-next-line no-await-in-loop */
+                const lineItem = await createLineItem(
+                  squareItem.id,
+                  removeLeadingZero(input.value),
+                );
+                lineItem.note = input.dataset.itemName;
+                lineItem.type = input.dataset.itemType;
+                lineItems.push(lineItem);
+              }
             } catch (error) {
               // eslint-disable-next-line no-console
               console.error(error.message);

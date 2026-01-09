@@ -110,7 +110,14 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['title', 'sections', 'cart'];
+  const classes = ['title', 'sections'];
+
+  const { pathname } = window.location;
+  const isWholesale = pathname.split('/').some((path) => path === 'wholesale');
+
+  // Add cart button to header IF not on a wholesale path
+  if (!isWholesale) classes.push('cart');
+
   classes.forEach((c, i) => {
     const section = nav.children[i];
     if (section) {
@@ -243,6 +250,12 @@ export default async function decorate(block) {
   navWrapper.append(nav);
   block.append(navWrapper);
   block.parentElement.className = 'appear';
+
+  // Remove cart icon from header if user is on any wholesale page
+  if (isWholesale) {
+    const normalCartIcon = document.querySelector('span.icon-normal-cart').closest('div.section');
+    normalCartIcon.remove();
+  }
 
   swapIcons(block);
 }
