@@ -436,7 +436,7 @@ async function buildWholesale(main, link) {
 
           if (processingOrder) {
             const successMessage = document.createElement('div');
-            successMessage.textContent = 'Your order was successfully placed!';
+            successMessage.textContent = 'your order was successfully placed!';
             placeOrderContainer.append(successMessage);
           }
 
