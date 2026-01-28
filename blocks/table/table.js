@@ -1,4 +1,5 @@
 import { decorateIcons } from '../../scripts/aem.js';
+import { getCatalog } from '../../scripts/scripts.js';
 
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
@@ -23,11 +24,76 @@ function checkInput() {
   submitButton.disabled = !hasAddedQuantity;
 }
 
+const wholesaleFields = [
+  {
+    type: 'input',
+    label: 'Your Business Name',
+    name: 'businessName',
+    placeholder: 'your business name',
+    required: true,
+    validation: ['no-nums'],
+  },
+  {
+    type: 'tel',
+    label: 'Phone Number',
+    name: 'phone',
+    required: true,
+    placeholder: 'your business phone number',
+    validation: ['phone:US'],
+  },
+  {
+    type: 'email',
+    label: 'Email',
+    name: 'email',
+    required: true,
+    placeholder: 'your business email address',
+  },
+  {
+    type: 'textarea',
+    label: 'Special Requests / Notes',
+    name: 'businessNote',
+    placeholder: 'Notes',
+    validation: ['no-nums'],
+  },
+  {
+    type: 'select',
+    label: 'How would you like to receive your order?',
+    name: 'orderType',
+    placeholder: 'How would you like to receive your order?',
+    options: [
+      {
+        label: 'delivery',
+        value: 'delivery',
+      },
+      {
+        label: 'pickup',
+        value: 'pickup',
+      },
+    ],
+  },
+  {
+    type: 'date',
+    label: 'pickup Date',
+    name: 'pickupdate',
+    dependsOn: 'orderType',
+    showWhen: 'pickup',
+    required: true,
+  },
+  {
+    type: 'time',
+    label: 'pickup Time',
+    name: 'pickuptime',
+    dependsOn: 'orderType',
+    showWhen: 'pickup',
+    required: true,
+  },
+];
+
 export default async function decorate(block) {
-  const wholesale = window.location.pathname.split('/').some((path) => path === 'wholesale');
+  const wholesalePath = window.location.pathname.split('/').some((path) => path === 'wholesale');
 
   // If a block has a url in the data-src attribute
-  if (block.hasAttribute('data-src') && wholesale) {
+  if (block.hasAttribute('data-src') && wholesalePath) {
     const link = block.dataset.src;
     const form = document.querySelector('.table-form');
 
@@ -39,6 +105,7 @@ export default async function decorate(block) {
       jsonData.splice(0, 2);
 
       const table = document.createElement('table');
+      table.id = 'wholesale-table';
 
       const wholesaleMap = {};
       jsonData.forEach((product) => {
@@ -60,7 +127,7 @@ export default async function decorate(block) {
       });
 
       // decorate tbody
-      Object.values(wholesaleMap).forEach((group) => {
+      Object.values(wholesaleMap).forEach((group, groupIndex) => {
         // Create a tbody for each group of products (grouped by TYPE).
         const tbody = document.createElement('tbody');
         const labelRow = document.createElement('tr');
@@ -74,26 +141,26 @@ export default async function decorate(block) {
         // create price header
         const priceTh = document.createElement('th');
         const pricePTag = document.createElement('p');
-        pricePTag.textContent = 'price';
+        pricePTag.textContent = 'price per case';
         priceTh.append(pricePTag);
 
         // create price header
         const availableTh = document.createElement('th');
         const availablePTag = document.createElement('p');
-        availablePTag.textContent = 'available';
+        availablePTag.textContent = 'cases available';
         availableTh.append(availablePTag);
 
         // create quantity header
         const quantityTh = document.createElement('th');
         const quantityPTag = document.createElement('p');
-        quantityPTag.textContent = 'quantity';
+        quantityPTag.textContent = 'cases';
         quantityTh.append(quantityPTag);
 
         labelRow.append(productTh, availableTh, priceTh, quantityTh);
         tbody.append(labelRow);
 
         // Loop over each product within the group and add table row and data
-        group.forEach((product) => {
+        group.forEach((product, productIndex) => {
           const productRow = document.createElement('tr');
           // Setting default height to handle CLS error
           productRow.style.height = isDesktop.matches ? '100px' : '175px';
@@ -140,14 +207,60 @@ export default async function decorate(block) {
             soldoutElement.textContent = 'sold out';
             quantityCell.append(soldoutElement);
           } else {
+            const wholesaleData = JSON.parse(localStorage.getItem('wholesale'));
+            const key = JSON.parse(sessionStorage.getItem('wholesaleKey')).toLowerCase();
+
+            const itemKey = `${[product.ID]}-${groupIndex}-${productIndex}`;
+
             const quantityInput = document.createElement('input');
+            quantityInput.value = wholesaleData[key][itemKey] ? wholesaleData[key][itemKey].amount : '';
             quantityInput.type = 'number';
             quantityInput.id = product.ID;
             quantityInput.dataset.itemName = product.ITEM;
             quantityInput.dataset.itemType = product.TYPE;
             quantityInput.min = 0;
             quantityInput.max = product.STOCKREMAINING;
-            quantityInput.addEventListener('input', () => checkInput());
+            quantityInput.addEventListener('change', async (event) => {
+              const inputValue = Number(event.target.value);
+
+              const wholesale = JSON.parse(localStorage.getItem('wholesale')) || {};
+
+              // Ensure nesting exists
+              wholesale[key] ||= {};
+
+              // If wholesaler added a value greater than 0
+              if (inputValue > 0) {
+                try {
+                  // Get square catalog list
+                  const items = await getCatalog();
+
+                  if (items) {
+                    // Get this Square item data
+                    const item = items?.byId?.[product.ID];
+
+                    if (!item) return;
+
+                    wholesale[key][itemKey] = {
+                      amount: inputValue,
+                    };
+
+                    localStorage.setItem('wholesale', JSON.stringify(wholesale));
+                  }
+                } catch (error) {
+                  // eslint-disable-next-line no-console
+                  console.error(error.message);
+                  return;
+                }
+              // removed an item from the list completely
+              } else {
+                delete wholesale[key][itemKey];
+              }
+
+              localStorage.setItem('wholesale', JSON.stringify(wholesale));
+
+              checkInput();
+            });
+
             quantityCell.append(quantityInput);
           }
           // Append product and quantity cells to the row.
@@ -157,8 +270,82 @@ export default async function decorate(block) {
         // Append the tbody for this group to the table.
         table.append(tbody);
       });
+
+      // Fetch order form data
+      const wholesaleOrderFormData = JSON.parse(localStorage.getItem('orderFormData'));
+
+      const wholesaleFieldsContainer = document.createElement('div');
+      wholesaleFieldsContainer.classList.add('wholesale-fields-container');
+
+      wholesaleFields.forEach((field) => {
+        const fieldWrapper = document.createElement('div');
+        fieldWrapper.dataset.fieldName = field.name;
+
+        // hide by default if this field depends on another
+        if (field.dependsOn) {
+          fieldWrapper.style.display = 'none';
+        }
+
+        const label = document.createElement('label');
+        label.textContent = field.label || '';
+        label.htmlFor = field.name || '';
+        form.append(label);
+
+        let input;
+
+        if (field.type === 'select') {
+          const select = document.createElement('select');
+          select.name = field.name || '';
+          select.id = field.name || '';
+
+          field.options.forEach((opt) => {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.label;
+            select.append(option);
+          });
+
+          select.addEventListener('change', (e) => {
+            const isPickup = e.target.value === 'pickup';
+
+            ['pickupdate', 'pickuptime'].forEach((name) => {
+              const wrapper = form.querySelector(`[data-field-name="${name}"]`);
+              const schedulePickupInput = wrapper?.querySelector('input');
+
+              if (!wrapper || !schedulePickupInput) return;
+
+              wrapper.style.display = isPickup ? '' : 'none';
+              schedulePickupInput.disabled = !isPickup;
+            });
+          });
+
+          input = select;
+        } else {
+          input = document.createElement('input');
+          input.type = field.type || '';
+          input.placeholder = field.placeholder || '';
+          input.required = field.required || false;
+          input.name = field.name || '';
+          input.id = field.name || '';
+          input.value = wholesaleOrderFormData[field.name] || '';
+
+          input.addEventListener('input', (event) => {
+            const orderFormFields = JSON.parse(localStorage.getItem('orderFormData'));
+            orderFormFields[field.name] = event.target.value;
+            localStorage.setItem('orderFormData', JSON.stringify(orderFormFields));
+          });
+
+          if (field.dependsOn) {
+            input.disabled = true;
+          }
+        }
+
+        fieldWrapper.append(label, input);
+        form.append(fieldWrapper);
+      });
+
       // Add table to form in table block
-      form.prepend(table);
+      form.append(table);
     } catch (err) {
       throw new Error('no .json');
     }

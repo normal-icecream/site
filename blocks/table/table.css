@@ -19,6 +19,7 @@
     width: 100%;
     border-top: 2px solid var(--blue);
     border-bottom: 2px solid var(--blue);
+    margin-top: var(--spacing-xl);
 }
 
 .table table thead th,
