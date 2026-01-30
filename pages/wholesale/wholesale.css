@@ -95,3 +95,20 @@
 .wholesale .wholesale-form {
     margin-bottom: 20vh;
 }
+
+.wholesale .wholesale-form label {
+    font-size: var(--heading-size-xs);
+    font-family: var(--heading-font-family);
+    color: var(--blue);
+    margin: 0;
+    text-transform: lowercase;
+}
+
+.wholesale .wholesale-form input, textarea, select {
+    border: solid 2px var(--blue-light);
+    background-color: transparent;
+    padding: 20px;
+    margin-bottom: 6px;
+    color: var(--blue);
+    text-transform: lowercase;
+}

@@ -1,6 +1,5 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable import/no-cycle */
-import { removeLeadingZero } from '../../helpers/helpers.js';
 import {
   buildBlock,
   decorateBlock,
@@ -8,20 +7,7 @@ import {
   loadCSS,
 } from '../../scripts/aem.js';
 import buildForm from '../../utils/forms/forms.js';
-// eslint-disable-next-line import/no-cycle
-import { wholesaleOrderForm, resetOrderForm } from '../../utils/order/order.js';
-import { createLineItem } from '../cart/cart.js';
-import { createModal, toggleModal } from '../../utils/modal/modal.js';
-import { getCatalog } from '../../scripts/scripts.js';
-
-function buildModal(element, refresh) {
-  const wholesaleModal = document.createElement('div');
-  wholesaleModal.classList.add('wholesale', 'modal');
-  createModal(wholesaleModal);
-  element.append(wholesaleModal);
-
-  toggleModal(wholesaleModal, 'your wholesale order', refresh);
-}
+import { getOrderFormData } from '../../utils/order/order.js';
 
 function createSubmitButton() {
   // Create submit button wrapper
@@ -224,9 +210,120 @@ async function fetchWholesaleHours() {
   return shouldDisplay;
 }
 
-// eslint-disable-next-line consistent-return
-async function fetchWholesaleDeliveryMethods() {
+function getFormFieldData(form) {
+  const inputFields = {};
+  const lineItems = [];
+
+  const elements = form.querySelectorAll('input, select, textarea');
+
+  elements.forEach((el) => {
+    const { name, type, value } = el;
+
+    switch (type) {
+      case 'checkbox':
+        inputFields[name] = el.checked;
+        break;
+
+      case 'radio':
+        if (el.checked) {
+          inputFields[name] = value;
+        }
+        break;
+
+      case 'number': {
+        const inputQuantity = Number(value);
+        const { itemType } = el.dataset;
+
+        if (inputQuantity > 0) {
+          lineItems.push({
+            item_id: el.id,
+            quantity: inputQuantity,
+            name: el.dataset.itemName,
+            type: itemType,
+          });
+        }
+        break;
+      }
+
+      case 'date':
+      case 'time':
+      case 'datetime-local':
+        inputFields[name] = value || null;
+        break;
+
+      default:
+        inputFields[name] = value;
+    }
+  });
+
+  inputFields.lineItems = lineItems;
+
+  return inputFields;
+}
+
+function setWholesaleLocalStorage() {
+  // Try to read in existing wholesale data from localStorage
+  // and if nothing exists yet, set as an empty object.
+  const wholesaleLS = JSON.parse(localStorage.getItem('wholesale')) || {};
+
+  // Get wholesale key for this page and set to lowercase.
+  const wholesaleKey = JSON.parse(sessionStorage.getItem('wholesaleKey'))?.toLowerCase();
+
+  // Throw error if there is no wholesale key
+  if (!wholesaleKey) {
+    // eslint-disable-next-line no-console
+    console.log('No wholesaleKey found in sessionStorage');
+    return;
+  }
+
+  // add key if it does not exist
+  if (!wholesaleLS[wholesaleKey]) {
+    wholesaleLS[wholesaleKey] = {};
+    localStorage.setItem('wholesale', JSON.stringify(wholesaleLS));
+  }
+}
+
+function resetWholesaleLocalStorageKeyData() {
+  const wholesaleLS = JSON.parse(localStorage.getItem('wholesale')) || {};
+
+  // Get wholesale key for this page and set to lowercase.
+  const wholesaleKey = JSON.parse(sessionStorage.getItem('wholesaleKey'))?.toLowerCase();
+
+  // Throw error if there is no wholesale key
+  if (!wholesaleKey) {
+    // eslint-disable-next-line no-console
+    console.log('No wholesaleKey found in sessionStorage');
+    return;
+  }
+
+  // add key if it does not exist
+  if (wholesaleLS[wholesaleKey]) {
+    wholesaleLS[wholesaleKey] = {};
+    localStorage.setItem('wholesale', JSON.stringify(wholesaleLS));
+  }
+}
+
+export function buildGQs(params) {
+  let qs = '';
+  Object.keys(params).forEach((key) => {
+    if (key in params) {
+      if (key === 'line_items') {
+        qs += `${key}=${encodeURIComponent(JSON.stringify(params[key]))}`;
+      } else {
+        qs += `${key}=${encodeURIComponent(params[key])}`;
+      }
+      qs += '&';
+    }
+  });
+  return qs;
+}
+
+export async function updateWholesaleGoogleSheet(params) {
   const url = `${window.location.origin}/admin/wholesale-locations.json`;
+  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
+
+  let res;
+
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -235,19 +332,54 @@ async function fetchWholesaleDeliveryMethods() {
 
     const json = await response.json();
     if (json.data) {
-      const wholesaleKey = JSON.parse(sessionStorage.getItem('wholesaleKey'));
-      const deliverMethods = json.data.find((location) => location.LOCATION === wholesaleKey);
-      return deliverMethods.DELIVERY_METHOD;
+      const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
+      if (wholesaleItem) {
+        try {
+          const qs = buildGQs(params);
+          const path = new URL(wholesaleItem.LINK).pathname;
+
+          const wholesaleScriptLinkRes = await fetch(`${wholesaleItem.SCRIPT_LINK}?${qs}`, { method: 'POST' });
+          if (!wholesaleScriptLinkRes.ok) {
+            throw new Error(`Error fetching wholesale script link: ${wholesaleScriptLinkRes.status}`);
+          }
+
+          const wholesalePrevRes = await fetch(`https://admin.hlx.page/preview/normal-icecream/site/main/${path}`, { method: 'POST' });
+          if (!wholesalePrevRes.ok) {
+            throw new Error(`Error posting to preview: ${wholesalePrevRes.status}`);
+          }
+
+          const wholesaleLiveRes = await fetch(`https://admin.hlx.page/live/normal-icecream/site/main/${path}`, { method: 'POST' });
+          if (!wholesaleLiveRes.ok) {
+            throw new Error(`Error posting to preview: ${wholesaleLiveRes.status}`);
+          }
+
+          return {
+            ok: response.ok,
+          };
+        } catch (error) {
+          return {
+            ok: false,
+            message: error.message,
+          };
+        }
+      }
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error.message);
+    return {
+      ok: false,
+      message: error.message,
+    };
   }
+
+  return res;
 }
 
 async function buildWholesale(main, link) {
+  // Set up localstorage for wholesale order management
+  setWholesaleLocalStorage();
+  getOrderFormData();
+
   const showOrderWholesaleForm = await fetchWholesaleHours();
-  const wholesaleDeliveryMethods = await fetchWholesaleDeliveryMethods();
 
   const wholesaleFormContainer = main.querySelector('.wholesale-form');
 
@@ -269,53 +401,49 @@ async function buildWholesale(main, link) {
 
       const isValid = validateForm();
       if (isValid) {
-        const inputs = form.querySelectorAll('input[type="number"]');
+        const placeOrderContainer = form.querySelector('.table-form-submit-wrapper');
 
-        const lineItems = [];
-        /* eslint-disable-next-line no-restricted-syntax */
-        for (const input of inputs) {
-          if (input.value > 0) {
-            try {
-              /* eslint-disable-next-line no-await-in-loop */
-              const item = await getCatalog();
+        const placeOrderButton = form.querySelector('.table-form-submit-wrapper button');
+        placeOrderButton.disabled = true;
 
-              if (item) {
-                const squareItem = item.byId[input.id];
-                /* eslint-disable-next-line no-await-in-loop */
-                const lineItem = await createLineItem(
-                  squareItem.id,
-                  removeLeadingZero(input.value),
-                );
-                lineItem.note = input.dataset.itemName;
-                lineItem.type = input.dataset.itemType;
-                lineItems.push(lineItem);
-              }
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.error(error.message);
-            }
+        const processingMessage = document.createElement('div');
+        processingMessage.textContent = 'we are processing your order..';
+        processingMessage.className = 'processing-message';
+        placeOrderContainer.append(processingMessage);
+
+        const formData = getFormFieldData(form);
+
+        let wholesaleNote = `email: ${formData.email || ''},\nphone #: ${formData.phone || ''},\nnote: ${formData.businessNote || ''}`;
+
+        if (formData.orderType === 'pickup') {
+          wholesaleNote += `,\npickup date: ${formData.pickupdate},\npickup time: ${formData.pickuptime}`;
+        }
+
+        const params = {
+          business_name: formData.businessName || '',
+          business_email: formData.email || '',
+          business_note: wholesaleNote,
+          is_wholesale_order: true,
+          business_method: formData.orderType || '',
+          line_items: formData.lineItems,
+        };
+
+        try {
+          const processingOrder = await updateWholesaleGoogleSheet(params);
+
+          const processingMessageDiv = form.querySelector('.table-form-submit-wrapper .processing-message');
+          processingMessageDiv.remove();
+
+          if (processingOrder) {
+            const successMessage = document.createElement('div');
+            successMessage.textContent = 'your order was successfully placed!';
+            placeOrderContainer.append(successMessage);
           }
-        }
 
-        const wholesaleModal = document.querySelector('.wholesale.modal');
-        /* eslint-disable-next-line no-inner-declarations */
-        function refreshWholesaleContent(element) {
-          const modalContentSection = element.querySelector('.modal-content');
-          modalContentSection.innerHTML = '';
-
-          const modalErrorContainer = element.querySelector('.modal-wholesale-content-container');
-          if (modalErrorContainer) modalErrorContainer.remove();
-
-          wholesaleOrderForm({
-            line_items: lineItems,
-            deliveryMethods: wholesaleDeliveryMethods,
-          }, element);
-        }
-
-        if (!wholesaleModal) {
-          buildModal(main, refreshWholesaleContent);
-        } else {
-          toggleModal(wholesaleModal, 'your wholesale order', refreshWholesaleContent);
+          resetWholesaleLocalStorageKeyData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log('error', error);
         }
       }
     });
@@ -325,6 +453,8 @@ async function buildWholesale(main, link) {
     block.classList.add('section');
     const blockContentSection = block.querySelector('.block > div > div');
     wholesaleFormContainer.appendChild(block);
+
+    // This hits the table block and builds the form there
     decorateBlock(block);
 
     blockContentSection.append(form);
@@ -349,80 +479,6 @@ async function fetchWholesaleKey(main, key) {
       if (wholesaleItem) {
         sessionStorage.setItem('wholesaleKey', JSON.stringify(key));
         buildWholesale(main, wholesaleItem.LINK);
-      }
-    }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error.message);
-  }
-}
-
-export function buildGQs(params) {
-  let qs = '';
-  Object.keys(params).forEach((key) => {
-    if (key in params) {
-      if (key === 'line_items') {
-        qs += `${key}=${encodeURIComponent(JSON.stringify(params[key]))}`;
-      } else {
-        qs += `${key}=${encodeURIComponent(params[key])}`;
-      }
-      qs += '&';
-    }
-  });
-  return qs;
-}
-
-export async function updateWholesaleGoogleSheet(orderData, orderFormFields) {
-  const url = `${window.location.origin}/admin/wholesale-locations.json`;
-  const key = JSON.parse(sessionStorage.getItem('wholesaleKey'));
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    const json = await response.json();
-    if (json.data) {
-      const wholesaleItem = json.data.find((locationKey) => locationKey.LOCATION === key);
-      if (wholesaleItem) {
-        let wholesaleNote = `email: ${orderFormFields?.email},\nphone #: ${orderFormFields?.phone},\nnote: ${orderFormFields?.businessNote}`;
-
-        if (orderFormFields.isPickupOrder) {
-          wholesaleNote += `,\npickup date: ${orderFormFields?.pickupdate},\npickup time: ${orderFormFields?.pickuptime}`;
-        }
-
-        const params = {
-          business_email: orderFormFields.email,
-          business_name: orderFormFields.businessName,
-          business_note: wholesaleNote,
-          business_method: orderFormFields.isPickupOrder ? 'pickup' : 'delivery',
-          is_wholesale_order: true,
-          line_items: orderData.line_items,
-        };
-
-        params.line_items.forEach((p) => {
-          p.name = p.note;
-          delete p.base_price_money;
-          delete p.id;
-          delete p.item_type;
-          delete p.note;
-        });
-
-        try {
-          const qs = buildGQs(params);
-          const path = new URL(wholesaleItem.LINK).pathname;
-
-          await fetch(`${wholesaleItem.SCRIPT_LINK}?${qs}`, { method: 'POST' });
-          await fetch(`https://admin.hlx.page/preview/normal-icecream/site/main/${path}`, { method: 'POST' });
-          await fetch(`https://admin.hlx.page/live/normal-icecream/site/main/${path}`, { method: 'POST' });
-
-          // Reset form
-          resetOrderForm();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error updating inventory:', error);
-        }
       }
     }
   } catch (error) {
