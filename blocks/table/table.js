@@ -141,19 +141,19 @@ export default async function decorate(block) {
         // create price header
         const priceTh = document.createElement('th');
         const pricePTag = document.createElement('p');
-        pricePTag.textContent = 'price per case';
+        pricePTag.textContent = 'price per unit';
         priceTh.append(pricePTag);
 
         // create price header
         const availableTh = document.createElement('th');
         const availablePTag = document.createElement('p');
-        availablePTag.textContent = 'cases available';
+        availablePTag.textContent = 'units available';
         availableTh.append(availablePTag);
 
         // create quantity header
         const quantityTh = document.createElement('th');
         const quantityPTag = document.createElement('p');
-        quantityPTag.textContent = 'cases';
+        quantityPTag.textContent = 'units';
         quantityTh.append(quantityPTag);
 
         labelRow.append(productTh, availableTh, priceTh, quantityTh);
