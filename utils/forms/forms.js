@@ -354,7 +354,7 @@ function buildTextArea(field) {
  * @param {Object} field - An object containing configuration for the select element.
  * @returns {HTMLElement} A configured `<select>` element with event listeners and options.
  */
-function buildSelect(field) {
+export function buildSelect(field) {
   const select = document.createElement('select');
   select.name = field.name || ''; // Sets name attribute
 
