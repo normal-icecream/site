@@ -1,5 +1,7 @@
 import { decorateIcons } from '../../scripts/aem.js';
 import { getCatalog } from '../../scripts/scripts.js';
+import { fetchStoreHours } from '../../pages/wholesale/wholesale.js';
+import { removeLeadingZero } from '../../helpers/helpers.js';
 
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
@@ -22,6 +24,198 @@ function checkInput() {
   });
 
   submitButton.disabled = !hasAddedQuantity;
+}
+
+function buildPickupDaysAndTimes(scheduleByDay, todayInput = new Date()) {
+  // Accept either an object keyed by day (mon/tue/...) or an array of entries.
+  const schedule = Array.isArray(scheduleByDay)
+    ? Object.fromEntries(scheduleByDay.map((d) => [d.day, d.times]))
+    : scheduleByDay;
+
+  const dayMap = {
+    sun: { name: 'sunday', dow: 0 },
+    mon: { name: 'monday', dow: 1 },
+    tue: { name: 'tuesday', dow: 2 },
+    wed: { name: 'wednesday', dow: 3 },
+    thu: { name: 'thursday', dow: 4 },
+    fri: { name: 'friday', dow: 5 },
+    sat: { name: 'saturday', dow: 6 },
+  };
+
+  const today = (todayInput instanceof Date) ? new Date(todayInput) : new Date(todayInput);
+  // Normalize to midnight so day math is stable
+  today.setHours(0, 0, 0, 0);
+
+  const isValidTime = (t) => typeof t === 'string' && t !== 'false' && /^\d{1,2}:\d{2}$/.test(t);
+
+  const parseTimeToMinutes = (hhmm) => {
+    const [hh, mm] = hhmm.split(':').map(Number);
+    return hh * 60 + mm;
+  };
+
+  const formatDateMMDDYY = (date) => {
+    const month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yy = String(date.getFullYear());
+
+    return {
+      mmddyy: `${mm}/${dd}/${yy}`,
+      label: `${month[removeLeadingZero(mm)].toLowerCase()} ${dd}, ${yy}`,
+    };
+  };
+
+  const formatTimeLabel = (minutesFromMidnight) => {
+    const totalMinutes = ((minutesFromMidnight % (24 * 60)) + (24 * 60)) % (24 * 60);
+    const h24 = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+
+    const ampm = h24 >= 12 ? 'pm' : 'am';
+    const h12 = (h24 % 12) === 0 ? 12 : (h24 % 12);
+
+    // If you only ever have :00, this will show '12pm' etc.
+    // If not, it will show '12:30pm'
+    return m === 0 ? `${h12}${ampm}` : `${h12}:${String(m).padStart(2, '0')}${ampm}`;
+  };
+
+  const buildHourRanges = (openHHMM, closeHHMM) => {
+    const openMin = parseTimeToMinutes(openHHMM);
+    const closeMin = parseTimeToMinutes(closeHHMM);
+
+    if (closeMin <= openMin) return []; // guard
+
+    const ranges = [];
+    // increment by 60 minutes
+    for (let t = openMin; t + 60 <= closeMin; t += 60) {
+      ranges.push(`${formatTimeLabel(t)} - ${formatTimeLabel(t + 60)}`);
+    }
+    return ranges;
+  };
+
+  const todayDow = today.getDay(); // 0=Sun ... 6=Sat
+
+  const results = [];
+
+  Object.entries(schedule).forEach(([abbr, times]) => {
+    const meta = dayMap[abbr.toLowerCase()];
+    if (!meta) return;
+
+    const open = times?.open;
+    const close = times?.close;
+
+    if (!isValidTime(open) || !isValidTime(close)) return;
+
+    // Find next upcoming occurrence of this weekday (never 'today'; always next)
+    let daysUntil = (meta.dow - todayDow + 7) % 7;
+    if (daysUntil === 0) daysUntil = 7;
+
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + daysUntil);
+
+    const hours = buildHourRanges(open, close);
+    if (hours.length === 0) return;
+
+    results.push({
+      date: formatDateMMDDYY(nextDate).mmddyy,
+      label: `${meta.name} ${formatDateMMDDYY(nextDate).label}`,
+      hours,
+    });
+  });
+
+  // Sort by date ascending
+  results.sort((a, b) => {
+    const [am, ad, ay] = a.date.split('/').map(Number);
+    const [bm, bd, by] = b.date.split('/').map(Number);
+    const aDate = new Date(2000 + ay, am - 1, ad);
+    const bDate = new Date(2000 + by, bm - 1, bd);
+    return aDate - bDate;
+  });
+
+  return results;
+}
+
+async function fetchWholesalePickupHours() {
+  // Fetch list of wholesale pickup hours
+  const wholesalePickupHours = await fetchStoreHours('WHOLESALE_PICKUP');
+
+  let pickupDaysAndTimes = [];
+
+  if (wholesalePickupHours) {
+    pickupDaysAndTimes = buildPickupDaysAndTimes(wholesalePickupHours);
+  }
+
+  return pickupDaysAndTimes;
+}
+
+// Return an array of days and set up pickup time options
+async function getPickupDateOptions() {
+  const pickupList = await fetchWholesalePickupHours();
+
+  const list = [];
+
+  pickupList.forEach((option) => {
+    list.push({
+      label: option.label,
+      value: option.label,
+    });
+  });
+
+  return list;
+}
+
+// Function that sets the pickup time options based on the pickup date field selected day
+async function setPickupTimeOptions(date) {
+  // Fetching wholesale pickup hours
+  const pickupHours = await fetchWholesalePickupHours();
+  const list = [];
+
+  if (pickupHours) {
+    if (date) {
+      const matchingOptions = pickupHours.find((item) => item.label === date);
+
+      if (matchingOptions) {
+        const pickupSelect = document.querySelector('[data-field-name="pickuptime"] > select');
+
+        pickupSelect.innerHTML = '';
+
+        matchingOptions.hours.forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          pickupSelect.append(option);
+        });
+      }
+    } else {
+      const hoursList = pickupHours[0].hours;
+
+      hoursList.forEach((option) => {
+        list.push({
+          label: option,
+          value: option,
+        });
+      });
+    }
+  }
+
+  return list;
+}
+
+// Function that toggles the wholesale order type dropdown fields
+function toggleOrderTypeFields(value, fieldNames) {
+  fieldNames.forEach((name) => {
+    const wrapper = document.querySelector(`[data-field-name="${name}"]`);
+    const schedulePickupInput = wrapper?.querySelector('select, input');
+
+    if (!wrapper || !schedulePickupInput) return;
+
+    if (value === 'pickup') {
+      wrapper.style.display = '';
+      schedulePickupInput.disabled = false;
+    } else {
+      wrapper.style.display = 'none';
+      schedulePickupInput.disabled = true;
+    }
+  });
 }
 
 const wholesaleFields = [
@@ -70,22 +264,28 @@ const wholesaleFields = [
         value: 'pickup',
       },
     ],
+    onChange: (value) => toggleOrderTypeFields(value, ['pickupdate', 'pickuptime']),
   },
   {
-    type: 'date',
-    label: 'pickup Date',
+    type: 'select',
+    label: 'pickup date',
     name: 'pickupdate',
-    dependsOn: 'orderType',
     showWhen: 'pickup',
     required: true,
+    dependsOn: 'orderType',
+    placeholder: 'choose a pickup date',
+    options: await getPickupDateOptions(),
+    onChange: (value) => setPickupTimeOptions(value),
   },
   {
-    type: 'time',
-    label: 'pickup Time',
+    type: 'select',
+    label: 'pickup time',
     name: 'pickuptime',
-    dependsOn: 'orderType',
     showWhen: 'pickup',
     required: true,
+    placeholder: 'choose a pickup time',
+    dependsOn: 'orderType',
+    options: await setPickupTimeOptions(),
   },
 ];
 
@@ -305,20 +505,6 @@ export default async function decorate(block) {
             select.append(option);
           });
 
-          select.addEventListener('change', (e) => {
-            const isPickup = e.target.value === 'pickup';
-
-            ['pickupdate', 'pickuptime'].forEach((name) => {
-              const wrapper = form.querySelector(`[data-field-name="${name}"]`);
-              const schedulePickupInput = wrapper?.querySelector('input');
-
-              if (!wrapper || !schedulePickupInput) return;
-
-              wrapper.style.display = isPickup ? '' : 'none';
-              schedulePickupInput.disabled = !isPickup;
-            });
-          });
-
           input = select;
         } else {
           input = document.createElement('input');
@@ -338,6 +524,13 @@ export default async function decorate(block) {
           if (field.dependsOn) {
             input.disabled = true;
           }
+        }
+
+        // Add onChange event handler if field has onChange custom function
+        if (field.onChange) {
+          input.addEventListener('change', async (e) => {
+            await field.onChange(e.target.value);
+          });
         }
 
         fieldWrapper.append(label, input);

@@ -161,12 +161,11 @@ function shouldDisplayWholesaleForm(open, close, currentTime) {
   return false;
 }
 
-async function fetchWholesaleHours() {
+export async function fetchStoreHours(store) {
   const url = `${window.location.origin}/admin/store-hours.json`;
-  let shouldDisplay = false;
+  const normalizedType = store.toUpperCase();
 
-  const { pathname } = window.location;
-  const isWholesaleTest = pathname.split('/').some((path) => path === 'wholesale-test');
+  let hours = [];
 
   try {
     const response = await fetch(url);
@@ -187,26 +186,40 @@ async function fetchWholesaleHours() {
           day,
           type,
           // eslint-disable-next-line no-restricted-globals
-          time: isNaN(item.WHOLESALE)
-            ? item.WHOLESALE
-            : convertDecimalToTime(parseFloat(item.WHOLESALE)),
+          time: isNaN(item[normalizedType])
+            ? item[normalizedType]
+            : convertDecimalToTime(parseFloat(item[normalizedType])),
         });
       });
 
-      const operatingHours = combineDayHours(reformattedData);
-      const now = new Date();
-      const dayName = days[now.getDay()];
+      const storeHours = combineDayHours(reformattedData);
 
-      // eslint-disable-next-line prefer-const
-      let { open, close } = operatingHours[dayName];
-
-      const currentTime = now.getHours() * 60 + now.getMinutes();
-      shouldDisplay = isWholesaleTest ? true : shouldDisplayWholesaleForm(open, close, currentTime);
+      hours = storeHours;
     }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error.message);
   }
+
+  return hours;
+}
+
+function shouldDisplayWholesale(operatingHours) {
+  let shouldDisplay = false;
+  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+  const { pathname } = window.location;
+  const isWholesaleTest = pathname.split('/').some((path) => path === 'wholesale-test');
+
+  const now = new Date();
+  const dayName = days[now.getDay()];
+
+  // eslint-disable-next-line prefer-const
+  let { open, close } = operatingHours[dayName];
+
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  shouldDisplay = isWholesaleTest ? true : shouldDisplayWholesaleForm(open, close, currentTime);
+
   return shouldDisplay;
 }
 
@@ -379,11 +392,14 @@ async function buildWholesale(main, link) {
   setWholesaleLocalStorage();
   getOrderFormData();
 
-  const showOrderWholesaleForm = await fetchWholesaleHours();
+  // Fetch a list of store hours for wholesale
+  const wholesaleHours = await fetchStoreHours('WHOLESALE');
+  // determine if wholesale is open for orders
+  const displayWholesaleForm = await shouldDisplayWholesale(wholesaleHours);
 
   const wholesaleFormContainer = main.querySelector('.wholesale-form');
 
-  if (showOrderWholesaleForm) {
+  if (displayWholesaleForm) {
     const closedToOrdersBlock = main.querySelector('.closed-to-orders');
     if (closedToOrdersBlock) closedToOrdersBlock.remove();
 
