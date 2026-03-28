@@ -204,12 +204,12 @@ export async function fetchStoreHours(store) {
   return hours;
 }
 
-function shouldDisplayWholesale(operatingHours) {
+async function shouldDisplayWholesale(wholesaleHoursKey) {
+  const normalizedWholesaleKey = `WHOLESALE_${wholesaleHoursKey.toUpperCase()}`
+  const operatingHours = await fetchStoreHours(normalizedWholesaleKey);
+
   let shouldDisplay = false;
   const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-
-  const { pathname } = window.location;
-  const isWholesaleTest = pathname.split('/').some((path) => path === 'wholesale-test');
 
   const now = new Date();
   const dayName = days[now.getDay()];
@@ -218,7 +218,7 @@ function shouldDisplayWholesale(operatingHours) {
   let { open, close } = operatingHours[dayName];
 
   const currentTime = now.getHours() * 60 + now.getMinutes();
-  shouldDisplay = isWholesaleTest ? true : shouldDisplayWholesaleForm(open, close, currentTime);
+  shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
 
   return shouldDisplay;
 }
@@ -392,10 +392,11 @@ async function buildWholesale(main, link) {
   setWholesaleLocalStorage();
   getOrderFormData();
 
-  // Fetch a list of store hours for wholesale
-  const wholesaleHours = await fetchStoreHours('WHOLESALE');
-  // determine if wholesale is open for orders
-  const displayWholesaleForm = await shouldDisplayWholesale(wholesaleHours);
+  const wholesaleKey = JSON.parse(sessionStorage.getItem('wholesaleKey'));
+
+  // Function call that fetches wholesale hours and assesses whether
+  // wholesale ordering should be displayed.
+  const displayWholesaleForm = await shouldDisplayWholesale(wholesaleKey);
 
   const wholesaleFormContainer = main.querySelector('.wholesale-form');
 
