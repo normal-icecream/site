@@ -56,18 +56,22 @@ function clearError() {
 
 function validateForm() {
   let isValid = true;
-  const formFields = Array.from(document.querySelectorAll('input'));
+  const formContactFields = Array.from(document.querySelectorAll('input')).filter((item) => item.dataset.squareItem !== '');
+  const formOrderFields = Array.from(document.querySelectorAll('input')).filter((item) => item.dataset.squareItem === '');
   const errorMessages = [];
 
-  const hasEntry = formFields.some((field) => field.value > 0);
-  if (!hasEntry) {
+  const formOrderFieldsHasEntry = formOrderFields.some((field) => field.value > 0);
+  const formContactFieldsHasEntry = formContactFields.some((field) => field.value > 0);
+
+  if (!formOrderFieldsHasEntry || !formContactFieldsHasEntry) {
     isValid = false;
-    errorMessages.push('Please enter at least one valid quantity or value to submit.');
+    errorMessages.push('Please enter at least one wholesale product to submit.');
     showError(errorMessages);
   } else {
     isValid = true;
     clearError();
   }
+
   return isValid;
 }
 
@@ -205,7 +209,7 @@ export async function fetchStoreHours(store) {
 }
 
 async function shouldDisplayWholesale(wholesaleHoursKey) {
-  const normalizedWholesaleKey = `WHOLESALE_${wholesaleHoursKey.toUpperCase()}`
+  const normalizedWholesaleKey = `WHOLESALE_${wholesaleHoursKey.toUpperCase()}`;
   const operatingHours = await fetchStoreHours(normalizedWholesaleKey);
 
   let shouldDisplay = false;
@@ -416,7 +420,9 @@ async function buildWholesale(main, link) {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const isValid = validateForm();
+      let isValid = true;
+      isValid = validateForm();
+
       if (isValid) {
         const placeOrderContainer = form.querySelector('.table-form-submit-wrapper');
 
@@ -478,6 +484,15 @@ async function buildWholesale(main, link) {
 
     const submitButton = createSubmitButton(main);
     await loadBlock(block);
+
+    // Form validation error handling
+    // If a user tries to place an order without adding a product, then adds one after,
+    // this logic will reset the submit button UI
+    const formOrderFields = Array.from(document.querySelectorAll('input')).filter((item) => item.dataset.squareItem === '');
+    formOrderFields.forEach((formField) => {
+      formField.addEventListener('change', () => validateForm());
+    });
+
     form.append(submitButton);
   }
 }
