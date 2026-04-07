@@ -413,6 +413,7 @@ export default async function decorate(block) {
             const itemKey = `${[product.ID]}-${groupIndex}-${productIndex}`;
 
             const quantityInput = document.createElement('input');
+            quantityInput.dataset.squareItem = '';
             quantityInput.value = wholesaleData[key][itemKey] ? wholesaleData[key][itemKey].amount : '';
             quantityInput.type = 'number';
             quantityInput.id = product.ID;
