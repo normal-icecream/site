@@ -29,12 +29,6 @@
   padding: var(--horizontal-spacing);
 }
 
-@media (width >= 600px) {
-  .cards .cards-card {
-    grid-template-columns: 120px 1fr;
-  }
-}
-
 .cards .cards-card-image {
   display: flex;
   align-items: center;
@@ -88,8 +82,8 @@
 
 @media (width >= 600px) {
   .cards .cards-card-body {
-    height: 150px;
-    max-height: 150px;
+    height: 120px;
+    max-height: 120px;
     overflow-y: hidden;
   }
   
@@ -159,11 +153,6 @@
 @media (width >= 600px) {
   .cards.price .cards-card {
     grid-template-columns: 1fr;
-  }
-
-  .cards.price .cards-card-body {
-    height: 80px;
-    max-height: 80px;
   }
 }
 
