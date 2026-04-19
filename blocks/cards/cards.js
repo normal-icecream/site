@@ -179,17 +179,6 @@ export default function decorate(block) {
     // assemble card
     li.append(card);
 
-    card.addEventListener('click', () => {
-      // const modal = document.createElement('div');
-      // modal.classList.add('card-details', `card-details-${squareProductId}`);
-      // modal.dataset.id = squareProductId;
-      console.log("🚀 ~ squareProductId:", squareProductId);
-      if (squareProductId) {
-        console.log('yoyoyoyo')
-      }
-      // createModal(modal);
-    })
-
     if (!variants.includes('customize')) {
       // decorate cart actions
       const cart = document.createElement('form');
