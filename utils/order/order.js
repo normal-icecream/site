@@ -37,6 +37,15 @@ const addressFields = [
   'city',
   'state',
   'zipcode',
+  'includeShippingAddress',
+];
+
+const shippingAddressFields = [
+  'shippingAddress1',
+  'shippingAddress2',
+  'shippingCity',
+  'shippingState',
+  'shippingZipcode',
 ];
 
 const pickupFields = [
@@ -140,6 +149,47 @@ const fields = [
     required: true,
     placeholder: 'your zip code',
   },
+  {
+    type: 'checkbox',
+    label: 'Include shipping address? (if different from billing address)',
+    name: 'includeShippingAddress',
+    val: 'include-shipping',
+    required: false,
+  },
+  {
+    type: 'input',
+    label: 'Shipping Address',
+    name: 'shippingAddress1',
+    required: true,
+    placeholder: 'shipping address',
+  },
+  {
+    type: 'input',
+    label: 'shipping Apt # or building code',
+    name: 'shippingAddress2',
+    placeholder: 'shipping apt# or building code? add here!',
+  },
+  {
+    type: 'input',
+    label: 'Shipping City',
+    name: 'shippingCity',
+    required: true,
+    placeholder: 'shipping city',
+  },
+  {
+    type: 'input',
+    label: 'Shipping State',
+    name: 'shippingState',
+    required: true,
+    placeholder: 'shipping state',
+  },
+  {
+    type: 'input',
+    label: 'Shipping Zip Code',
+    name: 'shippingZipcode',
+    required: true,
+    placeholder: 'shipping zip code',
+  },
 ];
 
 export function getOrderFormData() {
@@ -159,6 +209,11 @@ export function getOrderFormData() {
       city: '',
       state: '',
       zipcode: '',
+      shippingAddress1: '',
+      shippingAddress2: '',
+      shippingCity: '',
+      shippingState: '',
+      shippingZipcode: '',
       isPickupOrder: false, // false for pickup, true for delivery
     }));
   }
@@ -207,10 +262,10 @@ function populateFormFields(formFields, key, modal) {
   visibleFields.forEach((field) => fieldsToDisplay.push(field));
 
   const storeFields = [];
-  const shippingFields = [];
+  const billingAddressFields = [];
   addressFields.forEach((field) => {
-    const shippingField = formFields.find((f) => f.name === field);
-    if (shippingField) shippingFields.push(shippingField);
+    const billingAddressField = formFields.find((f) => f.name === field);
+    if (billingAddressField) billingAddressFields.push(billingAddressField);
   });
 
   if (key === 'pickup') {
@@ -224,7 +279,16 @@ function populateFormFields(formFields, key, modal) {
     localStorageOrderFields.isPickupOrder = true;
     localStorage.setItem('orderFormData', JSON.stringify(localStorageOrderFields));
   } else if (key === 'shipping') {
-    shippingFields.forEach((field) => fieldsToDisplay.push(field));
+    billingAddressFields.forEach((field) => fieldsToDisplay.push(field));
+
+    const shouldIncludeShippingAddress = getOrderFormData().includeShippingAddress;
+
+    if (shouldIncludeShippingAddress) {
+      shippingAddressFields.forEach((field) => {
+        const shippingField = formFields.find((f) => f.name === field);
+        if (shippingField) fieldsToDisplay.push(shippingField);
+      });
+    }
 
     const localStorageOrderFields = getOrderFormData();
     localStorageOrderFields.isPickupOrder = false;
@@ -241,12 +305,12 @@ function populateFormFields(formFields, key, modal) {
         if (pickupField) fieldsToDisplay.push(pickupField);
       });
 
-      shippingFields.forEach((field) => {
-        const shippingFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
+      billingAddressFields.forEach((field) => {
+        const billingAddressFieldIndex = fieldsToDisplay.findIndex((f) => f.name === field.name);
         //  remove items then refresh cart
-        if (shippingFieldIndex !== -1) {
+        if (billingAddressFieldIndex !== -1) {
           // Remove the field from "fieldsToDisplay"
-          fieldsToDisplay.splice(shippingFieldIndex, 1);
+          fieldsToDisplay.splice(billingAddressFieldIndex, 1);
         }
       });
     } else {
@@ -259,7 +323,16 @@ function populateFormFields(formFields, key, modal) {
         }
       });
 
-      shippingFields.forEach((field) => fieldsToDisplay.push(field));
+      billingAddressFields.forEach((field) => fieldsToDisplay.push(field));
+
+      const shouldIncludeShippingAddress = getOrderFormData().includeShippingAddress;
+
+      if (shouldIncludeShippingAddress) {
+        shippingAddressFields.forEach((field) => {
+          const shippingField = formFields.find((f) => f.name === field);
+          if (shippingField) fieldsToDisplay.push(shippingField);
+        });
+      }
     }
   }
 
