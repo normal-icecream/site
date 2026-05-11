@@ -63,7 +63,28 @@ export class SquareCustomerWrapper {
   }
 }
 
-export class SquareAddress {
+export class SquareShippingAddress {
+  constructor(formData) {
+    this.address_line_1 = formData.shippingAddress1;
+    this.address_line_2 = formData.shippingAddress2;
+    this.first_name = formData.name;
+    this.locality = formData.shippingCity; // city
+    this.administrative_district_level_1 = formData.shippingState; // state
+    this.postal_code = formData.shippingZipcode;
+  }
+
+  build() {
+    return {
+      address_line_1: this.address_line_1,
+      address_line_2: this.address_line_2,
+      first_name: this.first_name,
+      locality: this.locality,
+      administrative_district_level_1: this.administrative_district_level_1,
+      postal_code: this.postal_code,
+    };
+  }
+}
+export class SquareBillingAddress {
   constructor(formData) {
     this.address_line_1 = formData.address1;
     this.address_line_2 = formData.address2;
@@ -108,7 +129,7 @@ export class SquareCustomer {
     this.idempotency_key = data.idempotency_key;
     this.email_address = data.orderFormData.email;
     this.phone_number = data.orderFormData.phone;
-    this.address = new SquareAddress(data.orderFormData).build();
+    this.address = new SquareBillingAddress(data.orderFormData).build();
   }
 
   attachGivenName(givenName) {
@@ -195,9 +216,11 @@ export class SquareTaxData {
   }
 }
 
-export class SquareOrderShipmentAddress {
+export class SquareOrderAddress {
   constructor(data) {
-    this.address = new SquareAddress(data).build();
+    this.address = data.includeShippingAddress
+      ? new SquareShippingAddress(data).build()
+      : new SquareBillingAddress(data).build();
     this.email_address = data.email;
     this.phone_number = data.phone;
     this.display_name = data.name;
@@ -215,7 +238,7 @@ export class SquareOrderShipmentAddress {
 
 export class SquareShippingDeets {
   constructor(fillByDate, data) {
-    this.recipient = new SquareOrderShipmentAddress(data).build();
+    this.recipient = new SquareOrderAddress(data).build();
     this.expected_shipped_at = fillByDate;
   }
 
@@ -243,7 +266,7 @@ export class SquareShippingData {
 
 export class SquarePickupDeets {
   constructor(pickupDate, data) {
-    this.recipient = new SquareOrderShipmentAddress(data).build();
+    this.recipient = new SquareBillingAddress(data).build();
     this.pickup_at = pickupDate;
   }
 
@@ -328,8 +351,15 @@ export class SquarePayment {
     this.buyer_phone_number = formatPhoneNumberToE164(formData.phone);
     this.location_id = orderData.order.location_id;
     this.order_id = orderData.order.id;
-    this.shipping_address = !formData.isPickupOrder ? new SquareAddress(formData).build() : null;
-    this.billing_address = !formData.isPickupOrder ? new SquareAddress(formData).build() : null;
+    if (!formData.isPickupOrder) {
+      this.billing_address = new SquareBillingAddress(formData).build();
+      this.shipping_address = formData.includeShippingAddress
+        ? new SquareShippingAddress(formData).build()
+        : new SquareBillingAddress(formData).build();
+    } else {
+      this.billing_address = null;
+      this.shipping_address = null;
+    }
     // this.tip_money = {}
   }
 
