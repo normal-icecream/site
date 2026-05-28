@@ -56,14 +56,12 @@ function clearError() {
 
 function validateForm() {
   let isValid = true;
-  const formContactFields = Array.from(document.querySelectorAll('input')).filter((item) => item.dataset.squareItem !== '');
   const formOrderFields = Array.from(document.querySelectorAll('input')).filter((item) => item.dataset.squareItem === '');
   const errorMessages = [];
 
   const formOrderFieldsHasEntry = formOrderFields.some((field) => field.value > 0);
-  const formContactFieldsHasEntry = formContactFields.some((field) => field.value > 0);
 
-  if (!formOrderFieldsHasEntry || !formContactFieldsHasEntry) {
+  if (!formOrderFieldsHasEntry ) {
     isValid = false;
     errorMessages.push('Please enter at least one wholesale product to submit.');
     showError(errorMessages);
@@ -222,7 +220,8 @@ async function shouldDisplayWholesale(wholesaleHoursKey) {
   let { open, close } = operatingHours[dayName];
 
   const currentTime = now.getHours() * 60 + now.getMinutes();
-  shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
+  // shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
+  shouldDisplay = true;
 
   return shouldDisplay;
 }
