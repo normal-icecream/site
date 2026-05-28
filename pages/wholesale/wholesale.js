@@ -220,8 +220,7 @@ async function shouldDisplayWholesale(wholesaleHoursKey) {
   let { open, close } = operatingHours[dayName];
 
   const currentTime = now.getHours() * 60 + now.getMinutes();
-  // shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
-  shouldDisplay = true;
+  shouldDisplay = shouldDisplayWholesaleForm(open, close, currentTime);
 
   return shouldDisplay;
 }
