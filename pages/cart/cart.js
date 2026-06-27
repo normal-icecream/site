@@ -242,6 +242,9 @@ export function getCartCard(cartItems, deliveryData) {
     const increment = document.createElement('button');
     increment.classList.add('button', 'cart-button');
     increment.textContent = '+';
+    if (item.quantity >= 10) increment.setAttribute('disabled', true); // Disable if quantity is 10 or more
+    else increment.removeAttribute('disabled');
+
     increment.addEventListener('click', () => {
       const modal = document.querySelector('.modal.cart');
       addItemToCart(item.key, item.catalog_object_id);

@@ -188,16 +188,21 @@ export default function decorate(block) {
       const total = document.createElement('input');
       total.type = 'number';
       total.min = 0;
+      total.max = 10;
       total.value = squareProductId ? getCartItemQuantity(squareProductId) : 0;
       total.step = 1;
       total.readOnly = true;
       total.addEventListener('change', () => {
         const value = parseInt(total.value, 10);
+        const add = cart.querySelector('.button.add');
         const subtract = cart.querySelector('.button.subtract');
+        const max = parseInt(total.max, 10) || null;
+        if (value >= max) add.setAttribute('disabled', true);
+        else add.removeAttribute('disabled');
+
         const min = parseInt(total.min, 10) || 0;
         if (value > min) subtract.removeAttribute('disabled');
         else subtract.disabled = true;
-        // TODO: disable "add" if max
       });
       cart.append(total);
 
