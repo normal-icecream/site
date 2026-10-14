@@ -264,9 +264,27 @@ export class SquareShippingData {
   }
 }
 
+export class Recipient {
+  constructor(data) {
+    this.display_name = data.name;
+    this.email_address = data.email;
+    this.phone_number = data.phone;
+    this.address = new SquareBillingAddress(data).build();
+  }
+
+  build() {
+    return {
+      display_name: this.display_name,
+      email_address: this.email_address,
+      phone_number: this.phone_number,
+      address: this.address,
+    };
+  }
+}
+
 export class SquarePickupDeets {
   constructor(pickupDate, data) {
-    this.recipient = new SquareBillingAddress(data).build();
+    this.recipient = new Recipient(data).build();
     this.pickup_at = pickupDate;
   }
 
